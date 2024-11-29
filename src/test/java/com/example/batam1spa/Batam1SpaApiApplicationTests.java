@@ -1,4 +1,4 @@
-package com.example.Batam1SPA_API;
+package com.example.batam1spa;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

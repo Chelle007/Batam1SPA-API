@@ -1,9 +1,13 @@
-package com.example.Batam1SPA_API;
+package com.example.batam1spa;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
+@EnableJpaAuditing
+@PropertySource("file:${user.dir}/.env")
 public class Batam1SpaApiApplication {
 
 	public static void main(String[] args) {
