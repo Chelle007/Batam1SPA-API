@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>Batam1SPA_API</artifactId>
+	<artifactId>batam1spa-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Batam1SPA_API</name>
 	<description>Batam1SPA web project backend</description>
@@ -65,8 +65,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>2.7.0</version>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.validation</groupId>

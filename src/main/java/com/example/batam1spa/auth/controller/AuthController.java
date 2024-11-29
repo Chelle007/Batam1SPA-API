@@ -61,7 +61,7 @@ public class AuthController {
     public ResponseEntity<BaseResponse<AuthResponse>> signIn(@RequestBody LoginRequest request) {
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getSignature(), request.getPassword()));
+                        request.getUsername(), request.getPassword()));
 
         AuthResponse body = authService.authenticate(request);
 

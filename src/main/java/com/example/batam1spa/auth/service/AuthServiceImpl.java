@@ -37,14 +37,14 @@ public class AuthServiceImpl implements AuthService {
         return userRepo.findByUsername(username)
                 .orElseThrow(() -> {
                     log.error("User with username {} not found", username);
-                    return new AuthenticationException("User not found");
+                    return new AuthException("User not found");
                 });
     }
 
     private void validatePassword(String rawPassword, String encodedPassword) {
         if (!passwordEncoder.matches(rawPassword, encodedPassword)) {
             log.error("Invalid password");
-            throw new AuthenticationException("Invalid password");
+            throw new AuthException("Invalid password");
         }
     }
 
