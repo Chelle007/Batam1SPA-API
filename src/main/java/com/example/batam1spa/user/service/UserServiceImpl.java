@@ -1,6 +1,7 @@
 package com.example.batam1spa.user.service;
 
 import com.example.batam1spa.user.model.User;
+import com.example.batam1spa.user.model.UserRole;
 import com.example.batam1spa.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,13 +17,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void seedUser() {
-        createUserIfNotExists("Desmond", "Admin", "Desmond123", "Desmond456");
-        createUserIfNotExists("Jodie", "Owner", "Jodie123", "Jodie456");
-        createUserIfNotExists("Michelle", "Manager", "Michelle123", "Michelle456");
-        createUserIfNotExists("Vanness", "Admin", "Vanness123", "Vanness456");
+        createUserIfNotExists("Desmond", UserRole.ADMIN, "Desmond123", "Desmond456");
+        createUserIfNotExists("Jodie", UserRole.OWNER, "Jodie123", "Jodie456");
+        createUserIfNotExists("Michelle", UserRole.MANAGER, "Michelle123", "Michelle456");
+        createUserIfNotExists("Vanness", UserRole.ADMIN, "Vanness123", "Vanness456");
     }
 
-    private void createUserIfNotExists(String fullName, String managementLevel, String username, String password) {
+    private void createUserIfNotExists(String fullName, UserRole managementLevel, String username, String password) {
         boolean userExists = userRepository.existsByUsername(username);
 
         if (userExists) {

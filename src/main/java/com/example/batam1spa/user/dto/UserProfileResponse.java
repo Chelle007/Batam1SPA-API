@@ -1,6 +1,7 @@
 package com.example.batam1spa.user.dto;
 
 import com.example.batam1spa.user.model.User;
+import com.example.batam1spa.user.model.UserRole;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,7 +9,7 @@ import lombok.Data;
 @Builder
 public class UserProfileResponse {
     private String fullName;
-    private String managementLevel;
+    private UserRole managementLevel;
     private String username;
     private String password;
 

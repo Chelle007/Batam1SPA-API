@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Set;
 
 @Getter
@@ -25,7 +26,7 @@ public class User extends Auditable implements UserDetails {
     private String fullName;
 
     @Column(nullable = false)
-    private String managementLevel;
+    private UserRole managementLevel;
 
     @Column(
             unique = true,
@@ -42,6 +43,6 @@ public class User extends Auditable implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Set.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return Set.of(new SimpleGrantedAuthority("ROLE_"+managementLevel));
     }
 }
