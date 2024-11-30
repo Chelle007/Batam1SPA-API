@@ -21,17 +21,11 @@ import java.util.Set;
 @AllArgsConstructor
 @Table(name = "tbl_users")
 public class User extends Auditable implements UserDetails {
-    @Column(
-            unique = true,
-            nullable = false
-    )
+    @Column(nullable = false)
     private String fullName;
 
-    @Column(
-            unique = true,
-            nullable = false
-    )
-    private String managementLevel;
+    @Column(nullable = false)
+    private UserRole managementLevel;
 
     @Column(
             unique = true,
@@ -48,6 +42,6 @@ public class User extends Auditable implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Set.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return Set.of(new SimpleGrantedAuthority("ROLE_"+managementLevel));
     }
 }
