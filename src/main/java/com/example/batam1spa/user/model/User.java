@@ -21,16 +21,10 @@ import java.util.Set;
 @AllArgsConstructor
 @Table(name = "tbl_users")
 public class User extends Auditable implements UserDetails {
-    @Column(
-            unique = true,
-            nullable = false
-    )
+    @Column(nullable = false)
     private String fullName;
 
-    @Column(
-            unique = true,
-            nullable = false
-    )
+    @Column(nullable = false)
     private String managementLevel;
 
     @Column(

@@ -12,14 +12,6 @@ import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-
-    @Modifying
-    @Query("UPDATE User u SET u.deletedAt = CURRENT_TIMESTAMP WHERE u.id = :id")
-    void deactivateById(@Param("id") UUID id);
-
-    @Modifying
-    @Query("UPDATE User u SET u.deletedAt = null WHERE u.id = :id")
-    void restoreById(@Param("id") UUID id);
-
     Optional<User> findByUsername(String username);
+    Boolean existsByUsername(String username);
 }

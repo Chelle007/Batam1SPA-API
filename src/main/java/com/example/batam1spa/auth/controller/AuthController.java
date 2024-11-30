@@ -34,20 +34,20 @@ public class AuthController {
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             examples = {
                                     @ExampleObject(
-                                            name = "Kendrick",
-                                            value = "{\"username\": \"KDOT604T\", \"password\": \"kendrick123\"}"
+                                            name = "Desmond (Admin)",
+                                            value = "{\"username\": \"Desmond123\", \"password\": \"Desmond456\"}"
                                     ),
                                     @ExampleObject(
-                                            name = "Jane",
-                                            value = "{\"username\": \"JANE1234\", \"password\": \"jane123\"}"
+                                            name = "Jodie (Owner)",
+                                            value = "{\"username\": \"Jodie123\", \"password\": \"Jodie456\"}"
                                     ),
                                     @ExampleObject(
-                                            name = "John",
-                                            value = "{\"username\": \"JOHN5678\", \"password\": \"john123\"}"
+                                            name = "Michelle (Manager)",
+                                            value = "{\"username\": \"Michelle123\", \"password\": \"Michelle456\"}"
                                     ),
                                     @ExampleObject(
-                                            name = "Andhika",
-                                            value = "{\"username\": \"ADTP604T\", \"password\": \"andika123\"}"
+                                            name = "Vanness (Admin)",
+                                            value = "{\"username\": \"Vanness123\", \"password\": \"Vanness456\"}"
                                     )
                             }
                     )
