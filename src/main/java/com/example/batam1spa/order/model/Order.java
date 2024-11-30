@@ -1,7 +1,7 @@
 package com.example.batam1spa.order.model;
 
 import com.example.batam1spa.common.model.Auditable;
-import com.example.batam1spa.user.model.User;
+import com.example.batam1spa.customer.model.Customer;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,11 +17,11 @@ import java.time.LocalDateTime;
 public class Order extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "user_id",
+            name = "customer_id",
             nullable = false,
             referencedColumnName = "id"
     )
-    private User user;
+    private Customer customer;
 
     @Column(nullable = false)
     private boolean isVIP;
