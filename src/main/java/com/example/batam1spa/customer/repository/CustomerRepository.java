@@ -9,5 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, UUID> {
+    // for testing purpose (seeder)
     Boolean existsByPhoneNumber(String phoneNumber);
+    Optional<Customer> findByPhoneNumber(String phoneNumber);
 }

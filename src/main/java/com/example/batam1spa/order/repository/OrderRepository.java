@@ -9,5 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, UUID> {
+    // for testing purpose (seeder)
     Boolean existsByCustomer(Customer customer);
 }
