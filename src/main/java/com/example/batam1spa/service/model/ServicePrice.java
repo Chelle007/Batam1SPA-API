@@ -1,5 +1,6 @@
 package com.example.batam1spa.service.model;
 
+import com.example.batam1spa.common.model.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "tbl_service_prices")
-public class ServicePrice {
+public class ServicePrice extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "service_id",

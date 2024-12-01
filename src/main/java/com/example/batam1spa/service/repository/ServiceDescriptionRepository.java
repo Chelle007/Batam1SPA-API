@@ -1,15 +1,14 @@
 package com.example.batam1spa.service.repository;
 
 import com.example.batam1spa.service.model.Service;
+import com.example.batam1spa.service.model.ServiceDescription;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ServiceRepository extends JpaRepository<Service, UUID> {
+public interface ServiceDescriptionRepository extends JpaRepository<ServiceDescription, UUID> {
     // for testing purpose (seeder)
-    Boolean existsByName(String name);
-    Optional<Service> findByName(String name);
+    Boolean existsByServiceAndLanguageCode(Service service, String languageCode);
 }
