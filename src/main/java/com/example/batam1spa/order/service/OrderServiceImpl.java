@@ -23,11 +23,11 @@ public class OrderServiceImpl implements OrderService {
         Customer customer1 = customerRepository.findByPhoneNumber("12345678").orElse(null);
         Customer customer2 = customerRepository.findByPhoneNumber("87654321").orElse(null);
 
-        createOrderIfNotExists(customer1, true, 1000000, 100000, 900000, LocalDateTime.now(), OrderStatus.BOOKED);
-        createOrderIfNotExists(customer2, false, 500000, 0, 500000, LocalDateTime.now(), OrderStatus.BOOKED);
+        createOrderIfNotExists(customer1, true, 900000, LocalDateTime.now(), OrderStatus.BOOKED);
+        createOrderIfNotExists(customer2, false, 500000, LocalDateTime.now(), OrderStatus.CANCELLED);
     }
 
-    private void createOrderIfNotExists(Customer customer, boolean isVIP, int actualPrice, int discountedPrice, int totalPrice, LocalDateTime bookDateTime, OrderStatus status) {
+    private void createOrderIfNotExists(Customer customer, boolean isVIP, int totalPrice, LocalDateTime bookDateTime, OrderStatus status) {
         boolean orderExists = orderRepository.existsByCustomer(customer);
 
         if (orderExists) {
@@ -38,8 +38,6 @@ public class OrderServiceImpl implements OrderService {
         Order order = Order.builder()
                 .customer(customer)
                 .isVIP(isVIP)
-                .actualPrice(actualPrice)
-                .discountedPrice(discountedPrice)
                 .totalPrice(totalPrice)
                 .bookDateTime(bookDateTime)
                 .status(status)

@@ -27,12 +27,6 @@ public class Order extends Auditable {
     private boolean isVIP;
 
     @Column(nullable = false)
-    private int actualPrice;
-
-    @Column(nullable = false)
-    private int discountedPrice;
-
-    @Column(nullable = false)
     private int totalPrice;
 
     private LocalDateTime bookDateTime;
