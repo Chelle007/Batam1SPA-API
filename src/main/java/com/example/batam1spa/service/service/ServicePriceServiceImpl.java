@@ -17,8 +17,8 @@ public class ServicePriceServiceImpl implements ServicePriceService {
     @Override
     public void seedServicePrice() {
         Service service1 = serviceRepository.findByName("Head Massage").orElse(null);
-        Service service2 = serviceRepository.findByName("Body Massage").orElse(null);
-        Service service3 = serviceRepository.findByName("Foot Massage").orElse(null);
+        Service service2 = serviceRepository.findByName("Foot Massage").orElse(null);
+        Service service3 = serviceRepository.findByName("Body Massage").orElse(null);
 
         createServicePriceIfNotExists(service1, 60, 100000, 150000);
         createServicePriceIfNotExists(service1, 90, 200000, 250000);
