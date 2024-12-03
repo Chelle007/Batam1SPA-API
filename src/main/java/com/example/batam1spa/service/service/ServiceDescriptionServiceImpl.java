@@ -1,5 +1,6 @@
 package com.example.batam1spa.service.service;
 
+import com.example.batam1spa.common.model.LanguageCode;
 import com.example.batam1spa.service.model.ServiceDescription;
 import com.example.batam1spa.service.repository.ServiceDescriptionRepository;
 import com.example.batam1spa.service.repository.ServiceRepository;
@@ -22,37 +23,37 @@ public class ServiceDescriptionServiceImpl implements ServiceDescriptionService 
 
         createServiceDescriptionIfNotExists(
                 service1,
-                "EN",
+                LanguageCode.EN,
                 "Very relaxing massage for head."
         );
         createServiceDescriptionIfNotExists(
                 service1,
-                "ID",
+                LanguageCode.ID,
                 "Massage untuk kepala."
         );
         createServiceDescriptionIfNotExists(
                 service2,
-                "EN",
+                LanguageCode.EN,
                 "Very relaxing massage for body."
         );
         createServiceDescriptionIfNotExists(
                 service2,
-                "ID",
+                LanguageCode.ID,
                 "Massage untuk badan."
         );
         createServiceDescriptionIfNotExists(
                 service3,
-                "EN",
+                LanguageCode.EN,
                 "Very relaxing massage for foot."
         );
         createServiceDescriptionIfNotExists(
                 service3,
-                "ID",
+                LanguageCode.ID,
                 "Massage untuk kaki."
         );
     }
 
-    private void createServiceDescriptionIfNotExists(Service service, String languageCode, String description) {
+    private void createServiceDescriptionIfNotExists(Service service, LanguageCode languageCode, String description) {
         boolean serviceDescriptionExists = serviceDescriptionRepository.existsByServiceAndLanguageCode(service, languageCode);
 
         if (serviceDescriptionExists) {

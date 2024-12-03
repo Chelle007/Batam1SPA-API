@@ -1,5 +1,6 @@
 package com.example.batam1spa.order.model;
 
+import com.example.batam1spa.common.model.Auditable;
 import com.example.batam1spa.service.model.Service;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "tbl_order_details")
-public class OrderDetail {
+public class OrderDetail extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "order_id",

@@ -1,6 +1,7 @@
 package com.example.batam1spa.service.model;
 
 import com.example.batam1spa.common.model.Auditable;
+import com.example.batam1spa.common.model.LanguageCode;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +22,7 @@ public class ServiceDescription extends Auditable {
     private Service service;
 
     @Column(nullable = false)
-    private String languageCode;
+    private LanguageCode languageCode;
 
     @Column(nullable = false)
     private String description;
