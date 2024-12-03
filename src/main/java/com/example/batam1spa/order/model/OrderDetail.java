@@ -38,4 +38,10 @@ public class OrderDetail {
     // TODO: startTimeId
 
     // TODO: endTimeId
+
+    @Column(
+            nullable = false,
+            columnDefinition = "boolean default false"
+    )
+    private boolean isCompleted;
 }

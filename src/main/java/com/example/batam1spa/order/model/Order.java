@@ -31,15 +31,14 @@ public class Order extends Auditable {
 
     private LocalDateTime bookDateTime;
 
-    @Column(nullable = false)
-    private OrderStatus status;
+    @Column(
+            nullable = false,
+            columnDefinition = "boolean default false"
+    )
+    private boolean isCancelled;
 
     @PrePersist
     private void setDefaults() {
-        if (status == null) {
-            status = OrderStatus.BOOKED;
-        }
-
         if (bookDateTime == null) {
             bookDateTime = getCreatedAt();
         }
