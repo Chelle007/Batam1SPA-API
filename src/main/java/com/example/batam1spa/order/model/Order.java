@@ -27,25 +27,18 @@ public class Order extends Auditable {
     private boolean isVIP;
 
     @Column(nullable = false)
-    private int actualPrice;
-
-    @Column(nullable = false)
-    private int discountedPrice;
-
-    @Column(nullable = false)
     private int totalPrice;
 
     private LocalDateTime bookDateTime;
 
-    @Column(nullable = false)
-    private OrderStatus status;
+    @Column(
+            nullable = false,
+            columnDefinition = "boolean default false"
+    )
+    private boolean isCancelled;
 
     @PrePersist
     private void setDefaults() {
-        if (status == null) {
-            status = OrderStatus.BOOKED;
-        }
-
         if (bookDateTime == null) {
             bookDateTime = getCreatedAt();
         }
