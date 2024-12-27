@@ -18,5 +18,8 @@ public class Service extends Auditable {
     private String name;
 
     @Column(nullable = false)
+    private ServiceType serviceType;
+
+    @Column(nullable = false)
     private String imgUrl;
 }
