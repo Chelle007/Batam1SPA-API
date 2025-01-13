@@ -19,6 +19,7 @@ public class ServicePriceServiceImpl implements ServicePriceService {
         Service service1 = serviceRepository.findByName("Head Massage").orElse(null);
         Service service2 = serviceRepository.findByName("Foot Massage").orElse(null);
         Service service3 = serviceRepository.findByName("Body Massage").orElse(null);
+        Service service4 = serviceRepository.findByName("Manipedi").orElse(null);
 
         createServicePriceIfNotExists(service1, 60, 100000, 150000);
         createServicePriceIfNotExists(service1, 90, 200000, 250000);
@@ -29,6 +30,7 @@ public class ServicePriceServiceImpl implements ServicePriceService {
         createServicePriceIfNotExists(service3, 60, 700000, 750000);
         createServicePriceIfNotExists(service3, 90, 800000, 850000);
         createServicePriceIfNotExists(service3, 120, 900000, 950000);
+        createServicePriceIfNotExists(service4, 60, 1000000, 1050000);
     }
 
     private void createServicePriceIfNotExists(Service service, int duration, int localPrice, int touristPrice) {

@@ -1,9 +1,10 @@
 package com.example.batam1spa.staff.model;
 
+import com.example.batam1spa.availability.model.Time;
 import com.example.batam1spa.common.model.Auditable;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.example.batam1spa.common.model.Gender;
+import com.example.batam1spa.service.model.ServiceType;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
@@ -14,8 +15,85 @@ import lombok.*;
 @AllArgsConstructor
 @Table(name = "tbl_staffs")
 public class Staff extends Auditable {
-    @Column(nullable = false)
-    String fullName;
+//    TODO
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(
+//            name = "shift_id",
+//            nullable = false,
+//            referencedColumnName = "id"
+//    )
+//    private Shift shift
 
-    // TODO: this + all other tables
+    @Column(nullable = false)
+    private String fullName;
+
+    @Column(nullable = false)
+    private Gender gender;
+
+    @Column(nullable = false)
+    private ServiceType serviceType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "time_id",
+            nullable = false,
+            referencedColumnName = "id"
+    )
+    private Time startTime;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "time_id",
+            nullable = false,
+            referencedColumnName = "id"
+    )
+    private Time endTime;
+
+    @Column(
+            nullable = false,
+            columnDefinition = "boolean default false"
+    )
+    private boolean isMonday;
+
+    @Column(
+            nullable = false,
+            columnDefinition = "boolean default false"
+    )
+    private boolean isTuesday;
+
+    @Column(
+            nullable = false,
+            columnDefinition = "boolean default false"
+    )
+    private boolean isWednesday;
+
+    @Column(
+            nullable = false,
+            columnDefinition = "boolean default false"
+    )
+    private boolean isThursday;
+
+    @Column(
+            nullable = false,
+            columnDefinition = "boolean default false"
+    )
+    private boolean isFriday;
+
+    @Column(
+            nullable = false,
+            columnDefinition = "boolean default false"
+    )
+    private boolean isSaturday;
+
+    @Column(
+            nullable = false,
+            columnDefinition = "boolean default false"
+    )
+    private boolean isSunday;
+
+    @Column(
+            nullable = false,
+            columnDefinition = "boolean default true"
+    )
+    private boolean isActive;
 }
