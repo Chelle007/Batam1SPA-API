@@ -1,5 +1,6 @@
 package com.example.batam1spa.availability.model;
 
+import com.example.batam1spa.common.model.Auditable;
 import com.example.batam1spa.service.model.ServiceType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "tbl_availabilities")
-public class Availability {
+public class Availability extends Auditable {
     @Column(nullable = false)
     private LocalDate date;
 
@@ -23,7 +24,7 @@ public class Availability {
             nullable = false,
             referencedColumnName = "id"
     )
-    private Time time;
+    private TimeSlot timeSlot;
 
     @Column(nullable = false)
     private ServiceType serviceType;

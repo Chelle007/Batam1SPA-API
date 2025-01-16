@@ -14,8 +14,8 @@ import java.time.LocalTime;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "tbl_times")
-public class Time extends Auditable {
+@Table(name = "tbl_time_slots")
+public class TimeSlot extends Auditable {
     @Column(nullable = false)
-    private LocalTime time;
+    private LocalTime localTime;
 }
