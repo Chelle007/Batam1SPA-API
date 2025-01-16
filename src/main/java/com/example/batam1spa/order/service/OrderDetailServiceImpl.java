@@ -14,6 +14,7 @@ import com.example.batam1spa.staff.model.Staff;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @org.springframework.stereotype.Service
@@ -62,6 +63,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
                 .order(order)
                 .service(service)
                 .staff(staff)
+                .serviceDate(LocalDate.now())
                 .startTimeSlot(startTimeSlot)
                 .endTimeSlot(endTimeSlot)
                 .isCompleted(isCompleted)
