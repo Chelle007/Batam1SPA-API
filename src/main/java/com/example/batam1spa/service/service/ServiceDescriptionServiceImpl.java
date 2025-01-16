@@ -20,6 +20,7 @@ public class ServiceDescriptionServiceImpl implements ServiceDescriptionService 
         Service service1 = serviceRepository.findByName("Head Massage").orElse(null);
         Service service2 = serviceRepository.findByName("Body Massage").orElse(null);
         Service service3 = serviceRepository.findByName("Foot Massage").orElse(null);
+        Service service4 = serviceRepository.findByName("Manipedi").orElse(null);
 
         createServiceDescriptionIfNotExists(
                 service1,
@@ -50,6 +51,16 @@ public class ServiceDescriptionServiceImpl implements ServiceDescriptionService 
                 service3,
                 LanguageCode.ID,
                 "Massage untuk kaki."
+        );
+        createServiceDescriptionIfNotExists(
+                service4,
+                LanguageCode.EN,
+                "Manicure & Pedicure."
+        );
+        createServiceDescriptionIfNotExists(
+                service4,
+                LanguageCode.ID,
+                "Servis manipedi."
         );
     }
 

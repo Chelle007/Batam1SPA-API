@@ -1,7 +1,9 @@
 package com.example.batam1spa.order.model;
 
+import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.common.model.Auditable;
 import com.example.batam1spa.service.model.Service;
+import com.example.batam1spa.staff.model.Staff;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,14 +33,31 @@ public class OrderDetail extends Auditable {
     )
     private Service service;
 
-    // TODO: staffId
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "staff_id",
+            referencedColumnName = "id"
+    )
+    private Staff staff;
 
     @Column(nullable = false)
     private LocalDate serviceDate;
 
-    // TODO: startTimeId
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "start_time_slot_id",
+            nullable = false,
+            referencedColumnName = "id"
+    )
+    private TimeSlot startTimeSlot;
 
-    // TODO: endTimeId
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "end_time_slot_id",
+            nullable = false,
+            referencedColumnName = "id"
+    )
+    private TimeSlot endTimeSlot;
 
     @Column(
             nullable = false,

@@ -1,6 +1,7 @@
 package com.example.batam1spa.service.service;
 
 import com.example.batam1spa.service.model.Service;
+import com.example.batam1spa.service.model.ServiceType;
 import com.example.batam1spa.service.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,12 +14,13 @@ public class ServiceServiceImpl implements ServiceService {
 
     @Override
     public void seedService() {
-        createServiceIfNotExists("Head Massage", "head_massage.png");
-        createServiceIfNotExists("Body Massage", "body_massage.png");
-        createServiceIfNotExists("Foot Massage", "foot_massage.png");
+        createServiceIfNotExists("Head Massage", ServiceType.MASSAGE, "head_massage.png");
+        createServiceIfNotExists("Body Massage", ServiceType.MASSAGE, "body_massage.png");
+        createServiceIfNotExists("Foot Massage", ServiceType.MASSAGE, "foot_massage.png");
+        createServiceIfNotExists("Manipedi", ServiceType.MANIPEDI, "manipedi.png");
     }
 
-    private void createServiceIfNotExists(String name, String imgUrl) {
+    private void createServiceIfNotExists(String name, ServiceType serviceType, String imgUrl) {
         boolean serviceExists = serviceRepository.existsByName(name);
 
         if (serviceExists) {
@@ -28,6 +30,7 @@ public class ServiceServiceImpl implements ServiceService {
 
         Service service = Service.builder()
                 .name(name)
+                .serviceType(serviceType)
                 .imgUrl(imgUrl)
                 .build();
 

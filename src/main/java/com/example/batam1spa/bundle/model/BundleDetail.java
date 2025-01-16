@@ -1,7 +1,7 @@
 package com.example.batam1spa.bundle.model;
 
 import com.example.batam1spa.common.model.Auditable;
-import com.example.batam1spa.service.model.Service;
+import com.example.batam1spa.service.model.ServicePrice;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,11 +23,11 @@ public class BundleDetail extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "service_id",
+            name = "service_price_id",
             nullable = false,
             referencedColumnName = "id"
     )
-    private Service service;
+    private ServicePrice servicePrice;
 
     @Column(nullable = false)
     int quantity;
