@@ -32,8 +32,9 @@ public class StaffServiceImpl implements StaffService {
     }
 
     // Add a new staff member
-    public Staff addStaff(Staff staff) {
-        return staffRepository.save(staff);
+    public Staff addStaff(CreateStaff createStaffDTO) {
+        Staff createStaffEntity = convertToEntity(createStaffDTO);
+        return staffRepository.save(createStaffEntity);
     }
 
     // Convert Entity to DTO

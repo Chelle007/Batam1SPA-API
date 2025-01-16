@@ -1,5 +1,6 @@
 package com.example.batam1spa.staff.controller;
 
+import com.example.batam1spa.staff.dto.CreateStaff;
 import com.example.batam1spa.staff.model.Staff;
 import com.example.batam1spa.staff.service.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class StaffController {
 
     // Add a new staff member Full URI: /api/staff/add
     @PostMapping("/add")
-    public Staff addStaff(@RequestBody Staff staff) {
-        return staffService.addStaff(staff);
+    public Staff addStaff(@RequestBody CreateStaff createStaffDTO) {
+        return staffService.addStaff(createStaffDTO);
     }
 }
