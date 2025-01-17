@@ -1,6 +1,6 @@
 package com.example.batam1spa.staff.controller;
 
-import com.example.batam1spa.staff.dto.CreateStaff;
+import com.example.batam1spa.staff.dto.CreateStaffRequest;
 import com.example.batam1spa.staff.model.Staff;
 import com.example.batam1spa.staff.service.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/staff")
+@RequestMapping("/api/v1/staff")
 public class StaffController {
 
-    @Autowired
+//    @Autowired
     private StaffService staffService;
 
     // Get all staff members Full URI: /api/staff/get-all-staff
@@ -23,7 +23,7 @@ public class StaffController {
 
     // Add a new staff member Full URI: /api/staff/add
     @PostMapping("/add")
-    public Staff addStaff(@RequestBody CreateStaff createStaffDTO) {
-        return staffService.addStaff(createStaffDTO);
+    public Staff addStaff(@RequestBody CreateStaffRequest createStaffRequestDTO) {
+        return staffService.addStaff(createStaffRequestDTO);
     }
 }
