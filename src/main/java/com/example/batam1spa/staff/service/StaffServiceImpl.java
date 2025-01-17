@@ -57,7 +57,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     // Convert DTO to Entity
-    // TODO: use this when converting the parameter input from FE
+    // Use this when converting the parameter input from FE
     private Staff convertToEntity(CreateStaff createStaffDTO) {
         Staff staff = new Staff();
         staff.setFullName(createStaffDTO.getFullName());
