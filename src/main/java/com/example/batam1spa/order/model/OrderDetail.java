@@ -1,6 +1,6 @@
 package com.example.batam1spa.order.model;
 
-import com.example.batam1spa.availability.model.Time;
+import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.common.model.Auditable;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.staff.model.Staff;
@@ -45,19 +45,19 @@ public class OrderDetail extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "time_id",
+            name = "start_time_slot_id",
             nullable = false,
             referencedColumnName = "id"
     )
-    private Time startTime;
+    private TimeSlot startTimeSlot;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "time_id",
+            name = "end_time_slot_id",
             nullable = false,
             referencedColumnName = "id"
     )
-    private Time endTime;
+    private TimeSlot endTimeSlot;
 
     @Column(
             nullable = false,
