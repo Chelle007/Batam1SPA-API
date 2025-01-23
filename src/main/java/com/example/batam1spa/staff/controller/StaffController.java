@@ -2,6 +2,7 @@ package com.example.batam1spa.staff.controller;
 
 import com.example.batam1spa.common.dto.BaseResponse;
 import com.example.batam1spa.staff.dto.CreateStaffRequest;
+import com.example.batam1spa.staff.dto.EditStaffRequest;
 import com.example.batam1spa.staff.model.Staff;
 import com.example.batam1spa.staff.service.StaffService;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/staff")
@@ -37,6 +39,17 @@ public class StaffController {
         BaseResponse<Staff> response = BaseResponse.success(
                 HttpStatus.OK, newStaff, "Staff added successfully");
 
+        return ResponseEntity.ok(response);
+    }
+
+    // Edit an existing staff member Full URI: /api/v1/staff/{staffId}
+    @PutMapping("/{staffId}")
+    public ResponseEntity<BaseResponse<Staff>> editStaff(@PathVariable UUID staffId, @RequestBody EditStaffRequest editStaffRequest) {
+            Staff updatedStaff = staffService.editStaff(staffId, editStaffRequest);
+
+        // Wrap the response in BaseResponse
+        BaseResponse<Staff> response = BaseResponse.success(
+                HttpStatus.OK, updatedStaff, "Staff edited successfully");
         return ResponseEntity.ok(response);
     }
 }
