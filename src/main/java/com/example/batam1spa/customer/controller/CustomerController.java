@@ -29,7 +29,7 @@ public class CustomerController {
     }
 
     // Edit an existing customer member Full URI: /api/v1/customer/edit/{customerId}
-    @PutMapping("edit/{customerId}")
+    @PutMapping("/edit/{customerId}")
     public ResponseEntity<BaseResponse<Customer>> editCustomerNationality(@PathVariable UUID customerId, @RequestBody EditCustomerRequest editCustomerRequestDTO) {
         Customer updatedCustomer = customerService.editCustomerNationality(customerId, editCustomerRequestDTO);
 

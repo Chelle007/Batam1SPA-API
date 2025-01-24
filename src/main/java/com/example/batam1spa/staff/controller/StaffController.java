@@ -43,9 +43,9 @@ public class StaffController {
     }
 
     // Edit an existing staff member Full URI: /api/v1/staff/{staffId}
-    @PutMapping("/{staffId}")
+    @PutMapping("/edit/{staffId}")
     public ResponseEntity<BaseResponse<Staff>> editStaff(@PathVariable UUID staffId, @RequestBody EditStaffRequest editStaffRequest) {
-            Staff updatedStaff = staffService.editStaff(staffId, editStaffRequest);
+        Staff updatedStaff = staffService.editStaff(staffId, editStaffRequest);
 
         // Wrap the response in BaseResponse
         BaseResponse<Staff> response = BaseResponse.success(
