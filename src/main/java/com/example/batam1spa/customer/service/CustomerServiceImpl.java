@@ -1,5 +1,6 @@
 package com.example.batam1spa.customer.service;
 
+import com.example.batam1spa.customer.dto.EditCustomerRequest;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -48,15 +49,15 @@ public class CustomerServiceImpl implements CustomerService {
         return customerRepository.findAll();
     }
 
-    // Edit existing customer
+    // Edit existing customer nationality (local/tourist)
     @Override
-    public Customer editCustomer(UUID customerId, boolean isLocal) {
+    public Customer editCustomerNationality(UUID customerId, EditCustomerRequest editCustomerRequestDTO) {
         // Find the existing customer record
         Customer existingCustomer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer not found with id: " + customerId));
 
-        // Update the customer info
-        existingCustomer.setLocal(isLocal);
+        // Update the customer nationality
+        modelMapper.map(editCustomerRequestDTO, existingCustomer);
 
         // Save the updated customer info
         return customerRepository.save(existingCustomer);
