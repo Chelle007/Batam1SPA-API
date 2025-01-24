@@ -22,7 +22,7 @@ public class Leave extends Auditable {
             nullable = false,  // Every Leave must be associated with a Staff
             referencedColumnName = "id" // References the id column in the Staff table
     )
-    private UUID staffId; // Many Leaves can belong to one Staff
+    private Staff staff; // Reference to the Staff entity
 
     @Column(nullable = false)
     private LocalDate startDate;

@@ -11,7 +11,7 @@ public interface LeaveService {
     void seedLeave();
 
     List<Leave> getAllLeave();
-    Leave addLeave(UUID staffId, CreateLeaveRequest createLeaveRequestDTO);
+    Leave addLeave(CreateLeaveRequest createLeaveRequestDTO);
     Leave editLeave(UUID leaveId, EditLeaveRequest editLeaveRequest);
     Leave deleteLeave(UUID leaveId);
 }

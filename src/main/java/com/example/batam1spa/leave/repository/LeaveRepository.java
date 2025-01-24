@@ -6,9 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
+import java.util.List;
 import java.time.LocalDate;
 
 @Repository
 public interface LeaveRepository extends JpaRepository<Leave, UUID> {
-    boolean existsByStaffIdAndStartDateAndEndDate(UUID staffId, LocalDate startDate, LocalDate endDate);
+    boolean existsByStaffAndStartDateAndEndDate(Staff staff, LocalDate startDate, LocalDate endDate);
+    List<Leave> findByStaff(Staff staff);
 }
