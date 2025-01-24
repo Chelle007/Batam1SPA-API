@@ -42,7 +42,7 @@ public class LeaveController {
     }
 
     // Edit an existing leave member Full URI: /api/v1/leave/edit/{leaveId}
-    @PutMapping("/{leaveId}")
+    @PutMapping("/edit/{leaveId}")
     public ResponseEntity<BaseResponse<Leave>> editLeave(@PathVariable UUID leaveId, @RequestBody EditLeaveRequest editLeaveRequestDTO) {
         Leave updatedLeave = leaveService.editLeave(leaveId, editLeaveRequestDTO);
 
@@ -54,6 +54,7 @@ public class LeaveController {
     }
 
     // Delete an existing leave member Full URI: /api/v1/leave/delete/{leaveId}
+    @DeleteMapping("/delete/{leaveId}")
     public ResponseEntity<BaseResponse<Leave>> deleteLeave(@PathVariable UUID leaveId) {
         // Call the service to delete the leave record
         Leave deletedLeave = leaveService.deleteLeave(leaveId);
