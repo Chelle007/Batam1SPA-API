@@ -5,6 +5,7 @@ import com.example.batam1spa.availability.repository.TimeSlotRepository;
 import com.example.batam1spa.common.model.Gender;
 import com.example.batam1spa.service.model.ServiceType;
 import com.example.batam1spa.staff.dto.CreateStaffRequest;
+import com.example.batam1spa.staff.dto.EditStaffRequest;
 import com.example.batam1spa.staff.model.Staff;
 import com.example.batam1spa.staff.repository.StaffRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -76,4 +78,19 @@ public class StaffServiceImpl implements StaffService {
         Staff createStaffEntity = modelMapper.map(createStaffRequest, Staff.class);
         return staffRepository.save(createStaffEntity);
     }
+
+    // Edit existing staff
+    @Override
+    public Staff editStaff(UUID staffId, EditStaffRequest editStaffRequest) {
+        // Find the existing staff member
+        Staff existingStaff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new RuntimeException("Staff not found with id: " + staffId));
+
+        // Update the staff info
+        modelMapper.map(editStaffRequest, existingStaff);
+
+        // Save the updated staff info
+        return staffRepository.save(existingStaff);
+    }
+
 }
