@@ -2,8 +2,6 @@ package com.example.batam1spa.customer.service;
 
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
-import com.example.batam1spa.customer.dto.EditCustomerRequest;
-import com.example.batam1spa.customer.model.Customer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -48,5 +46,19 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public List<Customer> getAllCustomer() {
         return customerRepository.findAll();
+    }
+
+    // Edit existing customer
+    @Override
+    public Customer editCustomer(UUID customerId, boolean isLocal) {
+        // Find the existing customer record
+        Customer existingCustomer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + customerId));
+
+        // Update the customer info
+        existingCustomer.setLocal(isLocal);
+
+        // Save the updated customer info
+        return customerRepository.save(existingCustomer);
     }
 }
