@@ -2,15 +2,22 @@ package com.example.batam1spa.customer.service;
 
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
+import com.example.batam1spa.customer.dto.EditCustomerRequest;
+import com.example.batam1spa.customer.model.Customer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public void seedCustomer() {
@@ -35,5 +42,11 @@ public class CustomerServiceImpl implements CustomerService {
 
         customerRepository.save(customer);
         log.info("{} has been added to the system", fullName);
+    }
+
+    // Get all customer
+    @Override
+    public List<Customer> getAllCustomer() {
+        return customerRepository.findAll();
     }
 }
