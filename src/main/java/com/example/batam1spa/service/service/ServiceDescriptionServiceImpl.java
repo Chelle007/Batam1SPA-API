@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.example.batam1spa.service.model.Service;
 
+import java.util.List;
+
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
 @Slf4j
@@ -81,4 +83,9 @@ public class ServiceDescriptionServiceImpl implements ServiceDescriptionService 
         serviceDescriptionRepository.save(serviceDescription);
         log.info("{}'s {} description has been added to the system", service, languageCode);
     }
+
+    public List<ServiceDescription> getAllServiceDescriptions() {
+        return serviceDescriptionRepository.findAll();
+    }
+
 }
