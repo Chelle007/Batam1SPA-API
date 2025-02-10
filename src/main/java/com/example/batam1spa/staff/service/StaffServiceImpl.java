@@ -58,7 +58,7 @@ public class StaffServiceImpl implements StaffService {
                 .isFriday(true)
                 .isSaturday(true)
                 .isSunday(true)
-                .isActive(true)
+                .isWorking(true)
                 .build();
 
         staffRepository.save(staff);
