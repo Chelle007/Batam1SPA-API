@@ -26,11 +26,11 @@ public class CreateServiceRequest {
     // Language-specific service descriptions
     private String IDDescription;
     private String ENDescription;
-    private Boolean isActive;
+    private Boolean isPublished;
 
 }
 
-/* EXPECTED JSON OUTPUT:
+/* EXPECTED API REQUEST:
 {
     "name": "Full Body Massage",
     "imgUrl": "full_body_massage.png",
@@ -43,6 +43,6 @@ public class CreateServiceRequest {
     "ENIncludedItemDescription": "Soft towel",
     "IDDescription": "Pijat seluruh tubuh yang menenangkan.",
     "ENDescription": "A relaxing full body massage.",
-    "isActive": true
+    "isPublished": true
 }
  */

@@ -20,5 +20,5 @@ public class ServiceRequest {
     private String imgUrl;
     private int localPrice;
     private int touristPrice;
-    private Boolean isActive;
+    private Boolean isPublished;
 }
