@@ -2,6 +2,7 @@ package com.example.batam1spa.service.controller;
 
 import com.example.batam1spa.common.dto.BaseResponse;
 import com.example.batam1spa.service.dto.CreateServiceRequest;
+import com.example.batam1spa.service.dto.EditServiceRequest;
 import com.example.batam1spa.service.dto.ServiceRequest;
 import com.example.batam1spa.service.model.ServiceDescription;
 import com.example.batam1spa.service.model.Service;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/service")
@@ -56,4 +58,18 @@ public class ServiceController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @PutMapping("/edit/{serviceId}")
+    public ResponseEntity<BaseResponse<Service>> editService(
+            @PathVariable UUID serviceId,
+            @RequestBody EditServiceRequest editServiceRequest) {
+
+        Service updatedService = serviceService.editService(serviceId, editServiceRequest);
+
+        BaseResponse<Service> response = BaseResponse.success(
+                HttpStatus.OK, updatedService, "Existing service updated successfully");
+
+        return ResponseEntity.ok(response);
+    }
+
 }

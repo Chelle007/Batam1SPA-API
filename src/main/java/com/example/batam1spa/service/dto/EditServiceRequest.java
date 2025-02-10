@@ -12,9 +12,8 @@ import java.util.Map;
 @Setter
 @Data
 @Builder
-public class CreateServiceRequest {
+public class EditServiceRequest {
 
-    private String name;
     private String imgUrl;
     private List<PriceDTO> prices; // List of duration & prices
     private Map<String, String> includedItemDescriptionsMap;
@@ -27,22 +26,19 @@ public class CreateServiceRequest {
     private String IDDescription;
     private String ENDescription;
     private Boolean isPublished;
-
 }
 
 /* EXPECTED API REQUEST:
+service ID and
 {
-    "name": "Full Body Massage",
-    "imgUrl": "full_body_massage.png",
+    "imgUrl": "updated_full_body_massage.png",
     "prices": [
-        { "duration": 30, "localPrice": 100000, "touristPrice": 150000 },
-        { "duration": 60, "localPrice": 200000, "touristPrice": 250000 },
-        { "duration": 90, "localPrice": 300000, "touristPrice": 350000 }
+        { "duration": 45, "localPrice": 150000, "touristPrice": 200000 }
     ],
-    "IDIncludedItemDescription": "Handuk yang lembut",
-    "ENIncludedItemDescription": "Soft towel",
-    "IDDescription": "Pijat seluruh tubuh yang menenangkan.",
-    "ENDescription": "A relaxing full body massage.",
-    "isPublished": true
+    "IDIncludedItemDescription": "Handuk kualitas tinggi",
+    "ENIncludedItemDescription": "High-quality towel",
+    "IDDescription": "Pijat tubuh dengan teknik terbaru.",
+    "ENDescription": "Body massage with the latest techniques.",
+    "isPublished": false
 }
  */

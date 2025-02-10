@@ -2,6 +2,7 @@ package com.example.batam1spa.service.service;
 
 import com.example.batam1spa.common.model.LanguageCode;
 import com.example.batam1spa.service.dto.CreateServiceRequest;
+import com.example.batam1spa.service.dto.EditServiceRequest;
 import com.example.batam1spa.service.dto.ServiceRequest;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.service.model.ServiceDescription;
@@ -17,6 +18,7 @@ import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Service
@@ -91,7 +93,7 @@ public class ServiceServiceImpl implements ServiceService {
         if (createServiceRequest.getPrices() != null && !createServiceRequest.getPrices().isEmpty()) {
             List<ServicePrice> servicePrices = createServiceRequest.getPrices().stream()
                     .map(price -> ServicePrice.builder()
-                            .service(savedService)  // ✅ FIXED: Using final service object
+                            .service(savedService)
                             .duration(price.getDuration())
                             .localPrice(price.getLocalPrice())
                             .touristPrice(price.getTouristPrice())
@@ -143,7 +145,7 @@ public class ServiceServiceImpl implements ServiceService {
 
         return savedService;
     }
-}
+
 /*
 Expected API Request for add service:
 {
@@ -160,5 +162,83 @@ Expected API Request for add service:
     "ENDescription": "A relaxing full body massage.",
     "isPublished": true
 }
-
  */
+
+    @Override
+    @Transactional
+    public Service editService(UUID serviceId, EditServiceRequest editServiceRequest) {
+        // Step 1: Find existing service
+        Service existingService = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new RuntimeException("Service not found with id: " + serviceId));
+
+        // Step 2: Update `imgUrl` and `isPublished`
+        if (editServiceRequest.getImgUrl() != null) {
+            existingService.setImgUrl(editServiceRequest.getImgUrl());
+        }
+        if (editServiceRequest.getIsPublished() != null) {
+            existingService.setPublished(editServiceRequest.getIsPublished());
+        }
+
+        // Step 3: Update Service Prices
+        if (editServiceRequest.getPrices() != null && !editServiceRequest.getPrices().isEmpty()) {
+            // Remove existing prices
+            servicePriceRepository.deleteByServiceId(serviceId);
+
+            // Save new prices
+            List<ServicePrice> newPrices = editServiceRequest.getPrices().stream()
+                    .map(price -> ServicePrice.builder()
+                            .service(existingService)
+                            .duration(price.getDuration())
+                            .localPrice(price.getLocalPrice())
+                            .touristPrice(price.getTouristPrice())
+                            .build())
+                    .collect(Collectors.toList());
+            servicePriceRepository.saveAll(newPrices);
+        }
+
+        // Step 4: Update Service Descriptions (EN and ID)
+        List<ServiceDescription> descriptions = new ArrayList<>();
+
+        // Remove old descriptions
+        serviceDescriptionRepository.deleteByServiceId(serviceId);
+
+        if (editServiceRequest.getENDescription() != null) {
+            descriptions.add(ServiceDescription.builder()
+                    .service(existingService)
+                    .languageCode(LanguageCode.EN)
+                    .description(editServiceRequest.getENDescription())
+                    .build());
+        }
+
+        if (editServiceRequest.getIDDescription() != null) {
+            descriptions.add(ServiceDescription.builder()
+                    .service(existingService)
+                    .languageCode(LanguageCode.ID)
+                    .description(editServiceRequest.getIDDescription())
+                    .build());
+        }
+
+        // Step 5: Update Included Item Descriptions (EN and ID)
+        if (editServiceRequest.getENIncludedItemDescription() != null) {
+            descriptions.add(ServiceDescription.builder()
+                    .service(existingService)
+                    .languageCode(LanguageCode.EN)
+                    .description(editServiceRequest.getENIncludedItemDescription())
+                    .build());
+        }
+
+        if (editServiceRequest.getIDIncludedItemDescription() != null) {
+            descriptions.add(ServiceDescription.builder()
+                    .service(existingService)
+                    .languageCode(LanguageCode.ID)
+                    .description(editServiceRequest.getIDIncludedItemDescription())
+                    .build());
+        }
+
+        if (!descriptions.isEmpty()) {
+            serviceDescriptionRepository.saveAll(descriptions);
+        }
+
+        return serviceRepository.save(existingService);
+    }
+}
