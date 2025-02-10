@@ -17,8 +17,15 @@ public class CreateServiceRequest {
     private String name;
     private String imgUrl;
     private List<PriceDTO> prices; // List of duration & prices
-    private Map<String, String> includedItemDescriptionsMap; // Language-specific included item descriptions
-    private Map<String, String> languageDescriptionMap; // Language-specific service descriptions
+    private Map<String, String> includedItemDescriptionsMap; //
+
+    // Language-specific included item descriptions
+    private String IDIncludedItemDescription;
+    private String ENIncludedItemDescription;
+
+    // Language-specific service descriptions
+    private String IDDescription;
+    private String ENDescription;
     private Boolean isActive;
 
 }
@@ -32,15 +39,10 @@ public class CreateServiceRequest {
         { "duration": 60, "localPrice": 200000, "touristPrice": 250000 },
         { "duration": 90, "localPrice": 300000, "touristPrice": 350000 }
     ],
-    "includedItemDescriptionsMap": {
-        "EN": "Soft towel",
-        "ID": "Handuk yang lembut"
-    },
-    "languageDescriptionMap": {
-        "EN": "A relaxing full body massage.",
-        "ID": "Pijat seluruh tubuh yang menenangkan."
-    },
+    "IDIncludedItemDescription": "Handuk yang lembut",
+    "ENIncludedItemDescription": "Soft towel",
+    "IDDescription": "Pijat seluruh tubuh yang menenangkan.",
+    "ENDescription": "A relaxing full body massage.",
     "isActive": true
 }
-
  */
