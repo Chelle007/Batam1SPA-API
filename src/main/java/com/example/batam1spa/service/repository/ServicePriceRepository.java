@@ -7,10 +7,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.List;
 
 @Repository
 public interface ServicePriceRepository extends JpaRepository<ServicePrice, UUID> {
     // for testing purpose (seeder)
     Boolean existsByServiceAndDuration(Service service, int duration);
     Optional<ServicePrice> findByServiceAndDuration(Service service, int duration);
+    List<ServicePrice> findByService(Service service);
+
+    void deleteByServiceId(UUID serviceId);
 }

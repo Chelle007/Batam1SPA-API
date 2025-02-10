@@ -22,4 +22,7 @@ public class Service extends Auditable {
 
     @Column(nullable = false)
     private String imgUrl;
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean isPublished;
 }

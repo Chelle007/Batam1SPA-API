@@ -22,5 +22,5 @@ public class EditStaffRequest {
     private boolean isFriday;
     private boolean isSaturday;
     private boolean isSunday;
-    private boolean isActive;
+    private boolean isWorking;
 }

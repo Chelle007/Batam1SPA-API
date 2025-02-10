@@ -95,5 +95,5 @@ public class Staff extends Auditable {
             nullable = false,
             columnDefinition = "boolean default true"
     )
-    private boolean isActive;
+    private boolean isWorking;
 }
