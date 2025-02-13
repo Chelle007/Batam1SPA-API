@@ -56,6 +56,7 @@ public class ServiceServiceImpl implements ServiceService {
         log.info("{} has been added to the system", name);
     }
 
+    @Override
     public List<ServiceRequest> getAllService() {
         List<Service> services = serviceRepository.findAll();
 
