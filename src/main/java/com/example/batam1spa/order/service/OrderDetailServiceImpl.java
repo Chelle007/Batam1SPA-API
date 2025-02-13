@@ -4,6 +4,7 @@ import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
+import com.example.batam1spa.order.dto.OrderDetailByServiceDateResponse;
 import com.example.batam1spa.order.model.Order;
 import com.example.batam1spa.order.model.OrderDetail;
 import com.example.batam1spa.order.repository.OrderDetailRepository;
@@ -11,11 +12,13 @@ import com.example.batam1spa.order.repository.OrderRepository;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.service.repository.ServiceRepository;
 import com.example.batam1spa.staff.model.Staff;
+import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -72,4 +75,12 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         orderDetailRepository.save(orderDetail);
         log.info("order detail with order {} and service {} has been added to the system", order, service);
     }
+
+//    @Override
+//    public List<OrderDetailByServiceDateResponse> getOrderDetailsByServiceDate(User user, LocalDate serviceDate) {
+//        if (!user.getAuthorities().equals("ROLE_Admin")) {
+//
+//        }
+//        List<OrderDetail> orderDetails = orderDetailRepository.findByServiceDate(serviceDate);
+//    }
 }
