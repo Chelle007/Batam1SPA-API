@@ -23,9 +23,9 @@ import java.util.List;
 public class OrderController {
     private final OrderDetailService orderDetailService;
 
-    @GetMapping("/get-by-service-date")
-    public ResponseEntity<BaseResponse<List<OrderDetailByServiceDateResponse>>> getOrderDetailsByServiceDate(@AuthenticationPrincipal User user, LocalDate localDate) {
-        List<OrderDetailByServiceDateResponse> response = orderDetailService.getOrderDetailsByServiceDate(user, localDate);
-        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Orders By Service Date"));
-    }
+//    @GetMapping("/get-by-service-date")
+//    public ResponseEntity<BaseResponse<List<OrderDetailByServiceDateResponse>>> getOrderDetailsByServiceDate(@AuthenticationPrincipal User user, LocalDate localDate) {
+//        List<OrderDetailByServiceDateResponse> response = orderDetailService.getOrderDetailsByServiceDate(user, localDate);
+//        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Orders By Service Date"));
+//    }
 }

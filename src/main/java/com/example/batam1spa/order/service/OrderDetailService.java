@@ -10,5 +10,5 @@ public interface OrderDetailService {
 
     void seedOrderDetail();
 
-    List<OrderDetailByServiceDateResponse> getOrderDetailsByServiceDate(User user, LocalDate serviceDate);
+//    List<OrderDetailByServiceDateResponse> getOrderDetailsByServiceDate(User user, LocalDate serviceDate);
 }

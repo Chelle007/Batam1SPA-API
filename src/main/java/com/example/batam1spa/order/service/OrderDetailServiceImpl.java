@@ -76,8 +76,11 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         log.info("order detail with order {} and service {} has been added to the system", order, service);
     }
 
-    @Override
-    public List<OrderDetailByServiceDateResponse> getOrderDetailsByServiceDate(User user, LocalDate serviceDate) {
-        List<OrderDetail> orderDetails = orderDetailRepository.
-    }
+//    @Override
+//    public List<OrderDetailByServiceDateResponse> getOrderDetailsByServiceDate(User user, LocalDate serviceDate) {
+//        if (!user.getAuthorities().equals("ROLE_Admin")) {
+//
+//        }
+//        List<OrderDetail> orderDetails = orderDetailRepository.findByServiceDate(serviceDate);
+//    }
 }
