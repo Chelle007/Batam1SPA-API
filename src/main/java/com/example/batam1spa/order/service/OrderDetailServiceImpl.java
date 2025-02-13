@@ -15,10 +15,16 @@ import com.example.batam1spa.staff.model.Staff;
 import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -29,6 +35,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     private final OrderRepository orderRepository;
     private final ServiceRepository serviceRepository;
     private final TimeSlotRepository timeSlotRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public void seedOrderDetail() {
@@ -76,11 +83,29 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         log.info("order detail with order {} and service {} has been added to the system", order, service);
     }
 
-//    @Override
-//    public List<OrderDetailByServiceDateResponse> getOrderDetailsByServiceDate(User user, LocalDate serviceDate) {
-//        if (!user.getAuthorities().equals("ROLE_Admin")) {
-//
-//        }
-//        List<OrderDetail> orderDetails = orderDetailRepository.findByServiceDate(serviceDate);
-//    }
+    @Override
+    public List<OrderDetailByServiceDateResponse> getOrderDetailsByServiceDate(User user, LocalDate serviceDate) {
+        Set<String> userRoles = user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+
+        if (!userRoles.contains("ROLE_ADMIN")) {
+            throw new AccessDeniedException("You do not have permission to access this resource.");
+        }
+
+        List<OrderDetail> orderDetails = orderDetailRepository.findByServiceDate(serviceDate);
+        List<OrderDetailByServiceDateResponse> orderDetailByServiceDateResponses = new ArrayList<>();
+
+        for (OrderDetail orderDetail : orderDetails) {
+            OrderDetailByServiceDateResponse orderDetailByServiceDateResponse = modelMapper.map(orderDetail, OrderDetailByServiceDateResponse.class);
+            Order order = orderDetail.getOrder();
+            orderDetailByServiceDateResponse.setCustomer(order.getCustomer());
+            orderDetailByServiceDateResponse.setVIP(order.isVIP());
+            orderDetailByServiceDateResponse.setTotalPrice(order.getTotalPrice());
+            orderDetailByServiceDateResponse.setCancelled(order.isCancelled());
+            orderDetailByServiceDateResponses.add(orderDetailByServiceDateResponse);
+        }
+
+        return orderDetailByServiceDateResponses;
+    }
 }

@@ -4,17 +4,14 @@ import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.staff.model.Staff;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
-@Getter
-@Setter
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderDetailByServiceDateResponse {
     private UUID orderDetailId;
     private Customer customer;
@@ -24,5 +21,6 @@ public class OrderDetailByServiceDateResponse {
     private TimeSlot endTimeSlot;
     private boolean isVIP;
     private int totalPrice;
+    private boolean isCancelled;
 
 }
