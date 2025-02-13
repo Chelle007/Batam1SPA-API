@@ -34,8 +34,12 @@ public class SecurityConfig {
             "/swagger-resources"
     };
 
-    private static final String[] AUTH_WHITELIST = {
+    private static final String[] POST_WHITELIST = {
             "/api/v1/auth/sign-in"
+    };
+
+    private static final String[] GET_WHITELIST = {
+            "/api/v1/service/get-all-service"
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -49,7 +53,8 @@ public class SecurityConfig {
                 .authenticationProvider(authProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, AUTH_WHITELIST).permitAll()
+                        .requestMatchers(HttpMethod.POST, POST_WHITELIST).permitAll()
+                        .requestMatchers(HttpMethod.GET, GET_WHITELIST).permitAll()
                         .requestMatchers(SWAGGER_WHITELIST).permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception
