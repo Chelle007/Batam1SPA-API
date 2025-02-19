@@ -8,5 +8,5 @@ import java.util.UUID;
 public interface OrderService {
 
     void seedOrder();
-//    Order editOrderStatus(User user, UUID orderId, String status);
+    Order editOrderStatus(User user, UUID orderId);
 }

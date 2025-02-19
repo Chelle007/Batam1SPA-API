@@ -34,9 +34,9 @@ public class OrderController {
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Orders By Service Date"));
     }
 
-//    @PostMapping("/edit-order-status")
-//    public ResponseEntity<BaseResponse<Order>> editOrderStatus(@AuthenticationPrincipal User user, UUID orderId, String status) {
-//        Order response = orderService.editOrderStatus(orderId, status);
-//        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Edit Order Status"));
-//    }
+    @PostMapping("/edit-order-status")
+    public ResponseEntity<BaseResponse<Order>> editOrderStatus(@AuthenticationPrincipal User user, UUID orderId) {
+        Order response = orderService.editOrderStatus(user, orderId);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Edit Order Status"));
+    }
 }

@@ -2,8 +2,10 @@ package com.example.batam1spa.order.service;
 
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
+import com.example.batam1spa.order.exception.OrderExceptions;
 import com.example.batam1spa.order.model.Order;
 import com.example.batam1spa.order.repository.OrderRepository;
+import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
+    private final RoleSecurityService roleSecurityService;
 
     @Override
     public void seedOrder() {
@@ -52,15 +55,15 @@ public class OrderServiceImpl implements OrderService {
         log.info("{}'s order has been added to the system", customer);
     }
 
-//    @Override
-//    private Order editOrderStatus(User user, UUID orderId, String status) {
-//        Set<String> userRoles = user.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.toSet());
-//
-//        if (!userRoles.contains("ROLE_ADMIN")) {
-//            throw new AccessDeniedException("You do not have permission to access this resource.");
-//        }
-//
-//    }
+    @Override
+    public Order editOrderStatus(User user, UUID orderId) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderExceptions.OrderNotFound("Order with ID " + orderId + " not found"));
+
+        order.setCancelled(!order.isCancelled());
+        orderRepository.save(order);
+
+        return order;
+    }
 }
