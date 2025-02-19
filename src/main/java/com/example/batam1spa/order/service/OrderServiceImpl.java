@@ -4,11 +4,17 @@ import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
 import com.example.batam1spa.order.model.Order;
 import com.example.batam1spa.order.repository.OrderRepository;
+import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,4 +51,16 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         log.info("{}'s order has been added to the system", customer);
     }
+
+//    @Override
+//    private Order editOrderStatus(User user, UUID orderId, String status) {
+//        Set<String> userRoles = user.getAuthorities().stream()
+//                .map(GrantedAuthority::getAuthority)
+//                .collect(Collectors.toSet());
+//
+//        if (!userRoles.contains("ROLE_ADMIN")) {
+//            throw new AccessDeniedException("You do not have permission to access this resource.");
+//        }
+//
+//    }
 }

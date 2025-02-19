@@ -9,6 +9,7 @@ import com.example.batam1spa.order.model.Order;
 import com.example.batam1spa.order.model.OrderDetail;
 import com.example.batam1spa.order.repository.OrderDetailRepository;
 import com.example.batam1spa.order.repository.OrderRepository;
+import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.service.repository.ServiceRepository;
 import com.example.batam1spa.staff.model.Staff;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class OrderDetailServiceImpl implements OrderDetailService {
+    private final RoleSecurityService roleSecurityService;
     private final OrderDetailRepository orderDetailRepository;
     private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;
@@ -85,13 +87,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     @Override
     public List<OrderDetailByServiceDateResponse> getOrderDetailsByServiceDate(User user, LocalDate serviceDate) {
-        Set<String> userRoles = user.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet());
-
-        if (!userRoles.contains("ROLE_ADMIN")) {
-            throw new AccessDeniedException("You do not have permission to access this resource.");
-        }
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
         List<OrderDetail> orderDetails = orderDetailRepository.findByServiceDate(serviceDate);
         List<OrderDetailByServiceDateResponse> orderDetailByServiceDateResponses = new ArrayList<>();
