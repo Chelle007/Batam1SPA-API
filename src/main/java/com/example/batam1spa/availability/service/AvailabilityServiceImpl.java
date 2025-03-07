@@ -29,6 +29,8 @@ public class AvailabilityServiceImpl implements AvailabilityService {
         LocalDate today = LocalDate.now();
         LocalDate endDate = today.plusWeeks(2);
 
+        availabilityRepository.deleteByServiceDateBefore(today);
+
         List<TimeSlot> timeSlots = timeSlotRepository.findAll();
 
         for (LocalDate date = today; !date.isAfter(endDate); date = date.plusDays(1)) {
