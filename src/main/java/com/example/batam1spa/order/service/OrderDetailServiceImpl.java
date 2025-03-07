@@ -135,6 +135,13 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
 
     @Override
+    public List<CartOrderDetailDTO> getCart() {
+        @SuppressWarnings("unchecked")
+        List<CartOrderDetailDTO> cart = (List<CartOrderDetailDTO>) session.getAttribute("cart");
+        return cart != null ? cart : new ArrayList<>();
+    }
+
+    @Override
     public Boolean addToCart(CartOrderDetailDTO cartOrderDetailDTO) {
         UUID serviceId = cartOrderDetailDTO.getServiceId();
         UUID startTimeSlotId = cartOrderDetailDTO.getStartTimeSlotId();
@@ -150,6 +157,33 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         }
 
         cart.add(cartOrderDetailDTO);
+        session.setAttribute("cart", cart);
+
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public Boolean removeFromCart(CartOrderDetailDTO cartOrderDetailDTO) {
+        UUID serviceId = cartOrderDetailDTO.getServiceId();
+        UUID startTimeSlotId = cartOrderDetailDTO.getStartTimeSlotId();
+        UUID endTimeSlotId = cartOrderDetailDTO.getEndTimeSlotId();
+        LocalDate serviceDate = cartOrderDetailDTO.getServiceDate();
+
+        @SuppressWarnings("unchecked")
+        List<CartOrderDetailDTO> cart = (List<CartOrderDetailDTO>) session.getAttribute("cart");
+        if (cart == null || cart.isEmpty()) {
+            throw new OrderExceptions.CartEmptyException("Cart is empty.");
+        }
+
+        boolean removed = cart.removeIf(item ->
+                item.getServiceId().equals(serviceId) &&
+                        item.getStartTimeSlotId().equals(startTimeSlotId) &&
+                        item.getEndTimeSlotId().equals(endTimeSlotId) &&
+                        item.getServiceDate().equals(serviceDate)
+        );
+        if (!removed) {
+            throw new OrderExceptions.CartItemNotFoundException("Item not found in cart.");
+        }
         session.setAttribute("cart", cart);
 
         return Boolean.TRUE;

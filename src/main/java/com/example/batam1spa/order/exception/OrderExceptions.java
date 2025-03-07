@@ -35,4 +35,16 @@ public class OrderExceptions {
             super(message);
         }
     }
+
+    public static class CartEmptyException extends RuntimeException {
+        public CartEmptyException(String message) {
+            super(message);
+        }
+    }
+
+    public static class CartItemNotFoundException extends RuntimeException {
+        public CartItemNotFoundException(String message) {
+            super(message);
+        }
+    }
 }

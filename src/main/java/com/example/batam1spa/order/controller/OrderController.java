@@ -41,9 +41,21 @@ public class OrderController {
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Edit Order Status"));
     }
 
+    @GetMapping("/get-cart")
+    public ResponseEntity<BaseResponse<List<CartOrderDetailDTO>>> getCart() {
+        List<CartOrderDetailDTO> response = orderDetailService.getCart();
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Cart"));
+    }
+
     @PostMapping("/add-to-cart")
     public ResponseEntity<BaseResponse<Boolean>> addToCart(CartOrderDetailDTO cartOrderDetailDTO) {
         Boolean response = orderDetailService.addToCart(cartOrderDetailDTO);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Add To Cart"));
+    }
+
+    @PostMapping("/remove-from-cart")
+    public ResponseEntity<BaseResponse<Boolean>> removeFromCart(CartOrderDetailDTO cartOrderDetailDTO) {
+        Boolean response = orderDetailService.removeFromCart(cartOrderDetailDTO);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Remove From Cart"));
     }
 }

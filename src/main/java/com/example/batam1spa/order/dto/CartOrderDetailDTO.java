@@ -13,7 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartOrderDetailDTO {
-    private UUID customerId;
     private UUID serviceId;
     private UUID startTimeSlotId;
     private UUID endTimeSlotId;
