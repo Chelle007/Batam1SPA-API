@@ -1,6 +1,7 @@
 package com.example.batam1spa.order.controller;
 
 import com.example.batam1spa.common.dto.BaseResponse;
+import com.example.batam1spa.order.dto.CartOrderDetailDTO;
 import com.example.batam1spa.order.model.Order;
 import com.example.batam1spa.order.service.OrderDetailService;
 import com.example.batam1spa.order.dto.OrderDetailByServiceDateResponse;
@@ -38,5 +39,11 @@ public class OrderController {
     public ResponseEntity<BaseResponse<Order>> editOrderStatus(@AuthenticationPrincipal User user, UUID orderId) {
         Order response = orderService.editOrderStatus(user, orderId);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Edit Order Status"));
+    }
+
+    @PostMapping("/add-to-cart")
+    public ResponseEntity<BaseResponse<Boolean>> addToCart(CartOrderDetailDTO cartOrderDetailDTO) {
+        Boolean response = orderDetailService.addToCart(cartOrderDetailDTO);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Add To Cart"));
     }
 }

@@ -39,7 +39,8 @@ public class SecurityConfig {
     };
 
     private static final String[] GET_WHITELIST = {
-            "/api/v1/service/get-all-service"
+            "/api/v1/service/get-all-service",
+            "/api/v1/availability/get-service-availability"
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;

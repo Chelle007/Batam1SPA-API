@@ -11,4 +11,28 @@ public class OrderExceptions {
             super(message);
         }
     }
+
+    public static class ServiceNotFound extends RuntimeException {
+        public ServiceNotFound(String message) {
+            super(message);
+        }
+    }
+
+    public static class TimeSlotNotFound extends RuntimeException {
+        public TimeSlotNotFound(String message) {
+            super(message);
+        }
+    }
+
+    public static class InvalidServiceSchedule extends RuntimeException {
+        public InvalidServiceSchedule(String message) {
+            super(message);
+        }
+    }
+
+    public static class AvailabilityNotFound extends RuntimeException {
+        public AvailabilityNotFound(String message) {
+            super(message);
+        }
+    }
 }
