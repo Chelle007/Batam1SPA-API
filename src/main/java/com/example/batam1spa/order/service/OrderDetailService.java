@@ -11,7 +11,4 @@ public interface OrderDetailService {
 
     void seedOrderDetail();
     List<OrderDetailByServiceDateResponse> getOrderDetailsByServiceDate(User user, LocalDate serviceDate);
-    List<CartOrderDetailDTO> getCart();
-    Boolean addToCart(CartOrderDetailDTO cartOrderDetailDTO);
-    Boolean removeFromCart(CartOrderDetailDTO cartOrderDetailDTO);
 }

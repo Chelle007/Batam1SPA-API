@@ -3,6 +3,7 @@ package com.example.batam1spa.order.controller;
 import com.example.batam1spa.common.dto.BaseResponse;
 import com.example.batam1spa.order.dto.CartOrderDetailDTO;
 import com.example.batam1spa.order.model.Order;
+import com.example.batam1spa.order.service.CartService;
 import com.example.batam1spa.order.service.OrderDetailService;
 import com.example.batam1spa.order.dto.OrderDetailByServiceDateResponse;
 import com.example.batam1spa.order.service.OrderService;
@@ -28,6 +29,7 @@ import java.util.UUID;
 public class OrderController {
     private final OrderDetailService orderDetailService;
     private final OrderService orderService;
+    private final CartService cartService;
 
     @GetMapping("/get-by-service-date")
     public ResponseEntity<BaseResponse<List<OrderDetailByServiceDateResponse>>> getOrderDetailsByServiceDate(@AuthenticationPrincipal User user, LocalDate localDate) {
@@ -43,19 +45,19 @@ public class OrderController {
 
     @GetMapping("/get-cart")
     public ResponseEntity<BaseResponse<List<CartOrderDetailDTO>>> getCart() {
-        List<CartOrderDetailDTO> response = orderDetailService.getCart();
+        List<CartOrderDetailDTO> response = cartService.getCart();
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Cart"));
     }
 
     @PostMapping("/add-to-cart")
     public ResponseEntity<BaseResponse<Boolean>> addToCart(CartOrderDetailDTO cartOrderDetailDTO) {
-        Boolean response = orderDetailService.addToCart(cartOrderDetailDTO);
+        Boolean response = cartService.addToCart(cartOrderDetailDTO);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Add To Cart"));
     }
 
     @PostMapping("/remove-from-cart")
     public ResponseEntity<BaseResponse<Boolean>> removeFromCart(CartOrderDetailDTO cartOrderDetailDTO) {
-        Boolean response = orderDetailService.removeFromCart(cartOrderDetailDTO);
+        Boolean response = cartService.removeFromCart(cartOrderDetailDTO);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Remove From Cart"));
     }
 }

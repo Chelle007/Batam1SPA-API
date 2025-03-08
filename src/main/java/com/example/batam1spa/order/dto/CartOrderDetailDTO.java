@@ -17,4 +17,5 @@ public class CartOrderDetailDTO {
     private UUID startTimeSlotId;
     private UUID endTimeSlotId;
     private LocalDate serviceDate;
+    private int qty;
 }
