@@ -4,5 +4,5 @@ import com.example.batam1spa.availability.dto.GetServiceAvailabilityRequest;
 
 public interface AvailabilityService {
     void generateAvailabilityForNextTwoWeeks();
-    Boolean getServiceAvailability(GetServiceAvailabilityRequest getServiceAvailabilityRequest);
+    int getServiceAvailability(GetServiceAvailabilityRequest getServiceAvailabilityRequest);
 }

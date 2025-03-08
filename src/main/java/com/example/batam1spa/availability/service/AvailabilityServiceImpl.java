@@ -29,7 +29,7 @@ public class AvailabilityServiceImpl implements AvailabilityService {
         LocalDate today = LocalDate.now();
         LocalDate endDate = today.plusWeeks(2);
 
-        availabilityRepository.deleteByServiceDateBefore(today);
+        availabilityRepository.deleteByDateBefore(today);
 
         List<TimeSlot> timeSlots = timeSlotRepository.findAll();
 
@@ -69,10 +69,10 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     }
 
     @Override
-    public Boolean getServiceAvailability(GetServiceAvailabilityRequest getServiceAvailabilityRequest) {
+    public int getServiceAvailability(GetServiceAvailabilityRequest getServiceAvailabilityRequest) {
         Service service = serviceRepository.findById(getServiceAvailabilityRequest.getServiceId()).orElseThrow(() -> new AvailabilityExceptions.OrderNotFound("Service with ID: " + getServiceAvailabilityRequest.getServiceId() + " not found."));
         TimeSlot timeSlot = timeSlotRepository.findById(getServiceAvailabilityRequest.getTimeId()).orElseThrow(() -> new AvailabilityExceptions.TimeSlotNotFound("TimeSlot with ID: " + getServiceAvailabilityRequest.getTimeId() + " not found."));
         Availability availability = availabilityRepository.findByDateAndTimeSlotAndServiceType(getServiceAvailabilityRequest.getServiceDate(), timeSlot, service.getServiceType()).orElseThrow(() -> new AvailabilityExceptions.AvailabilityNotFound("Availability not found."));
-        return availability.getCount() > 0;
+        return availability.getCount();
     }
 }

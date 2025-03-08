@@ -21,8 +21,8 @@ public interface AvailabilityRepository extends JpaRepository<Availability, UUID
 
     Optional<Availability> findByDateAndTimeSlotAndServiceType(LocalDate date, TimeSlot timeSlot, ServiceType serviceType);
 
-    @Modifying
     @Transactional
-    @Query("DELETE FROM Availability a WHERE a.serviceDate < :date")
-    void deleteByServiceDateBefore(@Param("date") LocalDate date);
+    @Modifying
+    @Query("DELETE FROM Availability a WHERE a.date < :date")
+    void deleteByDateBefore(@Param("date") LocalDate date);
 }

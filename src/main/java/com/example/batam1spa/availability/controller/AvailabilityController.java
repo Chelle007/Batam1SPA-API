@@ -19,8 +19,8 @@ public class AvailabilityController {
     private final AvailabilityService availabilityService;
 
     @GetMapping("/get-service-availability")
-    public ResponseEntity<BaseResponse<Boolean>> getServiceAvailability(GetServiceAvailabilityRequest getServiceAvailabilityRequest) {
-        Boolean response = availabilityService.getServiceAvailability(getServiceAvailabilityRequest);
+    public ResponseEntity<BaseResponse<Integer>> getServiceAvailability(GetServiceAvailabilityRequest getServiceAvailabilityRequest) {
+        Integer response = availabilityService.getServiceAvailability(getServiceAvailabilityRequest);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Service Availability"));
     }
 }
