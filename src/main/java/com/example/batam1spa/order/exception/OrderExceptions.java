@@ -47,4 +47,10 @@ public class OrderExceptions {
             super(message);
         }
     }
+
+    public static class InvalidPhoneNumber extends RuntimeException {
+        public InvalidPhoneNumber(String message) {
+            super(message);
+        }
+    }
 }

@@ -20,11 +20,11 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void seedCustomer() {
-        createCustomerIfNotExists("Angel", "12345678", "angel@gmail.com", true);
-        createCustomerIfNotExists("Bill", "87654321", "bill@gmail.com", false);
+        createCustomerIfNotExists("Angel", "12345678", "angel@gmail.com", true, true);
+        createCustomerIfNotExists("Bill", "87654321", "bill@gmail.com", false, false);
     }
 
-    private void createCustomerIfNotExists(String fullName, String phoneNumber, String email, boolean isLocal) {
+    private void createCustomerIfNotExists(String fullName, String phoneNumber, String email, boolean isLocal, boolean isSubscribed) {
         boolean customerExists = customerRepository.existsByPhoneNumber(phoneNumber);
 
         if (customerExists) {
@@ -37,6 +37,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .phoneNumber(phoneNumber)
                 .email(email)
                 .isLocal(isLocal)
+                .isSubscribed(isSubscribed)
                 .build();
 
         customerRepository.save(customer);

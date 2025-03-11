@@ -2,6 +2,7 @@ package com.example.batam1spa.order.controller;
 
 import com.example.batam1spa.common.dto.BaseResponse;
 import com.example.batam1spa.order.dto.CartOrderDetailDTO;
+import com.example.batam1spa.order.dto.CheckoutRequest;
 import com.example.batam1spa.order.model.Order;
 import com.example.batam1spa.order.service.CartService;
 import com.example.batam1spa.order.service.OrderDetailService;
@@ -58,6 +59,12 @@ public class OrderController {
     @PostMapping("/remove-from-cart")
     public ResponseEntity<BaseResponse<Boolean>> removeFromCart(CartOrderDetailDTO cartOrderDetailDTO) {
         Boolean response = cartService.removeFromCart(cartOrderDetailDTO);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Remove From Cart"));
+    }
+
+    @PostMapping("/check-out")
+    public ResponseEntity<BaseResponse<Boolean>> checkout(CheckoutRequest checkoutRequest) {
+        Boolean response = orderService.checkout(checkoutRequest);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Remove From Cart"));
     }
 }

@@ -27,7 +27,14 @@ public class CartServiceImpl implements CartService {
     private final AvailabilityRepository availabilityRepository;
     private final HttpSession session;
 
-    private void validateOrderDetail(UUID serviceId, UUID startTimeSlotId, UUID endTimeSlotId, LocalDate serviceDate) {
+    @Override
+    public void validateBooking(CartOrderDetailDTO cartOrderDetailDTO) {
+        UUID serviceId = cartOrderDetailDTO.getServiceId();
+        UUID startTimeSlotId = cartOrderDetailDTO.getStartTimeSlotId();
+        UUID endTimeSlotId = cartOrderDetailDTO.getEndTimeSlotId();
+        LocalDate serviceDate = cartOrderDetailDTO.getServiceDate();
+        int qty = cartOrderDetailDTO.getQty();
+
         Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new OrderExceptions.ServiceNotFound("Service with ID: " + serviceId + " not found."));
 
         TimeSlot startTimeSlot = timeSlotRepository.findById(startTimeSlotId).orElseThrow(() -> new OrderExceptions.TimeSlotNotFound("TimeSlot with ID: " + startTimeSlotId + " not found."));
@@ -46,7 +53,7 @@ public class CartServiceImpl implements CartService {
         // loop through availabilities
         for (TimeSlot timeSlot : selectedTimeSlots) {
             Availability availability = availabilityRepository.findByDateAndTimeSlotAndServiceType(serviceDate, timeSlot, service.getServiceType()).orElseThrow(() -> new OrderExceptions.AvailabilityNotFound("Availability with service date: " + serviceDate + " and timeSlot: " + timeSlot.getLocalTime() + " and serviceType: " + service.getServiceType() + " not found."));
-            if (availability.getCount() <= 0) {
+            if (availability.getCount() <= qty) {
                 throw new OrderExceptions.AvailabilityNotFound("Service is fully booked at: " + timeSlot.getLocalTime());
             }
         }
@@ -61,12 +68,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Boolean addToCart(CartOrderDetailDTO cartOrderDetailDTO) {
-        UUID serviceId = cartOrderDetailDTO.getServiceId();
-        UUID startTimeSlotId = cartOrderDetailDTO.getStartTimeSlotId();
-        UUID endTimeSlotId = cartOrderDetailDTO.getEndTimeSlotId();
-        LocalDate serviceDate = cartOrderDetailDTO.getServiceDate();
-
-        validateOrderDetail(serviceId, startTimeSlotId, endTimeSlotId, serviceDate);
+        validateBooking(cartOrderDetailDTO);
 
         @SuppressWarnings("unchecked")
         List<CartOrderDetailDTO> cart = (List<CartOrderDetailDTO>) session.getAttribute("cart");
