@@ -167,4 +167,13 @@ public class OrderServiceImpl implements OrderService {
 
         return Boolean.TRUE;
     }
+
+    @Override
+    public Boolean editVIPStatus(UUID orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderExceptions.OrderNotFound("Order with ID: " + orderId + " not found"));
+
+        order.setVIP(!order.isVIP());
+        orderRepository.save(order);
+        return Boolean.TRUE;
+    }
 }

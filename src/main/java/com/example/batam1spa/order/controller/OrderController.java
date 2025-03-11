@@ -67,4 +67,10 @@ public class OrderController {
         Boolean response = orderService.checkout(checkoutRequest);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Remove From Cart"));
     }
+
+    @PostMapping("/edit-vip-status")
+    public ResponseEntity<BaseResponse<Boolean>> editVIPStatus(UUID orderId) {
+        Boolean response = orderService.editVIPStatus(orderId);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Edit VIP Status"));
+    }
 }

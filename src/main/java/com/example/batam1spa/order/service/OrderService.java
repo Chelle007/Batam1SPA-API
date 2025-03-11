@@ -11,4 +11,5 @@ public interface OrderService {
     void seedOrder();
     Order editOrderStatus(User user, UUID orderId);
     Boolean checkout(CheckoutRequest checkoutRequest);
+    Boolean editVIPStatus(UUID orderId);
 }
