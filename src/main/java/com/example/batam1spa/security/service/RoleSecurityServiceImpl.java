@@ -26,7 +26,7 @@ public class RoleSecurityServiceImpl implements RoleSecurityService {
 
     @Override
     public void checkRole(User user, String role) {
-        if (!hasRole(user, role)) {
+        if (!hasRole(user, role) || !user.isWorking()) {
             throw new AccessDeniedException("You do not have permission to access this resource.");
         }
     }

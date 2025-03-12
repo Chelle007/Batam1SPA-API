@@ -8,6 +8,7 @@ import com.example.batam1spa.user.model.UserRole;
 import com.example.batam1spa.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ public class UserServiceImpl implements UserService {
     private final RoleSecurityService roleSecurityService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
     @Override
     public void seedUser() {
@@ -65,18 +67,38 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Override // TODO: remove
+    @Override
     public Boolean changeUserStatus(User user, UUID userId) {
         roleSecurityService.checkRole(user, "ROLE_MANAGER");
 
-        User updatedUser = userRepository.findById(userId).orElseThrow(() -> new UserExceptions.UserNotFound("User with ID: " + userId + " not found"));
+        User targetUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserExceptions.UserNotFound("User with ID: " + userId + " not found"));
+
+        if (user.getManagementLevel() == UserRole.MANAGER && targetUser.getManagementLevel() == UserRole.OWNER) {
+                throw new UserExceptions.UnauthorizedRole("Managers cannot change the status of Owners.");
+        }
+
+        targetUser.setWorking(!targetUser.isWorking());
+        userRepository.save(targetUser);
 
         return Boolean.TRUE;
     }
 
-    @Override // TODO: continue
+    @Override
     public Boolean addUser(User user, CreateUserRequest createUserRequest) {
         roleSecurityService.checkRole(user, "ROLE_MANAGER");
+        if (user.getManagementLevel() == UserRole.MANAGER && createUserRequest.getManagementLevel() == UserRole.OWNER) {
+            throw new UserExceptions.UnauthorizedRole("Managers cannot create owner.");
+        }
+
+        if (userRepository.existsByUsername(createUserRequest.getUsername())) {
+            throw new UserExceptions.UsernameAlreadyExists("Username '" + createUserRequest.getUsername() + "' is already taken.");
+        }
+
+        User newUser = modelMapper.map(createUserRequest, User.class);
+        newUser.setPassword(passwordEncoder.encode(createUserRequest.getPassword()));
+        newUser.setWorking(true);
+        userRepository.save(newUser);
 
         return Boolean.TRUE;
     }

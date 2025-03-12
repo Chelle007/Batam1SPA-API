@@ -11,4 +11,16 @@ public class UserExceptions {
             super(message);
         }
     }
+
+    public static class UnauthorizedRole extends RuntimeException {
+        public UnauthorizedRole(String message) {
+            super(message);
+        }
+    }
+
+    public static class UsernameAlreadyExists extends RuntimeException {
+        public UsernameAlreadyExists(String message) {
+            super(message);
+        }
+    }
 }
