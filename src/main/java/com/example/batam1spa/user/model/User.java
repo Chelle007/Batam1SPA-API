@@ -11,7 +11,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
@@ -40,6 +39,12 @@ public class User extends Auditable implements UserDetails {
             length = 60
     )
     private String password;
+
+    @Column(
+            nullable = false,
+            columnDefinition = "boolean default true"
+    )
+    private boolean isWorking;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

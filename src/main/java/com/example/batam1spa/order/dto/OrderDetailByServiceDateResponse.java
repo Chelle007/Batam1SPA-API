@@ -22,5 +22,4 @@ public class OrderDetailByServiceDateResponse {
     private boolean isVIP;
     private int totalPrice;
     private boolean isCancelled;
-
 }

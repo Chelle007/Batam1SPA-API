@@ -2,7 +2,6 @@ package com.example.batam1spa.order.service;
 
 import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
-import com.example.batam1spa.availability.service.TimeSlotService;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
 import com.example.batam1spa.order.dto.CartOrderDetailDTO;
@@ -15,11 +14,9 @@ import com.example.batam1spa.order.repository.OrderRepository;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.service.repository.ServiceRepository;
-import com.example.batam1spa.service.service.ServiceService;
 import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.Phonenumber;
@@ -169,7 +166,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Boolean editVIPStatus(UUID orderId) {
+    public Boolean editVIPStatus(User user, UUID orderId) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderExceptions.OrderNotFound("Order with ID: " + orderId + " not found"));
 
         order.setVIP(!order.isVIP());
