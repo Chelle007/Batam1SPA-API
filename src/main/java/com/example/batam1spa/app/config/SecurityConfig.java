@@ -35,11 +35,15 @@ public class SecurityConfig {
     };
 
     private static final String[] POST_WHITELIST = {
-            "/api/v1/auth/sign-in"
+            "/api/v1/auth/sign-in",
+            "/api/v1/order/add-to-cart",
+            "/api/v1/order/remove-from-cart",
     };
 
     private static final String[] GET_WHITELIST = {
-            "/api/v1/service/get-all-service"
+            "/api/v1/service/get-all-service",
+            "/api/v1/availability/get-service-availability",
+            "/api/v1/order/get-cart",
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;

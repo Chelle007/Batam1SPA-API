@@ -1,5 +1,6 @@
 package com.example.batam1spa.app.initializer;
 
+import com.example.batam1spa.availability.service.AvailabilityService;
 import com.example.batam1spa.availability.service.TimeSlotService;
 import com.example.batam1spa.bundle.service.BundleDescriptionService;
 import com.example.batam1spa.bundle.service.BundleDetailService;
@@ -32,6 +33,7 @@ public class DataInitializer implements CommandLineRunner {
     private final TimeSlotService timeSlotService;
     private final StaffService staffService;
     private final OrderDetailService orderDetailService;
+    private final AvailabilityService availabilityService;
 
     @Override
     public void run(String... args) {
@@ -47,5 +49,6 @@ public class DataInitializer implements CommandLineRunner {
         timeSlotService.seedTimeSlot();
         staffService.seedStaff();
         orderDetailService.seedOrderDetail();
+        availabilityService.generateAvailabilityForNextTwoWeeks();
     }
 }

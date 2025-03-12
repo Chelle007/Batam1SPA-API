@@ -23,4 +23,7 @@ public class Customer extends Auditable {
 
     @Column(columnDefinition = "boolean default false")
     private boolean isLocal;
+
+    @Column(columnDefinition = "boolean default false")
+    private boolean isSubscribed;
 }
