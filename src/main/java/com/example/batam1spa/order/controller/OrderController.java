@@ -1,13 +1,10 @@
 package com.example.batam1spa.order.controller;
 
 import com.example.batam1spa.common.dto.BaseResponse;
-import com.example.batam1spa.order.dto.CartOrderDetailDTO;
-import com.example.batam1spa.order.dto.CheckoutRequest;
-import com.example.batam1spa.order.dto.GetOrderDetailPaginationResponse;
+import com.example.batam1spa.order.dto.*;
 import com.example.batam1spa.order.model.Order;
 import com.example.batam1spa.order.service.CartService;
 import com.example.batam1spa.order.service.OrderDetailService;
-import com.example.batam1spa.order.dto.GetOrderDetailResponse;
 import com.example.batam1spa.order.service.OrderService;
 import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +32,19 @@ public class OrderController {
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) LocalDate localDate) {
-        GetOrderDetailPaginationResponse response = orderDetailService.getOrderDetails(user, page, size, localDate);
-        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Orders By Service Date"));
+            @RequestParam(required = false) LocalDate serviceDate) {
+        GetOrderDetailPaginationResponse response = orderDetailService.getOrderDetails(user, page, size, serviceDate);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Order Details"));
+    }
+
+    @GetMapping("/get-order")
+    public ResponseEntity<BaseResponse<GetOrderPaginationResponse>> getOrders(
+            @AuthenticationPrincipal User user,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) LocalDate bookDate) {
+        GetOrderPaginationResponse response = orderService.getOrders(user, page, size, bookDate);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Orders"));
     }
 
     @PostMapping("/edit-order-status")

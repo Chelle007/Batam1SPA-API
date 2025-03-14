@@ -4,8 +4,7 @@ import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
-import com.example.batam1spa.order.dto.CartOrderDetailDTO;
-import com.example.batam1spa.order.dto.CheckoutRequest;
+import com.example.batam1spa.order.dto.*;
 import com.example.batam1spa.order.exception.OrderExceptions;
 import com.example.batam1spa.order.model.Order;
 import com.example.batam1spa.order.model.OrderDetail;
@@ -20,9 +19,16 @@ import lombok.extern.slf4j.Slf4j;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.Phonenumber;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,6 +43,7 @@ public class OrderServiceImpl implements OrderService {
     private final ServiceRepository serviceRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final OrderDetailRepository orderDetailRepository;
+    private final ModelMapper modelMapper;
     private static final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
 
     @Override
@@ -174,5 +181,38 @@ public class OrderServiceImpl implements OrderService {
         order.setVIP(!order.isVIP());
         orderRepository.save(order);
         return Boolean.TRUE;
+    }
+
+    @Override
+    public GetOrderPaginationResponse getOrders(User user, int page, int size, LocalDate bookDate) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("bookDateTime").descending());
+        Page<Order> orders;
+
+        if (bookDate != null) {
+            orders = orderRepository.findByBookDateTimeBetween(
+                    bookDate.atStartOfDay(), bookDate.plusDays(1).atStartOfDay(), pageable);
+        } else {
+            orders = orderRepository.findAll(pageable);
+        }
+
+        List<GetOrderResponse> orderResponses = orders.stream().map(order -> {
+            GetOrderResponse response = modelMapper.map(order, GetOrderResponse.class);
+            response.setCustomer(order.getCustomer());
+            response.setVIP(order.isVIP());
+            response.setTotalPrice(order.getTotalPrice());
+            response.setBookDateTime(order.getBookDateTime());
+            response.setCancelled(order.isCancelled());
+            response.setOrderDetails(orderDetailRepository.findByOrder(order));
+            return response;
+        }).toList();
+
+        return GetOrderPaginationResponse.builder()
+                .getOrderResponseList(orderResponses)
+                .page(page)
+                .size(size)
+                .totalPages(orders.getTotalPages())
+                .build();
     }
 }
