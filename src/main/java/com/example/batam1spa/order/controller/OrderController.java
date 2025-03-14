@@ -78,7 +78,7 @@ public class OrderController {
     }
 
     @PostMapping("/edit-vip-status")
-    public ResponseEntity<BaseResponse<Boolean>> editVIPStatus(User user, UUID orderId) {
+    public ResponseEntity<BaseResponse<Boolean>> editVIPStatus(@AuthenticationPrincipal User user, UUID orderId) {
         Boolean response = orderService.editVIPStatus(user, orderId);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Edit VIP Status"));
     }
