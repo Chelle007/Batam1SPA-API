@@ -94,7 +94,7 @@ public class OrderServiceImpl implements OrderService {
     public Boolean checkout(CheckoutRequest checkoutRequest) {
         // UPDATE CUSTOMER
         String phoneNumber = checkoutRequest.getPhonePrefix() + " " + checkoutRequest.getPhoneLocalNumber().strip();
-        if (!isValidPhoneNumber(phoneNumber)) {
+        if (!isValidPhoneNumber(phoneNumber.strip())) {
             throw new OrderExceptions.InvalidPhoneNumber("Invalid phone number: " + phoneNumber);
         }
 

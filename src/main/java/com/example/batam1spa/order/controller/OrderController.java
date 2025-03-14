@@ -3,10 +3,11 @@ package com.example.batam1spa.order.controller;
 import com.example.batam1spa.common.dto.BaseResponse;
 import com.example.batam1spa.order.dto.CartOrderDetailDTO;
 import com.example.batam1spa.order.dto.CheckoutRequest;
+import com.example.batam1spa.order.dto.GetOrderDetailPaginationResponse;
 import com.example.batam1spa.order.model.Order;
 import com.example.batam1spa.order.service.CartService;
 import com.example.batam1spa.order.service.OrderDetailService;
-import com.example.batam1spa.order.dto.OrderDetailByServiceDateResponse;
+import com.example.batam1spa.order.dto.GetOrderDetailResponse;
 import com.example.batam1spa.order.service.OrderService;
 import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -32,9 +30,13 @@ public class OrderController {
     private final OrderService orderService;
     private final CartService cartService;
 
-    @GetMapping("/get-by-service-date")
-    public ResponseEntity<BaseResponse<List<OrderDetailByServiceDateResponse>>> getOrderDetailsByServiceDate(@AuthenticationPrincipal User user, LocalDate localDate) {
-        List<OrderDetailByServiceDateResponse> response = orderDetailService.getOrderDetailsByServiceDate(user, localDate);
+    @GetMapping("/get-order-details")
+    public ResponseEntity<BaseResponse<GetOrderDetailPaginationResponse>> getOrderDetails(
+            @AuthenticationPrincipal User user,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) LocalDate localDate) {
+        GetOrderDetailPaginationResponse response = orderDetailService.getOrderDetails(user, page, size, localDate);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Orders By Service Date"));
     }
 
