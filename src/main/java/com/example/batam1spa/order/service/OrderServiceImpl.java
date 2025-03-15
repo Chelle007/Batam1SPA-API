@@ -1,6 +1,8 @@
 package com.example.batam1spa.order.service;
 
+import com.example.batam1spa.availability.model.Availability;
 import com.example.batam1spa.availability.model.TimeSlot;
+import com.example.batam1spa.availability.repository.AvailabilityRepository;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
@@ -12,6 +14,7 @@ import com.example.batam1spa.order.repository.OrderDetailRepository;
 import com.example.batam1spa.order.repository.OrderRepository;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.Service;
+import com.example.batam1spa.service.model.ServiceType;
 import com.example.batam1spa.service.repository.ServiceRepository;
 import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +46,7 @@ public class OrderServiceImpl implements OrderService {
     private final ServiceRepository serviceRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final OrderDetailRepository orderDetailRepository;
+    private final AvailabilityRepository availabilityRepository;
     private final ModelMapper modelMapper;
     private static final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
 
@@ -99,6 +103,15 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public Boolean checkout(CheckoutRequest checkoutRequest) {
+        // QTY VALIDATION
+        int total_qty = 0;
+        for (CartOrderDetailDTO cart : checkoutRequest.getCartList()) {
+            total_qty += cart.getQty();
+        }
+        if (total_qty > 4) {
+            throw new OrderExceptions.InvalidQty("Total qty cannot be more than 4: " + total_qty);
+        }
+
         // UPDATE CUSTOMER
         String phoneNumber = checkoutRequest.getPhonePrefix() + " " + checkoutRequest.getPhoneLocalNumber().strip();
         if (!isValidPhoneNumber(phoneNumber.strip())) {
@@ -136,9 +149,13 @@ public class OrderServiceImpl implements OrderService {
                     .build());
         }
 
-        // CART VALIDATION
+        // CART VALIDATION & REDUCE AVAILABILITY
         for (CartOrderDetailDTO cart : checkoutRequest.getCartList()) {
-            cartService.validateBooking(cart);
+            List<Availability> availabilityList = cartService.validateBooking(cart);
+            for (Availability availability : availabilityList) {
+                availability.setCount(availability.getCount()-cart.getQty());
+                availabilityRepository.save(availability);
+            }
         }
 
         // CHECKOUT

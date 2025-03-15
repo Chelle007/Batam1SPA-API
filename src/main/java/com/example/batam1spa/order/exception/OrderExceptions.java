@@ -53,4 +53,16 @@ public class OrderExceptions {
             super(message);
         }
     }
+
+    public static class ServiceFullyBooked extends RuntimeException {
+        public ServiceFullyBooked(String message) {
+            super(message);
+        }
+    }
+
+    public static class InvalidQty extends RuntimeException {
+        public InvalidQty(String message) {
+            super(message);
+        }
+    }
 }

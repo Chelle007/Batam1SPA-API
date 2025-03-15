@@ -2,7 +2,6 @@ package com.example.batam1spa.user.advice;
 
 import com.example.batam1spa.user.exception.UserExceptions;
 import com.example.batam1spa.common.dto.BaseResponse;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

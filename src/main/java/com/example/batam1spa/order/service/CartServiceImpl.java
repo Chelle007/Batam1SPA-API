@@ -7,6 +7,7 @@ import com.example.batam1spa.availability.repository.TimeSlotRepository;
 import com.example.batam1spa.order.dto.CartOrderDetailDTO;
 import com.example.batam1spa.order.exception.OrderExceptions;
 import com.example.batam1spa.service.model.Service;
+import com.example.batam1spa.service.model.ServiceType;
 import com.example.batam1spa.service.repository.ServiceRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,7 +30,7 @@ public class CartServiceImpl implements CartService {
     private final HttpSession session;
 
     @Override
-    public void validateBooking(CartOrderDetailDTO cartOrderDetailDTO) {
+    public List<Availability> validateBooking(CartOrderDetailDTO cartOrderDetailDTO) {
         UUID serviceId = cartOrderDetailDTO.getServiceId();
         UUID startTimeSlotId = cartOrderDetailDTO.getStartTimeSlotId();
         UUID endTimeSlotId = cartOrderDetailDTO.getEndTimeSlotId();
@@ -36,6 +38,7 @@ public class CartServiceImpl implements CartService {
         int qty = cartOrderDetailDTO.getQty();
 
         Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new OrderExceptions.ServiceNotFound("Service with ID: " + serviceId + " not found."));
+        ServiceType serviceType = service.getServiceType();
 
         TimeSlot startTimeSlot = timeSlotRepository.findById(startTimeSlotId).orElseThrow(() -> new OrderExceptions.TimeSlotNotFound("TimeSlot with ID: " + startTimeSlotId + " not found."));
         TimeSlot endTimeSlot = timeSlotRepository.findById(endTimeSlotId).orElseThrow(() -> new OrderExceptions.TimeSlotNotFound("TimeSlot with ID: " + endTimeSlotId + " not found."));
@@ -50,13 +53,21 @@ public class CartServiceImpl implements CartService {
             throw new OrderExceptions.InvalidServiceSchedule("Invalid service time: " + startTimeSlot.getLocalTime());
         }
 
-        // loop through availabilities
-        for (TimeSlot timeSlot : selectedTimeSlots) {
-            Availability availability = availabilityRepository.findByDateAndTimeSlotAndServiceType(serviceDate, timeSlot, service.getServiceType()).orElseThrow(() -> new OrderExceptions.AvailabilityNotFound("Availability with service date: " + serviceDate + " and timeSlot: " + timeSlot.getLocalTime() + " and serviceType: " + service.getServiceType() + " not found."));
-            if (availability.getCount() <= qty) {
-                throw new OrderExceptions.AvailabilityNotFound("Service is fully booked at: " + timeSlot.getLocalTime());
-            }
+        if (qty < 0) {
+            throw new OrderExceptions.InvalidQty("Invalid qty: " + qty);
         }
+
+        // loop through availabilities
+        List<Availability> availabilityList = new ArrayList<>();
+        for (TimeSlot timeSlot : selectedTimeSlots) {
+            Availability availability = availabilityRepository.findByDateAndTimeSlotAndServiceType(serviceDate, timeSlot, serviceType).orElseThrow(() -> new OrderExceptions.AvailabilityNotFound("Availability with service date: " + serviceDate + " and timeSlot: " + timeSlot.getLocalTime() + " and serviceType: " + service.getServiceType() + " not found."));
+            if (availability.getCount() <= qty) {
+                throw new OrderExceptions.ServiceFullyBooked("Service is fully booked at: " + timeSlot.getLocalTime());
+            }
+            availabilityList.add(availability);
+        }
+
+        return availabilityList;
     }
 
     @Override
