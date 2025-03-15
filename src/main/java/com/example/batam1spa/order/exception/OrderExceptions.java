@@ -65,4 +65,10 @@ public class OrderExceptions {
             super(message);
         }
     }
+
+    public static class QtyMoreThanFour extends RuntimeException {
+        public QtyMoreThanFour(String message) {
+            super(message);
+        }
+    }
 }

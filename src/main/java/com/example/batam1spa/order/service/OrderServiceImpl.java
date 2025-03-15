@@ -109,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
             total_qty += cart.getQty();
         }
         if (total_qty > 4) {
-            throw new OrderExceptions.InvalidQty("Total qty cannot be more than 4: " + total_qty);
+            throw new OrderExceptions.QtyMoreThanFour("Total qty cannot be more than 4: " + total_qty);
         }
 
         // UPDATE CUSTOMER

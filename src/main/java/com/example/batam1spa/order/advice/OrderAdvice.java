@@ -78,6 +78,27 @@ public class OrderAdvice {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(OrderExceptions.ServiceFullyBooked.class)
+    public ResponseEntity<BaseResponse<String>> handleServiceFullyBookedException(OrderExceptions.ServiceFullyBooked ex) {
+        log.error("Service fully booked: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Service fully booked");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(OrderExceptions.InvalidQty.class)
+    public ResponseEntity<BaseResponse<String>> handleInvalidQtyException(OrderExceptions.InvalidQty ex) {
+        log.error("Invalid qty: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Invalid qty");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(OrderExceptions.QtyMoreThanFour.class)
+    public ResponseEntity<BaseResponse<String>> handleQtyMoreThanFourException(OrderExceptions.QtyMoreThanFour ex) {
+        log.error("Qty more than 4: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Qty more than 4");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse<String>> handleGenericException(Exception ex) {
         log.error("Unexpected Exception: {}", ex.getMessage(), ex);
