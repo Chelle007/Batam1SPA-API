@@ -1,72 +1,55 @@
 package com.example.batam1spa.staff.controller;
 
-import com.example.batam1spa.service.model.ServiceType;
+import com.example.batam1spa.common.dto.BaseResponse;
+import com.example.batam1spa.staff.dto.CreateStaffRequest;
+import com.example.batam1spa.staff.dto.EditStaffRequest;
 import com.example.batam1spa.staff.model.Staff;
 import com.example.batam1spa.staff.service.StaffService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/staff")
+@RequestMapping("/api/v1/staff")
 public class StaffController {
 
-    @Autowired
     private StaffService staffService;
 
-    // Hardcoded data for testing
-    @GetMapping()
-    public List<Staff> getAllStaffs() {
-        Staff staff1 = new Staff(
-                1L, // staffId
-                "John Doe", // fullName
-                "Male", // gender
-                ServiceType.MASSAGE, // serviceType
-                LocalTime.of(9, 0), // startTimeId
-                LocalTime.of(17, 0), // endTimeId
-                true, // monday
-                true, // tuesday
-                true, // wednesday
-                true, // thursday
-                true, // friday
-                false, // saturday
-                false, // sunday
-                5, // workCount
-                true // isActive
-        );
+    // Get all staff members Full URI: /api/staff/get-all-staff
+    @GetMapping("/get-all-staff")
+    public ResponseEntity<BaseResponse<List<Staff>>> getAllStaff() {
+        List<Staff> allStaff = staffService.getAllStaff();
 
-        Staff staff2 = new Staff(
-                2L, // staffId
-                "Jane Smith", // fullName
-                "Female", // gender
-                ServiceType.MENIPEDI, // serviceType
-                LocalTime.of(10, 0), // startTimeId
-                LocalTime.of(18, 0), // endTimeId
-                true, // monday
-                true, // tuesday
-                true, // wednesday
-                true, // thursday
-                true, // friday
-                false, // saturday
-                false, // sunday
-                3, // workCount
-                true // isActive
-        );
+        // Wrap the response in BaseResponse
+        BaseResponse<List<Staff>> response = BaseResponse.success(
+                HttpStatus.OK, allStaff, "Fetched all staffs successfully");
 
-        return Arrays.asList(staff1, staff2);
+        return ResponseEntity.ok(response);
     }
 
-    // Real implementation
-//    @GetMapping
-//    public List<Staff> getAllStaff() {
-//        return staffService.getAllStaff();
-//    }
+    // Add a new staff member Full URI: /api/v1/staff/add
+    @PostMapping("/add")
+    public ResponseEntity<BaseResponse<Staff>> addStaff(@RequestBody CreateStaffRequest createStaffRequestDTO) {
+        Staff newStaff = staffService.addStaff(createStaffRequestDTO);
 
-    @PostMapping
-    public Staff addStaff(@RequestBody Staff staff) {
-        return staffService.addStaff(staff);
+        // Wrap the response in BaseResponse
+        BaseResponse<Staff> response = BaseResponse.success(
+                HttpStatus.OK, newStaff, "Staff added successfully");
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Edit an existing staff member Full URI: /api/v1/staff/{staffId}
+    @PutMapping("/edit/{staffId}")
+    public ResponseEntity<BaseResponse<Staff>> editStaff(@PathVariable UUID staffId, @RequestBody EditStaffRequest editStaffRequest) {
+        Staff updatedStaff = staffService.editStaff(staffId, editStaffRequest);
+
+        // Wrap the response in BaseResponse
+        BaseResponse<Staff> response = BaseResponse.success(
+                HttpStatus.OK, updatedStaff, "Staff edited successfully");
+        return ResponseEntity.ok(response);
     }
 }

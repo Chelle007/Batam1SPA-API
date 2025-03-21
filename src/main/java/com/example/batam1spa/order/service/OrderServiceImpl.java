@@ -1,21 +1,54 @@
 package com.example.batam1spa.order.service;
 
+import com.example.batam1spa.availability.model.Availability;
+import com.example.batam1spa.availability.model.TimeSlot;
+import com.example.batam1spa.availability.repository.AvailabilityRepository;
+import com.example.batam1spa.availability.repository.TimeSlotRepository;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
+import com.example.batam1spa.order.dto.*;
+import com.example.batam1spa.order.exception.OrderExceptions;
 import com.example.batam1spa.order.model.Order;
+import com.example.batam1spa.order.model.OrderDetail;
+import com.example.batam1spa.order.repository.OrderDetailRepository;
 import com.example.batam1spa.order.repository.OrderRepository;
+import com.example.batam1spa.security.service.RoleSecurityService;
+import com.example.batam1spa.service.model.Service;
+import com.example.batam1spa.service.model.ServiceType;
+import com.example.batam1spa.service.repository.ServiceRepository;
+import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.Phonenumber;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-@Service
+@org.springframework.stereotype.Service
 @RequiredArgsConstructor
 @Slf4j
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
+    private final RoleSecurityService roleSecurityService;
+    private final CartService cartService;
+    private final ServiceRepository serviceRepository;
+    private final TimeSlotRepository timeSlotRepository;
+    private final OrderDetailRepository orderDetailRepository;
+    private final AvailabilityRepository availabilityRepository;
+    private final ModelMapper modelMapper;
+    private static final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
 
     @Override
     public void seedOrder() {
@@ -44,5 +77,159 @@ public class OrderServiceImpl implements OrderService {
 
         orderRepository.save(order);
         log.info("{}'s order has been added to the system", customer);
+    }
+
+    @Override
+    public Order editOrderStatus(User user, UUID orderId) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderExceptions.OrderNotFound("Order with ID " + orderId + " not found"));
+
+        order.setCancelled(!order.isCancelled());
+        orderRepository.save(order);
+
+        return order;
+    }
+
+    private static boolean isValidPhoneNumber(String phoneNumber) {
+        try {
+            Phonenumber.PhoneNumber number = phoneNumberUtil.parse(phoneNumber, null);
+            return phoneNumberUtil.isValidNumber(number);
+        } catch (NumberParseException e) {
+            return false;
+        }
+    }
+
+    @Override
+    @Transactional
+    public Boolean checkout(CheckoutRequest checkoutRequest) {
+        // QTY VALIDATION
+        int total_qty = 0;
+        for (CartOrderDetailDTO cart : checkoutRequest.getCartList()) {
+            total_qty += cart.getQty();
+        }
+        if (total_qty > 4) {
+            throw new OrderExceptions.QtyMoreThanFour("Total qty cannot be more than 4: " + total_qty);
+        }
+
+        // UPDATE CUSTOMER
+        String phoneNumber = checkoutRequest.getPhonePrefix() + " " + checkoutRequest.getPhoneLocalNumber().strip();
+        if (!isValidPhoneNumber(phoneNumber.strip())) {
+            throw new OrderExceptions.InvalidPhoneNumber("Invalid phone number: " + phoneNumber);
+        }
+
+        Optional<Customer> existingCustomer = customerRepository.findByPhoneNumber(phoneNumber);
+        Customer customer;
+        if (existingCustomer.isPresent()) {
+            customer = existingCustomer.get();
+
+            boolean updated = false;
+            if (!customer.getFullName().equals(checkoutRequest.getFullName())) {
+                customer.setFullName(checkoutRequest.getFullName());
+                updated = true;
+            }
+            if (!customer.getEmail().equals(checkoutRequest.getEmail())) {
+                customer.setEmail(checkoutRequest.getEmail());
+                updated = true;
+            }
+            if (customer.isSubscribed() != checkoutRequest.isSubscribed()) {
+                customer.setSubscribed(checkoutRequest.isSubscribed());
+                updated = true;
+            }
+
+            if (updated) {
+                customerRepository.save(customer);
+            }
+        } else {
+            customer = customerRepository.save(Customer.builder()
+                    .fullName(checkoutRequest.getFullName())
+                    .phoneNumber(phoneNumber)
+                    .email(checkoutRequest.getEmail())
+                    .isSubscribed(checkoutRequest.isSubscribed())
+                    .build());
+        }
+
+        // CART VALIDATION & REDUCE AVAILABILITY
+        for (CartOrderDetailDTO cart : checkoutRequest.getCartList()) {
+            List<Availability> availabilityList = cartService.validateBooking(cart);
+            for (Availability availability : availabilityList) {
+                availability.setCount(availability.getCount()-cart.getQty());
+                availabilityRepository.save(availability);
+            }
+        }
+
+        // CHECKOUT
+        Order order = Order.builder()
+                .customer(customer)
+                .isVIP(checkoutRequest.isVIP())
+                .bookDateTime(LocalDateTime.now())
+                .build();
+
+        int totalPrice = 0;
+        for (CartOrderDetailDTO cart : checkoutRequest.getCartList()) {
+            Service service = serviceRepository.findById(cart.getServiceId()).orElseThrow(() -> new OrderExceptions.ServiceNotFound("Service with ID: " + cart.getServiceId() + " not found."));
+            TimeSlot startTimeSlot = timeSlotRepository.findById(cart.getStartTimeSlotId()).orElseThrow(() -> new OrderExceptions.TimeSlotNotFound("Start time slot with ID: " + cart.getStartTimeSlotId() + " not found."));
+            TimeSlot endTimeSlot = timeSlotRepository.findById(cart.getEndTimeSlotId()).orElseThrow(() -> new OrderExceptions.TimeSlotNotFound("End time slot with ID: " + cart.getEndTimeSlotId() + " not found."));
+
+            OrderDetail orderDetail = OrderDetail.builder()
+                    .order(order)
+                    .service(service)
+                    .serviceDate(cart.getServiceDate())
+                    .startTimeSlot(startTimeSlot)
+                    .endTimeSlot(endTimeSlot)
+                    .build();
+            orderDetailRepository.save(orderDetail);
+        }
+
+        order.setTotalPrice(totalPrice);
+        orderRepository.save(order);
+
+        // SEND INVOICE
+
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public Boolean editVIPStatus(User user, UUID orderId) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderExceptions.OrderNotFound("Order with ID: " + orderId + " not found"));
+
+        order.setVIP(!order.isVIP());
+        orderRepository.save(order);
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public GetOrderPaginationResponse getOrders(User user, int page, int size, LocalDate bookDate) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("bookDateTime").descending());
+        Page<Order> orders;
+
+        if (bookDate != null) {
+            orders = orderRepository.findByBookDateTimeBetween(
+                    bookDate.atStartOfDay(), bookDate.plusDays(1).atStartOfDay(), pageable);
+        } else {
+            orders = orderRepository.findAll(pageable);
+        }
+
+        List<GetOrderResponse> orderResponses = orders.stream().map(order -> {
+            GetOrderResponse response = modelMapper.map(order, GetOrderResponse.class);
+            response.setCustomer(order.getCustomer());
+            response.setVIP(order.isVIP());
+            response.setTotalPrice(order.getTotalPrice());
+            response.setBookDateTime(order.getBookDateTime());
+            response.setCancelled(order.isCancelled());
+            response.setOrderDetails(orderDetailRepository.findByOrder(order));
+            return response;
+        }).toList();
+
+        return GetOrderPaginationResponse.builder()
+                .getOrderResponseList(orderResponses)
+                .page(page)
+                .size(size)
+                .totalPages(orders.getTotalPages())
+                .build();
     }
 }

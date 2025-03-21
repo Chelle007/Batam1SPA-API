@@ -12,4 +12,5 @@ import java.util.UUID;
 public interface ServiceDescriptionRepository extends JpaRepository<ServiceDescription, UUID> {
     // for testing purpose (seeder)
     Boolean existsByServiceAndLanguageCode(Service service, LanguageCode languageCode);
+    void deleteByServiceId(UUID serviceId);
 }

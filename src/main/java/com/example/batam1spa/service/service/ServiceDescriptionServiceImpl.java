@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.example.batam1spa.service.model.Service;
 
+import java.util.List;
+
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
 @Slf4j
@@ -20,6 +22,7 @@ public class ServiceDescriptionServiceImpl implements ServiceDescriptionService 
         Service service1 = serviceRepository.findByName("Head Massage").orElse(null);
         Service service2 = serviceRepository.findByName("Body Massage").orElse(null);
         Service service3 = serviceRepository.findByName("Foot Massage").orElse(null);
+        Service service4 = serviceRepository.findByName("Manipedi").orElse(null);
 
         createServiceDescriptionIfNotExists(
                 service1,
@@ -51,6 +54,16 @@ public class ServiceDescriptionServiceImpl implements ServiceDescriptionService 
                 LanguageCode.ID,
                 "Massage untuk kaki."
         );
+        createServiceDescriptionIfNotExists(
+                service4,
+                LanguageCode.EN,
+                "Manicure & Pedicure."
+        );
+        createServiceDescriptionIfNotExists(
+                service4,
+                LanguageCode.ID,
+                "Servis manipedi."
+        );
     }
 
     private void createServiceDescriptionIfNotExists(Service service, LanguageCode languageCode, String description) {
@@ -70,4 +83,9 @@ public class ServiceDescriptionServiceImpl implements ServiceDescriptionService 
         serviceDescriptionRepository.save(serviceDescription);
         log.info("{}'s {} description has been added to the system", service, languageCode);
     }
+
+    public List<ServiceDescription> getAllServiceDescriptions() {
+        return serviceDescriptionRepository.findAll();
+    }
+
 }
