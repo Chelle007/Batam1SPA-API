@@ -12,6 +12,9 @@ import com.example.batam1spa.service.repository.ServiceDescriptionRepository;
 import com.example.batam1spa.service.repository.ServicePriceRepository;
 import com.example.batam1spa.service.repository.ServiceRepository;
 import com.example.batam1spa.security.service.RoleSecurityService;
+import com.example.batam1spa.service.dto.PriceDTO;
+import com.example.batam1spa.service.dto.ServiceDetailsDTO;
+import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -264,5 +267,42 @@ Expected API Request for add service:
 
         // Step 4: Save and return updated service
         return serviceRepository.save(existingService);
+    }
+
+    // Customer side
+    @Override
+    public ServiceDetailsDTO getServiceDetails(UUID serviceId, String lang) {
+        // Step 1: Find service
+        Service service = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new RuntimeException("Service not found with id: " + serviceId));
+
+        // Step 2: Fetch service description in requested language
+        ServiceDescription description = serviceDescriptionRepository
+                .findByServiceAndLanguageCode(service, LanguageCode.valueOf(lang.toUpperCase()))
+                .orElseThrow(() -> new RuntimeException("Service description not found for language: " + lang));
+
+        // Step 3: Get included item descriptions in requested language
+        String includedItems = serviceDescriptionRepository
+                .findByServiceAndLanguageCode(service, LanguageCode.valueOf(lang.toUpperCase()))
+                .map(ServiceDescription::getDescription)
+                .orElse(lang.equalsIgnoreCase("EN") ? "No included items available." : "Tidak ada item yang termasuk.");
+
+        // Step 4: Fetch pricing (60/90/120 mins)
+        List<PriceDTO> prices = servicePriceRepository.findByService(service).stream()
+                .filter(price -> price.getDuration() == 60 || price.getDuration() == 90 || price.getDuration() == 120)
+                .map(price -> PriceDTO.builder()
+                        .duration(price.getDuration())
+                        .localPrice(price.getLocalPrice())
+                        .touristPrice(price.getTouristPrice())
+                        .build())
+                .collect(Collectors.toList());
+
+        // Step 5: Build response DTO
+        return ServiceDetailsDTO.builder()
+                .serviceId(service.getId().toString())
+                .description(description.getDescription())
+                .includedItems(includedItems)
+                .prices(prices)
+                .build();
     }
 }

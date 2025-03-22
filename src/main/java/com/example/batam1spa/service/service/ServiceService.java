@@ -3,6 +3,7 @@ package com.example.batam1spa.service.service;
 import com.example.batam1spa.service.dto.CreateServiceRequest;
 import com.example.batam1spa.service.dto.ServiceRequest;
 import com.example.batam1spa.service.dto.EditServiceRequest;
+import com.example.batam1spa.service.dto.ServiceDetailsDTO;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.user.model.User;
 
@@ -15,4 +16,7 @@ public interface ServiceService {
     Service addService(User user, CreateServiceRequest createServiceRequest);
     Service editService(User user, UUID serviceId, EditServiceRequest editServiceRequest);
     Service toggleServiceStatus(User user, UUID serviceId);
+
+    // Customer side
+    ServiceDetailsDTO getServiceDetails(UUID serviceId, String lang);
 }

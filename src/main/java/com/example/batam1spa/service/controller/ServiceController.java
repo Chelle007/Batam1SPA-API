@@ -4,6 +4,7 @@ import com.example.batam1spa.common.dto.BaseResponse;
 import com.example.batam1spa.service.dto.CreateServiceRequest;
 import com.example.batam1spa.service.dto.EditServiceRequest;
 import com.example.batam1spa.service.dto.ServiceRequest;
+import com.example.batam1spa.service.dto.ServiceDetailsDTO;
 import com.example.batam1spa.service.model.ServiceDescription;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.service.service.ServiceDescriptionService;
@@ -87,4 +88,19 @@ public class ServiceController {
 
         return ResponseEntity.ok(response);
     }
+
+    // For customer website
+    @GetMapping("/details/{lang}/{serviceId}")
+    public ResponseEntity<BaseResponse<ServiceDetailsDTO>> getServiceDetails(
+            @PathVariable String lang,
+            @PathVariable UUID serviceId) {
+
+        ServiceDetailsDTO serviceDetails = serviceService.getServiceDetails(serviceId, lang);
+
+        BaseResponse<ServiceDetailsDTO> response = BaseResponse.success(
+                HttpStatus.OK, serviceDetails, "Service details fetched successfully");
+
+        return ResponseEntity.ok(response);
+    }
+
 }
