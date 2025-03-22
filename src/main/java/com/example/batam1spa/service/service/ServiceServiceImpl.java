@@ -11,6 +11,8 @@ import com.example.batam1spa.service.model.ServiceType;
 import com.example.batam1spa.service.repository.ServiceDescriptionRepository;
 import com.example.batam1spa.service.repository.ServicePriceRepository;
 import com.example.batam1spa.service.repository.ServiceRepository;
+import com.example.batam1spa.security.service.RoleSecurityService;
+import com.example.batam1spa.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ServiceServiceImpl implements ServiceService {
+    private final RoleSecurityService roleSecurityService;
     private final ServiceRepository serviceRepository;
     private final ServicePriceRepository servicePriceRepository;
     private final ServiceDescriptionRepository serviceDescriptionRepository;
@@ -57,7 +60,8 @@ public class ServiceServiceImpl implements ServiceService {
     }
 
     @Override
-    public List<ServiceRequest> getAllService() {
+    public List<ServiceRequest> getAllService(User user) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         List<Service> services = serviceRepository.findAll();
 
         return services.stream().flatMap(service -> {
@@ -77,7 +81,8 @@ public class ServiceServiceImpl implements ServiceService {
 
     @Override
     @Transactional
-    public Service addService(CreateServiceRequest createServiceRequest) {
+    public Service addService(User user, CreateServiceRequest createServiceRequest) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Check if the service already exists by name
         if (serviceRepository.existsByName(createServiceRequest.getName())) {
             throw new RuntimeException("Service with this name already exists!");
@@ -167,7 +172,8 @@ Expected API Request for add service:
 
     @Override
     @Transactional
-    public Service editService(UUID serviceId, EditServiceRequest editServiceRequest) {
+    public Service editService(User user, UUID serviceId, EditServiceRequest editServiceRequest) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Step 1: Find existing service
         Service existingService = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new RuntimeException("Service not found with id: " + serviceId));

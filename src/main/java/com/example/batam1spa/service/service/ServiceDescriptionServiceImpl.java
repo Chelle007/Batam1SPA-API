@@ -1,6 +1,7 @@
 package com.example.batam1spa.service.service;
 
 import com.example.batam1spa.common.model.LanguageCode;
+import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.ServiceDescription;
 import com.example.batam1spa.service.repository.ServiceDescriptionRepository;
 import com.example.batam1spa.service.repository.ServiceRepository;
@@ -14,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class ServiceDescriptionServiceImpl implements ServiceDescriptionService {
+    private final RoleSecurityService roleSecurityService;
     private final ServiceDescriptionRepository serviceDescriptionRepository;
     private final ServiceRepository serviceRepository;
 

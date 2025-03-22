@@ -8,9 +8,11 @@ import com.example.batam1spa.service.model.ServiceDescription;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.service.service.ServiceDescriptionService;
 import com.example.batam1spa.service.service.ServiceService;
+import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,8 +27,8 @@ public class ServiceController {
 
     // Get all service members Full URI: /api/v1/service/get-all-service
     @GetMapping("/get-all-service")
-    public ResponseEntity<BaseResponse<List<ServiceRequest>>> getAllServices() {
-        List<ServiceRequest> services = serviceService.getAllService();
+    public ResponseEntity<BaseResponse<List<ServiceRequest>>> getAllServices(@AuthenticationPrincipal User user) {
+        List<ServiceRequest> services = serviceService.getAllService(user);
 
         // Wrap the response in BaseResponse
         BaseResponse<List<ServiceRequest>> response = BaseResponse.success(
@@ -49,8 +51,8 @@ public class ServiceController {
 
     // Full URL: `POST /api/v1/service/add`
     @PostMapping("/add")
-    public ResponseEntity<BaseResponse<Service>> addService(@RequestBody CreateServiceRequest createServiceRequest) {
-        Service createdService = serviceService.addService(createServiceRequest);
+    public ResponseEntity<BaseResponse<Service>> addService(@AuthenticationPrincipal User user, @RequestBody CreateServiceRequest createServiceRequest) {
+        Service createdService = serviceService.addService(user, createServiceRequest);
 
         // Wrap the response in BaseResponse
         BaseResponse<Service> response = BaseResponse.success(
@@ -61,10 +63,11 @@ public class ServiceController {
 
     @PutMapping("/edit/{serviceId}")
     public ResponseEntity<BaseResponse<Service>> editService(
+            @AuthenticationPrincipal User user,
             @PathVariable UUID serviceId,
             @RequestBody EditServiceRequest editServiceRequest) {
 
-        Service updatedService = serviceService.editService(serviceId, editServiceRequest);
+        Service updatedService = serviceService.editService(user, serviceId, editServiceRequest);
 
         BaseResponse<Service> response = BaseResponse.success(
                 HttpStatus.OK, updatedService, "Existing service updated successfully");
