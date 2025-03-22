@@ -3,11 +3,13 @@ package com.example.batam1spa.staff.service;
 import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
 import com.example.batam1spa.common.model.Gender;
+import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.ServiceType;
 import com.example.batam1spa.staff.dto.CreateStaffRequest;
 import com.example.batam1spa.staff.dto.EditStaffRequest;
 import com.example.batam1spa.staff.model.Staff;
 import com.example.batam1spa.staff.repository.StaffRepository;
+import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class StaffServiceImpl implements StaffService {
+    private final RoleSecurityService roleSecurityService;
     private final StaffRepository staffRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final ModelMapper modelMapper;
@@ -67,13 +70,16 @@ public class StaffServiceImpl implements StaffService {
 
     // Get all staff members
     @Override
-    public List<Staff> getAllStaff() {
+    public List<Staff> getAllStaff(User user) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         return staffRepository.findAll();
     }
 
     // Add a new staff member
     @Override
-    public Staff addStaff(CreateStaffRequest createStaffRequest) {
+    public Staff addStaff(User user, CreateStaffRequest createStaffRequest) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
         // DTO entity conversion
         Staff createStaffEntity = modelMapper.map(createStaffRequest, Staff.class);
         return staffRepository.save(createStaffEntity);
@@ -81,7 +87,9 @@ public class StaffServiceImpl implements StaffService {
 
     // Edit existing staff
     @Override
-    public Staff editStaff(UUID staffId, EditStaffRequest editStaffRequest) {
+    public Staff editStaff(User user, UUID staffId, EditStaffRequest editStaffRequest) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
         // Find the existing staff member
         Staff existingStaff = staffRepository.findById(staffId)
                 .orElseThrow(() -> new RuntimeException("Staff not found with id: " + staffId));
@@ -92,5 +100,4 @@ public class StaffServiceImpl implements StaffService {
         // Save the updated staff info
         return staffRepository.save(existingStaff);
     }
-
 }

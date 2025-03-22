@@ -1,6 +1,7 @@
 package com.example.batam1spa.service.repository;
 
 import com.example.batam1spa.service.model.Service;
+import com.example.batam1spa.service.model.ServiceType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
