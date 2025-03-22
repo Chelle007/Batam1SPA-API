@@ -1,9 +1,7 @@
 package com.example.batam1spa.service.service;
 
 import com.example.batam1spa.common.model.LanguageCode;
-import com.example.batam1spa.service.dto.CreateServiceRequest;
-import com.example.batam1spa.service.dto.EditServiceRequest;
-import com.example.batam1spa.service.dto.ServiceRequest;
+import com.example.batam1spa.service.dto.*;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.service.model.ServiceDescription;
 import com.example.batam1spa.service.model.ServicePrice;
@@ -12,14 +10,16 @@ import com.example.batam1spa.service.repository.ServiceDescriptionRepository;
 import com.example.batam1spa.service.repository.ServicePriceRepository;
 import com.example.batam1spa.service.repository.ServiceRepository;
 import com.example.batam1spa.security.service.RoleSecurityService;
-import com.example.batam1spa.service.dto.PriceDTO;
-import com.example.batam1spa.service.dto.ServiceDetailsDTO;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -304,5 +304,41 @@ Expected API Request for add service:
                 .includedItems(includedItems)
                 .prices(prices)
                 .build();
+    }
+
+    @Override
+    public GetServicesPaginationResponse getServicesByPage(int amountPerPage, int page) {
+        // Create a Pageable object with the given page and amountPerPage
+        Pageable pageable = PageRequest.of(page, amountPerPage);
+
+        // Fetch services with pagination from the repository
+        Page<Service> servicePage = serviceRepository.findAll(pageable);
+
+        // Convert the Page of services to a List of ServicePaginationResponse DTOs
+        List<ServicePaginationResponse> serviceResponses = servicePage.getContent().stream()
+                .map(service -> {
+                    // Get the durations for each service
+                    List<ServicePrice> prices = servicePriceRepository.findByService(service);
+                    int shortestDuration = prices.stream().mapToInt(ServicePrice::getDuration).min().orElse(0);
+                    int longestDuration = prices.stream().mapToInt(ServicePrice::getDuration).max().orElse(0);
+
+                    return ServicePaginationResponse.builder()
+                            .serviceId(service.getId())
+                            .name(service.getName())
+                            .shortestDuration(shortestDuration)
+                            .longestDuration(longestDuration)
+                            .imgUrl(service.getImgUrl())
+                            .isPublished(service.isPublished())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        // Return a GetServicesPaginationResponse that contains the services and pagination metadata
+        GetServicesPaginationResponse response = new GetServicesPaginationResponse();
+        response.setServices(serviceResponses);
+        response.setTotalPages(servicePage.getTotalPages());
+        response.setTotalElements(servicePage.getTotalElements());
+
+        return response;
     }
 }

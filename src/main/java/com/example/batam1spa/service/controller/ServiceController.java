@@ -1,10 +1,7 @@
 package com.example.batam1spa.service.controller;
 
 import com.example.batam1spa.common.dto.BaseResponse;
-import com.example.batam1spa.service.dto.CreateServiceRequest;
-import com.example.batam1spa.service.dto.EditServiceRequest;
-import com.example.batam1spa.service.dto.ServiceRequest;
-import com.example.batam1spa.service.dto.ServiceDetailsDTO;
+import com.example.batam1spa.service.dto.*;
 import com.example.batam1spa.service.model.ServiceDescription;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.service.service.ServiceDescriptionService;
@@ -103,4 +100,16 @@ public class ServiceController {
         return ResponseEntity.ok(response);
     }
 
+    // Pagination API for services with shortest and longest durations
+    @GetMapping("/get-service-page")
+    public ResponseEntity<BaseResponse<GetServicesPaginationResponse>> getServicesByPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        GetServicesPaginationResponse response = serviceService.getServicesByPage(page, size);
+
+        // Wrap the response in BaseResponse
+        return ResponseEntity.ok(BaseResponse.success(
+                HttpStatus.OK, response, "Successfully fetched services with pagination"));
+    }
 }

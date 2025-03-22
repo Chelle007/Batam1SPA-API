@@ -1,9 +1,6 @@
 package com.example.batam1spa.service.service;
 
-import com.example.batam1spa.service.dto.CreateServiceRequest;
-import com.example.batam1spa.service.dto.ServiceRequest;
-import com.example.batam1spa.service.dto.EditServiceRequest;
-import com.example.batam1spa.service.dto.ServiceDetailsDTO;
+import com.example.batam1spa.service.dto.*;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.user.model.User;
 
@@ -19,4 +16,5 @@ public interface ServiceService {
 
     // Customer side
     ServiceDetailsDTO getServiceDetails(UUID serviceId, String lang);
+    GetServicesPaginationResponse getServicesByPage(int amountPerPage, int page);
 }

@@ -2,22 +2,16 @@ package com.example.batam1spa.service.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.UUID;
 
-// For 'getService' API
-@Getter
-@Setter
 @Data
 @Builder
-public class ServiceRequest {
+public class ServicePaginationResponse {
     private UUID serviceId;
     private String name;
-    private Integer duration; // In minutes
+    private int shortestDuration;  // Shortest duration for the range in FE
+    private int longestDuration;   // Longest duration for the range in FE
     private String imgUrl;
-    private int localPrice;
-    private int touristPrice;
     private Boolean isPublished;
 }
