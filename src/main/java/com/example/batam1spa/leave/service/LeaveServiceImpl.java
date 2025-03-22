@@ -6,6 +6,8 @@ import com.example.batam1spa.leave.model.Leave;
 import com.example.batam1spa.leave.repository.LeaveRepository;
 import com.example.batam1spa.staff.model.Staff;
 import com.example.batam1spa.staff.repository.StaffRepository;
+import com.example.batam1spa.security.service.RoleSecurityService;
+import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -19,6 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class LeaveServiceImpl implements LeaveService {
+    private final RoleSecurityService roleSecurityService;
     private final LeaveRepository leaveRepository;
     private final StaffRepository staffRepository;
     private final ModelMapper modelMapper;
@@ -60,13 +63,15 @@ public class LeaveServiceImpl implements LeaveService {
 
     // Get all leave
     @Override
-    public List<Leave> getAllLeave() {
+    public List<Leave> getAllLeave(User user) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         return leaveRepository.findAll();
     }
 
     // Add new leave
     @Override
-    public Leave addLeave(CreateLeaveRequest createLeaveRequestDTO) {
+    public Leave addLeave(User user, CreateLeaveRequest createLeaveRequestDTO) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Fetch the Staff entity using the staffId from the DTO
         Staff staff = staffRepository.findById(createLeaveRequestDTO.getStaffId())
                 .orElseThrow(() -> new RuntimeException("Staff not found with id: " + createLeaveRequestDTO.getStaffId()));
@@ -80,7 +85,8 @@ public class LeaveServiceImpl implements LeaveService {
 
     // Edit existing leave
     @Override
-    public Leave editLeave(UUID leaveId, EditLeaveRequest editLeaveRequestDTO) {
+    public Leave editLeave(User user, UUID leaveId, EditLeaveRequest editLeaveRequestDTO) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Find the existing leave record
         Leave existingLeave = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new RuntimeException("Leave not found with id: " + leaveId));
@@ -94,7 +100,8 @@ public class LeaveServiceImpl implements LeaveService {
 
     // Delete existing leave
     @Override
-    public Leave deleteLeave(UUID leaveId) {
+    public Leave deleteLeave(User user, UUID leaveId) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Find the leave record by its ID
         Leave leaveToDelete = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new RuntimeException("Leave not found with id: " + leaveId));
