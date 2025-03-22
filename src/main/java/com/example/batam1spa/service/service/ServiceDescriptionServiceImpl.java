@@ -5,6 +5,7 @@ import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.ServiceDescription;
 import com.example.batam1spa.service.repository.ServiceDescriptionRepository;
 import com.example.batam1spa.service.repository.ServiceRepository;
+import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.example.batam1spa.service.model.Service;
@@ -86,7 +87,8 @@ public class ServiceDescriptionServiceImpl implements ServiceDescriptionService 
         log.info("{}'s {} description has been added to the system", service, languageCode);
     }
 
-    public List<ServiceDescription> getAllServiceDescriptions() {
+    public List<ServiceDescription> getAllServiceDescriptions(User user) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         return serviceDescriptionRepository.findAll();
     }
 

@@ -39,8 +39,8 @@ public class ServiceController {
 
     // Get all service members Full URI: /api/v1/service/description
     @GetMapping("/description")
-    public ResponseEntity<BaseResponse<List<ServiceDescription>>> getAllServicesDescription() {
-        List<ServiceDescription> serviceDescriptions = serviceDescription.getAllServiceDescriptions();
+    public ResponseEntity<BaseResponse<List<ServiceDescription>>> getAllServicesDescription(@AuthenticationPrincipal User user) {
+        List<ServiceDescription> serviceDescriptions = serviceDescription.getAllServiceDescriptions(user);
 
         // Wrap the response in BaseResponse
         BaseResponse<List<ServiceDescription>> response = BaseResponse.success(
