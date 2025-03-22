@@ -248,4 +248,21 @@ Expected API Request for add service:
 
         return serviceRepository.save(existingService);
     }
+
+    @Override
+    @Transactional
+    public Service toggleServiceStatus(User user, UUID serviceId) {
+        // Step 1: Ensure the user is an admin
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
+        // Step 2: Find existing service
+        Service existingService = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new RuntimeException("Service not found with id: " + serviceId));
+
+        // Step 3: Toggle the isPublished status
+        existingService.setPublished(!existingService.isPublished());
+
+        // Step 4: Save and return updated service
+        return serviceRepository.save(existingService);
+    }
 }

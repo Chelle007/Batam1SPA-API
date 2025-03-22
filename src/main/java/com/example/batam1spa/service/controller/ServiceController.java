@@ -75,4 +75,16 @@ public class ServiceController {
         return ResponseEntity.ok(response);
     }
 
+    @PatchMapping("/toggle-status/{serviceId}") // use PATCH for partial updates
+    public ResponseEntity<BaseResponse<Service>> toggleServiceStatus(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID serviceId) {
+
+        Service updatedService = serviceService.toggleServiceStatus(user, serviceId);
+
+        BaseResponse<Service> response = BaseResponse.success(
+                HttpStatus.OK, updatedService, "Service status isPublished toggled successfully");
+
+        return ResponseEntity.ok(response);
+    }
 }

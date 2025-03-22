@@ -14,4 +14,5 @@ public interface ServiceService {
     List<ServiceRequest> getAllService(User user);
     Service addService(User user, CreateServiceRequest createServiceRequest);
     Service editService(User user, UUID serviceId, EditServiceRequest editServiceRequest);
+    Service toggleServiceStatus(User user, UUID serviceId);
 }
