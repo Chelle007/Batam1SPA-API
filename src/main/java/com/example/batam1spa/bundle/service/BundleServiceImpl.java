@@ -2,14 +2,19 @@ package com.example.batam1spa.bundle.service;
 
 import com.example.batam1spa.bundle.dto.BundleDTO;
 import com.example.batam1spa.bundle.dto.CreateBundleDTO;
+import com.example.batam1spa.bundle.dto.EditBundleDTO;
 import com.example.batam1spa.bundle.model.Bundle;
 import com.example.batam1spa.bundle.model.BundleDetail;
+import com.example.batam1spa.bundle.model.BundleDescription;
+import com.example.batam1spa.bundle.repository.BundleDescriptionRepository;
 import com.example.batam1spa.bundle.repository.BundleDetailRepository;
 import com.example.batam1spa.bundle.repository.BundleRepository;
+import com.example.batam1spa.common.model.LanguageCode;
 import com.example.batam1spa.service.repository.ServicePriceRepository;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.ServicePrice;
 import com.example.batam1spa.user.model.User;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +28,7 @@ import java.util.stream.Collectors;
 public class BundleServiceImpl implements BundleService {
     private final RoleSecurityService roleSecurityService;
     private final BundleRepository bundleRepository;
+    private final BundleDescriptionRepository bundleDescriptionRepository;
     private final BundleDetailRepository bundleDetailRepository;
     private final ServicePriceRepository servicePriceRepository;
 
@@ -160,6 +166,84 @@ public class BundleServiceImpl implements BundleService {
                 .localPrice(bundle.getLocalPrice())
                 .touristPrice(bundle.getTouristPrice())
                 .isPublished(bundle.isPublished())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public BundleDTO editBundle(User user, UUID bundleId, EditBundleDTO editBundleDTO) {
+        // Step 1: Ensure only admins can edit a bundle
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
+        // Step 2: Find the existing bundle by ID
+        Bundle existingBundle = bundleRepository.findById(bundleId)
+                .orElseThrow(() -> new RuntimeException("Bundle not found with id: " + bundleId));
+
+        // Step 3: Update the bundle details (name, image URL, prices, descriptions)
+        if (editBundleDTO.getBundleName() != null) {
+            existingBundle.setName(editBundleDTO.getBundleName());
+        }
+        if (editBundleDTO.getImgUrl() != null) {
+            existingBundle.setImgUrl(editBundleDTO.getImgUrl());
+        }
+        if (editBundleDTO.getLocalPrice() > 0) {
+            existingBundle.setLocalPrice(editBundleDTO.getLocalPrice());
+        }
+        if (editBundleDTO.getTouristPrice() > 0) {
+            existingBundle.setTouristPrice(editBundleDTO.getTouristPrice());
+        }
+
+        // Step 4: Handle descriptions (ID and EN)
+        // Updates (add) to the BundleDescription as well
+        List<BundleDescription> bundleDescriptions = new ArrayList<>();
+
+        if (editBundleDTO.getIDDescription() != null) {
+            bundleDescriptions.add(BundleDescription.builder()
+                    .bundle(existingBundle)
+                    .languageCode(LanguageCode.ID)  // Use LanguageCode enum
+                    .description(editBundleDTO.getIDDescription())
+                    .build());
+        }
+
+        if (editBundleDTO.getENDescription() != null) {
+            bundleDescriptions.add(BundleDescription.builder()
+                    .bundle(existingBundle)
+                    .languageCode(LanguageCode.EN)  // Use LanguageCode enum
+                    .description(editBundleDTO.getENDescription())
+                    .build());
+        }
+
+        if (editBundleDTO.getIDIncludedItemDescription() != null) {
+            bundleDescriptions.add(BundleDescription.builder()
+                    .bundle(existingBundle)
+                    .languageCode(LanguageCode.ID)  // Use LanguageCode enum
+                    .description(editBundleDTO.getIDIncludedItemDescription())
+                    .build());
+        }
+
+        if (editBundleDTO.getENIncludedItemDescription() != null) {
+            bundleDescriptions.add(BundleDescription.builder()
+                    .bundle(existingBundle)
+                    .languageCode(LanguageCode.EN)  // Use LanguageCode enum
+                    .description(editBundleDTO.getENIncludedItemDescription())
+                    .build());
+        }
+
+        if (!bundleDescriptions.isEmpty()) {
+            bundleDescriptionRepository.saveAll(bundleDescriptions);
+        }
+
+        // Step 5: Save the updated bundle
+        bundleRepository.save(existingBundle);
+
+        // Return the updated bundle as a DTO
+        return BundleDTO.builder()
+                .bundleId(existingBundle.getId())
+                .bundleName(existingBundle.getName())
+                .imgUrl(existingBundle.getImgUrl())
+                .localPrice(existingBundle.getLocalPrice())
+                .touristPrice(existingBundle.getTouristPrice())
+                .isPublished(existingBundle.isPublished())
                 .build();
     }
 }

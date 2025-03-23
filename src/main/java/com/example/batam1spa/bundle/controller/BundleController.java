@@ -2,6 +2,7 @@ package com.example.batam1spa.bundle.controller;
 
 import com.example.batam1spa.bundle.dto.BundleDTO;
 import com.example.batam1spa.bundle.dto.CreateBundleDTO;
+import com.example.batam1spa.bundle.dto.EditBundleDTO;
 import com.example.batam1spa.bundle.model.Bundle;
 import com.example.batam1spa.bundle.service.BundleDescriptionService;
 import com.example.batam1spa.bundle.service.BundleService;
@@ -58,21 +59,22 @@ public class BundleController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-//
-//    @PutMapping("/edit/{serviceId}")
-//    public ResponseEntity<BaseResponse<Bundle>> editService(
-//            @AuthenticationPrincipal User user,
-//            @PathVariable UUID serviceId,
-//            @RequestBody EditServiceRequest editServiceRequest) {
-//
-//        Service updatedService = serviceService.editService(user, serviceId, editServiceRequest);
-//
-//        BaseResponse<Service> response = BaseResponse.success(
-//                HttpStatus.OK, updatedService, "Existing service updated successfully");
-//
-//        return ResponseEntity.ok(response);
-//    }
-//
+
+    @PutMapping("/edit/{bundleId}")
+    public ResponseEntity<BaseResponse<BundleDTO>> editBundle(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID bundleId,
+            @RequestBody EditBundleDTO editBundleDTO) {
+
+        // Call the service layer to edit the bundle
+        BundleDTO updatedBundle = bundleService.editBundle(user, bundleId, editBundleDTO);
+
+        BaseResponse<BundleDTO> response = BaseResponse.success(
+                HttpStatus.OK, updatedBundle, "Existing bundle updated successfully");
+
+        return ResponseEntity.ok(response);
+    }
+
 //    @PatchMapping("/toggle-status/{serviceId}") // use PATCH for partial updates
 //    public ResponseEntity<BaseResponse<Service>> toggleServiceStatus(
 //            @AuthenticationPrincipal User user,
