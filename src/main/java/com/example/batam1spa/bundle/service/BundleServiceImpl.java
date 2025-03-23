@@ -1,7 +1,7 @@
 package com.example.batam1spa.bundle.service;
 
-import com.example.batam1spa.bundle.dto.BundleContentDTO;
 import com.example.batam1spa.bundle.dto.BundleDTO;
+import com.example.batam1spa.bundle.dto.CreateBundleDTO;
 import com.example.batam1spa.bundle.model.Bundle;
 import com.example.batam1spa.bundle.model.BundleDetail;
 import com.example.batam1spa.bundle.repository.BundleDetailRepository;
@@ -13,9 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -71,27 +69,26 @@ public class BundleServiceImpl implements BundleService {
 
             // Compute total duration & bundle content
             int totalDuration = 0;
-            Map<String, BundleContentDTO> bundleContent = new LinkedHashMap<>(); // Preserve order
+            int quantity = 0;
+            Map<String, Integer> bundleContent = new LinkedHashMap<>(); // Preserve order
 
             for (BundleDetail detail : bundleDetails) {
                 ServicePrice servicePrice = detail.getServicePrice();
                 String serviceName = servicePrice.getService().getName();
                 int duration = servicePrice.getDuration();
-                int quantity = detail.getQuantity();
+                quantity = detail.getQuantity(); // All services in the bundle have the same quantity
 
                 totalDuration += duration;
 
-                // Store duration & quantity using BundleContentDTO
-                bundleContent.put(serviceName, BundleContentDTO.builder()
-                        .duration(duration)
-                        .quantity(quantity)
-                        .build());
+                // Store serviceName → duration
+                bundleContent.put(serviceName, duration);
             }
 
             return BundleDTO.builder()
                     .bundleId(bundle.getId())
                     .bundleName(bundle.getName())
                     .totalDuration(totalDuration)
+                    .quantity(quantity)
                     .bundleContent(bundleContent)
                     .imgUrl(bundle.getImgUrl())
                     .localPrice(bundle.getLocalPrice())
@@ -100,5 +97,4 @@ public class BundleServiceImpl implements BundleService {
                     .build();
         }).collect(Collectors.toList());
     }
-
 }

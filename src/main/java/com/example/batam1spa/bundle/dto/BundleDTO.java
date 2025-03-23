@@ -13,7 +13,8 @@ public class BundleDTO {
     private UUID bundleId;
     private String bundleName;
     private int totalDuration;
-    private Map<String, BundleContentDTO> bundleContent; // {serviceName: {duration, quantity}}
+    private int quantity;
+    private Map<String, Integer> bundleContent; // service name → duration
     private String imgUrl;
     private int localPrice;
     private int touristPrice;
