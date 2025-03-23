@@ -25,4 +25,7 @@ public class Bundle extends Auditable {
 
     @Column(nullable = false)
     private int touristPrice;
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean isPublished;
 }
