@@ -6,6 +6,7 @@ import com.example.batam1spa.bundle.model.Bundle;
 import com.example.batam1spa.bundle.model.BundleDetail;
 import com.example.batam1spa.bundle.repository.BundleDetailRepository;
 import com.example.batam1spa.bundle.repository.BundleRepository;
+import com.example.batam1spa.service.repository.ServicePriceRepository;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.ServicePrice;
 import com.example.batam1spa.user.model.User;
@@ -23,6 +24,7 @@ public class BundleServiceImpl implements BundleService {
     private final RoleSecurityService roleSecurityService;
     private final BundleRepository bundleRepository;
     private final BundleDetailRepository bundleDetailRepository;
+    private final ServicePriceRepository servicePriceRepository;
 
     @Override
     public void seedBundle() {
@@ -96,5 +98,68 @@ public class BundleServiceImpl implements BundleService {
                     .isPublished(bundle.isPublished())
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public BundleDTO addBundle(User user, CreateBundleDTO createBundleDTO) {
+        // Ensure only admins can add a bundle
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
+        // Step 1: Create and save the bundle entity
+        Bundle bundle = bundleRepository.save(Bundle.builder()
+                .name(createBundleDTO.getBundleName())
+                .imgUrl(createBundleDTO.getImgUrl())
+                .localPrice(createBundleDTO.getLocalPrice())
+                .touristPrice(createBundleDTO.getTouristPrice())
+                .isPublished(createBundleDTO.isPublished())
+                .build());
+
+        // Step 2: Process bundleContent and save details
+        int totalDuration = 0;
+        Map<String, Integer> bundleContentMap = createBundleDTO.getBundleContent();
+        List<BundleDetail> bundleDetails = new ArrayList<>();
+        Map<String, Integer> savedBundleContent = new LinkedHashMap<>();
+
+        for (Map.Entry<String, Integer> entry : bundleContentMap.entrySet()) {
+            String serviceName = entry.getKey();
+            int duration = entry.getValue();
+
+            // Validate if service exists
+            Optional<ServicePrice> servicePriceOpt = servicePriceRepository
+                    .findByServiceNameAndDuration(serviceName, duration);
+
+            if (servicePriceOpt.isEmpty()) {
+                throw new RuntimeException("Service price not found for " + serviceName + " with duration " + duration);
+            }
+
+            ServicePrice servicePrice = servicePriceOpt.get();
+            totalDuration += servicePrice.getDuration();
+
+            // Save bundle detail
+            bundleDetails.add(BundleDetail.builder()
+                    .bundle(bundle)
+                    .servicePrice(servicePrice)
+                    .quantity(createBundleDTO.getQuantity())
+                    .build());
+
+            // Add to saved bundleContent map
+            savedBundleContent.put(serviceName, servicePrice.getDuration());
+        }
+
+        // Save all bundle details
+        bundleDetailRepository.saveAll(bundleDetails);
+
+        // Step 3: Return the saved bundle as a DTO
+        return BundleDTO.builder()
+                .bundleId(bundle.getId())
+                .bundleName(bundle.getName())
+                .totalDuration(totalDuration)
+                .quantity(createBundleDTO.getQuantity())
+                .bundleContent(savedBundleContent)
+                .imgUrl(bundle.getImgUrl())
+                .localPrice(bundle.getLocalPrice())
+                .touristPrice(bundle.getTouristPrice())
+                .isPublished(bundle.isPublished())
+                .build();
     }
 }

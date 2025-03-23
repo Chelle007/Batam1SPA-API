@@ -1,6 +1,8 @@
 package com.example.batam1spa.bundle.controller;
 
 import com.example.batam1spa.bundle.dto.BundleDTO;
+import com.example.batam1spa.bundle.dto.CreateBundleDTO;
+import com.example.batam1spa.bundle.model.Bundle;
 import com.example.batam1spa.bundle.service.BundleDescriptionService;
 import com.example.batam1spa.bundle.service.BundleService;
 import com.example.batam1spa.common.dto.BaseResponse;
@@ -45,20 +47,20 @@ public class BundleController {
 //        return ResponseEntity.ok(response);
 //    }
 //
-//    // Full URL: `POST /api/v1/service/add`
-//    @PostMapping("/add")
-//    public ResponseEntity<BaseResponse<Service>> addService(@AuthenticationPrincipal User user, @RequestBody CreateServiceRequest createServiceRequest) {
-//        Service createdService = serviceService.addService(user, createServiceRequest);
-//
-//        // Wrap the response in BaseResponse
-//        BaseResponse<Service> response = BaseResponse.success(
-//                HttpStatus.CREATED, createdService, "New service created successfully");
-//
-//        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-//    }
+    // Full URL: `POST /api/v1/bundle/add`
+    @PostMapping("/add")
+    public ResponseEntity<BaseResponse<BundleDTO>> addBundle(@AuthenticationPrincipal User user, @RequestBody CreateBundleDTO createBundleDTO) {
+        BundleDTO createdBundle = bundleService.addBundle(user, createBundleDTO);
+
+        // Wrap the response in BaseResponse
+        BaseResponse<BundleDTO> response = BaseResponse.success(
+                HttpStatus.CREATED, createdBundle, "New bundle created successfully");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 //
 //    @PutMapping("/edit/{serviceId}")
-//    public ResponseEntity<BaseResponse<Service>> editService(
+//    public ResponseEntity<BaseResponse<Bundle>> editService(
 //            @AuthenticationPrincipal User user,
 //            @PathVariable UUID serviceId,
 //            @RequestBody EditServiceRequest editServiceRequest) {

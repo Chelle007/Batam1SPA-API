@@ -9,5 +9,5 @@ import java.util.List;
 public interface BundleService {
     void seedBundle();
     List<BundleDTO> getAllBundle(User user);
-//    BundleDTO addBundle(User user, CreateBundleDTO createBundleDTO);
+    BundleDTO addBundle(User user, CreateBundleDTO createBundleDTO);
 }
