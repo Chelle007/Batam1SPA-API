@@ -1,5 +1,7 @@
 package com.example.batam1spa.availability.service;
 
+import com.example.batam1spa.availability.dto.GetServiceAvailabileDateRequest;
+import com.example.batam1spa.availability.dto.GetServiceAvailabileTimeSlotRequest;
 import com.example.batam1spa.availability.dto.GetServiceAvailabilityRequest;
 import com.example.batam1spa.availability.exception.AvailabilityExceptions;
 import com.example.batam1spa.availability.model.Availability;
@@ -14,7 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -74,5 +80,50 @@ public class AvailabilityServiceImpl implements AvailabilityService {
         TimeSlot timeSlot = timeSlotRepository.findById(getServiceAvailabilityRequest.getTimeId()).orElseThrow(() -> new AvailabilityExceptions.TimeSlotNotFound("TimeSlot with ID: " + getServiceAvailabilityRequest.getTimeId() + " not found."));
         Availability availability = availabilityRepository.findByDateAndTimeSlotAndServiceType(getServiceAvailabilityRequest.getServiceDate(), timeSlot, service.getServiceType()).orElseThrow(() -> new AvailabilityExceptions.AvailabilityNotFound("Availability not found."));
         return availability.getCount();
+    }
+
+    @Override
+    public List<Date> getServiceAvailabileDate(GetServiceAvailabileDateRequest getServiceAvailabileDateRequest) {
+        return null;
+    }
+
+    @Override
+    public List<TimeSlot> getServiceAvailabileTimeSlot(GetServiceAvailabileTimeSlotRequest getServiceAvailabileTimeSlotRequest) {
+        List<TimeSlot> timeSlots = timeSlotRepository.findAll();
+        Service service = serviceRepository.findById(getServiceAvailabileTimeSlotRequest.getServiceId()).orElseThrow(() -> new AvailabilityExceptions.OrderNotFound("Service with ID: " + getServiceAvailabileTimeSlotRequest.getServiceId() + " not found."));
+        List<Availability> availabilities = availabilityRepository.findByDateAndServiceType(getServiceAvailabileTimeSlotRequest.getServiceDate(), service.getServiceType());
+        Map<TimeSlot, Availability> availabilityMap = availabilities.stream()
+                .collect(Collectors.toMap(Availability::getTimeSlot, availability -> availability));
+
+        int pax = getServiceAvailabileTimeSlotRequest.getPax();
+        int duration = getServiceAvailabileTimeSlotRequest.getDuration();
+        int timeSlotCount = duration/30;
+        List<TimeSlot> availableTimeSlots = new ArrayList<>();
+
+        // VALIDATION
+        if (pax <= 0 || pax > 4) {
+            throw new AvailabilityExceptions.InvalidPax("Pax must be between 1 to 4: " + pax);
+        }
+        if (duration != 60 && duration != 90 && duration != 120) {
+            throw new AvailabilityExceptions.InvalidDuration("Duration must be 60/90/120: " + duration);
+        }
+
+        // CHECK AVAILABLE TIME SLOT
+        for (int i = 0; i < timeSlots.size() - timeSlotCount; i++) {
+            boolean allAvailable = true;
+            for (int j = 0; j < timeSlotCount; j++) {
+                TimeSlot timeSlot = timeSlots.get(i+j);
+                Availability availability = availabilityMap.get(timeSlot);
+                if (availability == null || availability.getCount() <= pax) {
+                    allAvailable = false;
+                    break;
+                }
+            }
+            if (allAvailable) {
+                availableTimeSlots.add(timeSlots.get(i));
+            }
+        }
+
+        return availableTimeSlots;
     }
 }

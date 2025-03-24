@@ -44,6 +44,8 @@ public class SecurityConfig {
     private static final String[] GET_WHITELIST = {
             "/api/v1/service/get-all-service",
             "/api/v1/availability/get-service-availability",
+            "/api/v1/availability/get-service-available-date",
+            "/api/v1/availability/get-service-available-time-slot",
             "/api/v1/order/get-cart",
     };
 
