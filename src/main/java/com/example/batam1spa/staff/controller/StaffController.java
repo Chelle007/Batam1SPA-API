@@ -3,6 +3,7 @@ package com.example.batam1spa.staff.controller;
 import com.example.batam1spa.common.dto.BaseResponse;
 import com.example.batam1spa.staff.dto.CreateStaffRequest;
 import com.example.batam1spa.staff.dto.EditStaffRequest;
+import com.example.batam1spa.staff.dto.StaffDTO;
 import com.example.batam1spa.staff.model.Staff;
 import com.example.batam1spa.staff.service.StaffService;
 import com.example.batam1spa.user.model.User;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +32,19 @@ public class StaffController {
         // Wrap the response in BaseResponse
         BaseResponse<List<Staff>> response = BaseResponse.success(
                 HttpStatus.OK, allStaff, "Fetched all staffs successfully");
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/get-staff-page")
+    public ResponseEntity<BaseResponse<Page<StaffDTO>>> getStaffsByPage(
+            @AuthenticationPrincipal User user,
+            @RequestParam int page,
+            @RequestParam int size) {
+
+        Page<StaffDTO> staffPage = staffService.getStaffsByPage(user, page, size);
+        BaseResponse<Page<StaffDTO>> response = BaseResponse.success(
+                HttpStatus.OK, staffPage, "Staffs fetched successfully");
+
         return ResponseEntity.ok(response);
     }
 
