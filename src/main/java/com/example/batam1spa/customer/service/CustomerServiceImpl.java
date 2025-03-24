@@ -1,15 +1,23 @@
 package com.example.batam1spa.customer.service;
 
+import com.example.batam1spa.customer.dto.CustomerDTO;
 import com.example.batam1spa.customer.dto.EditCustomerRequest;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
+import com.example.batam1spa.security.service.RoleSecurityService;
+import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +25,7 @@ import java.util.UUID;
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final ModelMapper modelMapper;
+    private final RoleSecurityService roleSecurityService;
 
     @Override
     public void seedCustomer() {
@@ -48,6 +57,31 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public List<Customer> getAllCustomer() {
         return customerRepository.findAll();
+    }
+
+    @Override
+    public Page<CustomerDTO> getCustomersByPage(User user, int amountPerPage, int page) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+        Pageable pageable = PageRequest.of(page, amountPerPage);
+        Page<Customer> customerPage = customerRepository.findAll(pageable);
+
+        List<CustomerDTO> customerDTOList = customerPage.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(customerDTOList, pageable, customerPage.getTotalElements());
+    }
+
+    // Helper method to convert Customer to CustomerDTO
+    private CustomerDTO convertToDTO(Customer customer) {
+        return CustomerDTO.builder()
+                .customerId(customer.getId())
+                .fullName(customer.getFullName())
+                .phoneNumber(customer.getPhoneNumber())
+                .email(customer.getEmail())
+                .isLocal(customer.isLocal())
+                .isSubscribed(customer.isSubscribed())
+                .build();
     }
 
     // Edit existing customer nationality (local/tourist)
