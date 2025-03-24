@@ -22,8 +22,11 @@ public class BundleDescription extends Auditable {
     private Bundle bundle;
 
     @Column(nullable = false)
-    LanguageCode languageCode;
+    private LanguageCode languageCode;
 
     @Column(nullable = false)
-    String description;
+    private String description;
+
+    @Column(nullable = false)
+    private String includedItemDescription;
 }

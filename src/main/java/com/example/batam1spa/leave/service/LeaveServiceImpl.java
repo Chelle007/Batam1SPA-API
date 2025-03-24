@@ -2,23 +2,29 @@ package com.example.batam1spa.leave.service;
 
 import com.example.batam1spa.leave.dto.CreateLeaveRequest;
 import com.example.batam1spa.leave.dto.EditLeaveRequest;
+import com.example.batam1spa.leave.dto.PageLeaveDTO;
 import com.example.batam1spa.leave.model.Leave;
 import com.example.batam1spa.leave.repository.LeaveRepository;
 import com.example.batam1spa.staff.model.Staff;
 import com.example.batam1spa.staff.repository.StaffRepository;
+import com.example.batam1spa.security.service.RoleSecurityService;
+import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class LeaveServiceImpl implements LeaveService {
+    private final RoleSecurityService roleSecurityService;
     private final LeaveRepository leaveRepository;
     private final StaffRepository staffRepository;
     private final ModelMapper modelMapper;
@@ -60,13 +66,38 @@ public class LeaveServiceImpl implements LeaveService {
 
     // Get all leave
     @Override
-    public List<Leave> getAllLeave() {
+    public List<Leave> getAllLeave(User user) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         return leaveRepository.findAll();
+    }
+
+    @Override
+    public Page<PageLeaveDTO> getLeavesByPage(User user, int amountPerPage, int page) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+        Pageable pageable = PageRequest.of(page, amountPerPage, Sort.by("startDate").descending());
+        Page<Leave> leavePage = leaveRepository.findAll(pageable);
+
+        List<PageLeaveDTO> leaveDTOs = leavePage.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(leaveDTOs, pageable, leavePage.getTotalElements());
+    }
+
+    private PageLeaveDTO convertToDTO(Leave leave) {
+        return PageLeaveDTO.builder()
+                .leaveId(leave.getId())
+                .staffName(leave.getStaff().getFullName())
+                .reason(leave.getReason())
+                .startDate(leave.getStartDate())
+                .endDate(leave.getEndDate())
+                .build();
     }
 
     // Add new leave
     @Override
-    public Leave addLeave(CreateLeaveRequest createLeaveRequestDTO) {
+    public Leave addLeave(User user, CreateLeaveRequest createLeaveRequestDTO) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Fetch the Staff entity using the staffId from the DTO
         Staff staff = staffRepository.findById(createLeaveRequestDTO.getStaffId())
                 .orElseThrow(() -> new RuntimeException("Staff not found with id: " + createLeaveRequestDTO.getStaffId()));
@@ -80,7 +111,8 @@ public class LeaveServiceImpl implements LeaveService {
 
     // Edit existing leave
     @Override
-    public Leave editLeave(UUID leaveId, EditLeaveRequest editLeaveRequestDTO) {
+    public Leave editLeave(User user, UUID leaveId, EditLeaveRequest editLeaveRequestDTO) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Find the existing leave record
         Leave existingLeave = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new RuntimeException("Leave not found with id: " + leaveId));
@@ -94,7 +126,8 @@ public class LeaveServiceImpl implements LeaveService {
 
     // Delete existing leave
     @Override
-    public Leave deleteLeave(UUID leaveId) {
+    public Leave deleteLeave(User user, UUID leaveId) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Find the leave record by its ID
         Leave leaveToDelete = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new RuntimeException("Leave not found with id: " + leaveId));

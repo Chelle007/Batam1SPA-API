@@ -15,6 +15,7 @@ public interface ServicePriceRepository extends JpaRepository<ServicePrice, UUID
     Boolean existsByServiceAndDuration(Service service, int duration);
     Optional<ServicePrice> findByServiceAndDuration(Service service, int duration);
     List<ServicePrice> findByService(Service service);
+    Optional<ServicePrice> findByServiceNameAndDuration(String serviceName, int duration);
 
     void deleteByServiceId(UUID serviceId);
 }

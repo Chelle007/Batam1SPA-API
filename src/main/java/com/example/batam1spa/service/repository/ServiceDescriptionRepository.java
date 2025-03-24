@@ -6,6 +6,7 @@ import com.example.batam1spa.service.model.ServiceDescription;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -13,4 +14,5 @@ public interface ServiceDescriptionRepository extends JpaRepository<ServiceDescr
     // for testing purpose (seeder)
     Boolean existsByServiceAndLanguageCode(Service service, LanguageCode languageCode);
     void deleteByServiceId(UUID serviceId);
+    Optional<ServiceDescription> findByServiceAndLanguageCode(Service service, LanguageCode languageCode);
 }
