@@ -17,4 +17,5 @@ public interface ServiceService {
     // Customer side
     ServiceDetailsDTO getServiceDetails(UUID serviceId, String lang);
     GetServicesPaginationResponse getServicesByPage(int amountPerPage, int page, String searchQuery);
+    List<ServicePaginationResponse> getSignatureService();
 }
