@@ -3,6 +3,7 @@ package com.example.batam1spa.bundle.controller;
 import com.example.batam1spa.bundle.dto.BundleDTO;
 import com.example.batam1spa.bundle.dto.CreateBundleDTO;
 import com.example.batam1spa.bundle.dto.EditBundleDTO;
+import com.example.batam1spa.bundle.dto.GetBundlesPaginationResponse;
 import com.example.batam1spa.bundle.model.Bundle;
 import com.example.batam1spa.bundle.model.BundleDescription;
 import com.example.batam1spa.bundle.service.BundleDescriptionService;
@@ -105,14 +106,15 @@ public class BundleController {
 //
 //    // Pagination API for services with shortest and longest durations
 //    @GetMapping("/get-service-page")
-//    public ResponseEntity<BaseResponse<GetServicesPaginationResponse>> getServicesByPage(
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size) {
-//
-//        GetServicesPaginationResponse response = serviceService.getServicesByPage(page, size);
-//
-//        // Wrap the response in BaseResponse
-//        return ResponseEntity.ok(BaseResponse.success(
-//                HttpStatus.OK, response, "Successfully fetched services with pagination"));
-//    }
+    // Get paginated list of published bundles (with optional search)
+    @GetMapping("/get-bundles-page")
+    public ResponseEntity<BaseResponse<GetBundlesPaginationResponse>> getBundlesByPage(
+            @RequestParam(defaultValue = "10") int amountPerPage,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String searchQuery) {
+
+        GetBundlesPaginationResponse bundlesResponse = bundleService.getBundlesByPage(amountPerPage, page, searchQuery);
+
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, bundlesResponse, "Fetched published bundles successfully"));
+    }
 }

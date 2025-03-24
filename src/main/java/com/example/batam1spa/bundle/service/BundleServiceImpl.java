@@ -1,8 +1,6 @@
 package com.example.batam1spa.bundle.service;
 
-import com.example.batam1spa.bundle.dto.BundleDTO;
-import com.example.batam1spa.bundle.dto.CreateBundleDTO;
-import com.example.batam1spa.bundle.dto.EditBundleDTO;
+import com.example.batam1spa.bundle.dto.*;
 import com.example.batam1spa.bundle.model.Bundle;
 import com.example.batam1spa.bundle.model.BundleDetail;
 import com.example.batam1spa.bundle.model.BundleDescription;
@@ -18,6 +16,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -262,5 +263,37 @@ public class BundleServiceImpl implements BundleService {
 
         // Step 4: Save and return updated bundle
         return bundleRepository.save(existingBundle);
+    }
+
+    @Override
+    public GetBundlesPaginationResponse getBundlesByPage(int amountPerPage, int page, String searchQuery) {
+        Pageable pageable = PageRequest.of(Math.max(0, page), amountPerPage);
+
+        Page<Bundle> bundlePage;
+        if (searchQuery != null && !searchQuery.isBlank()) {
+            bundlePage = bundleRepository.findByNameContainingIgnoreCaseAndIsPublishedTrue(searchQuery.trim(), pageable);
+        } else {
+            bundlePage = bundleRepository.findByIsPublishedTrue(pageable);
+        }
+
+        List<BundleSummaryDTO> bundleResponses = bundlePage.getContent().stream()
+                .map(bundle -> {
+                    int totalDuration = bundleDetailRepository.findByBundle(bundle).stream()
+                            .mapToInt(detail -> detail.getServicePrice().getDuration() * detail.getQuantity())
+                            .sum();
+
+                    return BundleSummaryDTO.builder()
+                            .bundleName(bundle.getName())
+                            .totalDuration(totalDuration)
+                            .imgUrl(bundle.getImgUrl())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return GetBundlesPaginationResponse.builder()
+                .bundles(bundleResponses)
+                .totalPages(bundlePage.getTotalPages())
+                .totalElements(bundlePage.getTotalElements())
+                .build();
     }
 }
