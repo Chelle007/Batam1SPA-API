@@ -7,6 +7,7 @@ import com.example.batam1spa.order.service.CartService;
 import com.example.batam1spa.order.service.OrderDetailService;
 import com.example.batam1spa.order.service.OrderService;
 import com.example.batam1spa.user.model.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -60,21 +61,21 @@ public class OrderController {
     }
 
     @PostMapping("/add-to-cart")
-    public ResponseEntity<BaseResponse<Boolean>> addToCart(CartOrderDetailDTO cartOrderDetailDTO) {
+    public ResponseEntity<BaseResponse<Boolean>> addToCart(@RequestBody CartOrderDetailDTO cartOrderDetailDTO) {
         Boolean response = cartService.addToCart(cartOrderDetailDTO);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Add To Cart"));
     }
 
     @PostMapping("/remove-from-cart")
-    public ResponseEntity<BaseResponse<Boolean>> removeFromCart(CartOrderDetailDTO cartOrderDetailDTO) {
+    public ResponseEntity<BaseResponse<Boolean>> removeFromCart(@RequestBody CartOrderDetailDTO cartOrderDetailDTO) {
         Boolean response = cartService.removeFromCart(cartOrderDetailDTO);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Remove From Cart"));
     }
 
-    @PostMapping("/check-out")
-    public ResponseEntity<BaseResponse<Boolean>> checkout(CheckoutRequest checkoutRequest) {
+    @PostMapping("/checkout")
+    public ResponseEntity<BaseResponse<Boolean>> checkout(@RequestBody @Valid CheckoutRequest checkoutRequest) {
         Boolean response = orderService.checkout(checkoutRequest);
-        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Remove From Cart"));
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Check Out"));
     }
 
     @PostMapping("/edit-vip-status")

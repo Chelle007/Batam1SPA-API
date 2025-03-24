@@ -22,6 +22,5 @@ public class GetOrderDetailResponse {
     private TimeSlot startTimeSlot;
     private TimeSlot endTimeSlot;
     private boolean isVIP;
-    private int totalPrice;
     private boolean isCancelled;
 }

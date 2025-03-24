@@ -14,7 +14,8 @@ import com.example.batam1spa.order.repository.OrderDetailRepository;
 import com.example.batam1spa.order.repository.OrderRepository;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.Service;
-import com.example.batam1spa.service.model.ServiceType;
+import com.example.batam1spa.service.model.ServicePrice;
+import com.example.batam1spa.service.repository.ServicePriceRepository;
 import com.example.batam1spa.service.repository.ServiceRepository;
 import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
@@ -23,17 +24,24 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.Phonenumber;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.mail.javamail.JavaMailSender;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -47,19 +55,22 @@ public class OrderServiceImpl implements OrderService {
     private final TimeSlotRepository timeSlotRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final AvailabilityRepository availabilityRepository;
+    private final ServicePriceRepository servicePriceRepository;
     private final ModelMapper modelMapper;
     private static final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+    private final Environment env;
+    private final JavaMailSender javaMailSender;
 
     @Override
     public void seedOrder() {
         Customer customer1 = customerRepository.findByPhoneNumber("12345678").orElse(null);
         Customer customer2 = customerRepository.findByPhoneNumber("87654321").orElse(null);
 
-        createOrderIfNotExists(customer1, true, 900000, LocalDateTime.now(), false);
-        createOrderIfNotExists(customer2, false, 500000, LocalDateTime.now(), false);
+        createOrderIfNotExists(customer1, true, 900000, 990000, LocalDateTime.now(), false);
+        createOrderIfNotExists(customer2, false, 500000, 550000, LocalDateTime.now(), false);
     }
 
-    private void createOrderIfNotExists(Customer customer, boolean isVIP, int totalPrice, LocalDateTime bookDateTime, boolean isCancelled) {
+    private void createOrderIfNotExists(Customer customer, boolean isVIP, int localTotalPrice, int touristTotalPrice, LocalDateTime bookDateTime, boolean isCancelled) {
         boolean orderExists = orderRepository.existsByCustomer(customer);
 
         if (orderExists) {
@@ -70,7 +81,8 @@ public class OrderServiceImpl implements OrderService {
         Order order = Order.builder()
                 .customer(customer)
                 .isVIP(isVIP)
-                .totalPrice(totalPrice)
+                .localTotalPrice(localTotalPrice)
+                .touristTotalPrice(touristTotalPrice)
                 .bookDateTime(bookDateTime)
                 .isCancelled(isCancelled)
                 .build();
@@ -97,6 +109,42 @@ public class OrderServiceImpl implements OrderService {
             return phoneNumberUtil.isValidNumber(number);
         } catch (NumberParseException e) {
             return false;
+        }
+    }
+
+    private String generateInvoiceContent(Order order, List<OrderDetail> orderDetails) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Dear ").append(order.getCustomer().getFullName()).append(",\n\n");
+        sb.append("Thank you for your booking! Here are your order details:\n\n");
+
+        for (OrderDetail detail : orderDetails) {
+            sb.append("🔹 Service: ").append(detail.getService().getName()).append("\n");
+            sb.append("📅 Date: ").append(detail.getServiceDate()).append("\n");
+            sb.append("🕒 Time: ").append(detail.getStartTimeSlot().getLocalTime()).append(" - ").append(detail.getEndTimeSlot().getLocalTime()).append("\n");
+            sb.append("-----------------------------\n");
+        }
+
+        sb.append("💰 Total Price: Rp").append(order.getLocalTotalPrice()).append(" (local) | Rp").append(order.getTouristTotalPrice()).append(" (tourist)").append("\n\n");
+        sb.append("Best regards,\nBatam1SPA");
+
+        return sb.toString();
+    }
+
+    private void sendInvoice(Order order, List<OrderDetail> orderDetails) {
+        try {
+            String subject = "Your Invoice - Order #" + order.getId();
+            String invoiceContent = generateInvoiceContent(order, orderDetails);
+            Customer customer = order.getCustomer();
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(customer.getEmail());
+            message.setSubject(subject);
+            message.setText(invoiceContent);
+
+            javaMailSender.send(message);
+            log.info("Invoice email sent successfully to {}", customer.getEmail());
+        } catch (MailException e) {
+            log.error("Failed to send invoice email: {}", e.getMessage(), e);
         }
     }
 
@@ -149,42 +197,58 @@ public class OrderServiceImpl implements OrderService {
                     .build());
         }
 
-        // CART VALIDATION & REDUCE AVAILABILITY
-        for (CartOrderDetailDTO cart : checkoutRequest.getCartList()) {
-            List<Availability> availabilityList = cartService.validateBooking(cart);
-            for (Availability availability : availabilityList) {
-                availability.setCount(availability.getCount()-cart.getQty());
-                availabilityRepository.save(availability);
-            }
-        }
-
         // CHECKOUT
         Order order = Order.builder()
                 .customer(customer)
                 .isVIP(checkoutRequest.isVIP())
                 .bookDateTime(LocalDateTime.now())
                 .build();
+        orderRepository.save(order);
 
-        int totalPrice = 0;
+        int localTotalPrice = 0;
+        int touristTotalPrice = 0;
+        List<OrderDetail> orderDetails = new ArrayList<>();
         for (CartOrderDetailDTO cart : checkoutRequest.getCartList()) {
+            // VALIDATE CART & REDUCE AVAILABILITY
+            List<Availability> availabilityList = cartService.validateBooking(cart);
+            List<Availability> updatedAvailabilities = new ArrayList<>();
+            for (Availability availability : availabilityList) {
+                availability.setCount(availability.getCount()-cart.getQty());
+                updatedAvailabilities.add(availability);
+            }
+            availabilityRepository.saveAll(updatedAvailabilities);
+
+            // ADD ORDER DETAILS TO DATABASE
             Service service = serviceRepository.findById(cart.getServiceId()).orElseThrow(() -> new OrderExceptions.ServiceNotFound("Service with ID: " + cart.getServiceId() + " not found."));
             TimeSlot startTimeSlot = timeSlotRepository.findById(cart.getStartTimeSlotId()).orElseThrow(() -> new OrderExceptions.TimeSlotNotFound("Start time slot with ID: " + cart.getStartTimeSlotId() + " not found."));
             TimeSlot endTimeSlot = timeSlotRepository.findById(cart.getEndTimeSlotId()).orElseThrow(() -> new OrderExceptions.TimeSlotNotFound("End time slot with ID: " + cart.getEndTimeSlotId() + " not found."));
+            for (int i = 0; i < cart.getQty(); i++) {
+                OrderDetail orderDetail = OrderDetail.builder()
+                        .order(order)
+                        .service(service)
+                        .serviceDate(cart.getServiceDate())
+                        .startTimeSlot(startTimeSlot)
+                        .endTimeSlot(endTimeSlot)
+                        .build();
+                orderDetailRepository.save(orderDetail);
+                orderDetails.add(orderDetail);
+            }
 
-            OrderDetail orderDetail = OrderDetail.builder()
-                    .order(order)
-                    .service(service)
-                    .serviceDate(cart.getServiceDate())
-                    .startTimeSlot(startTimeSlot)
-                    .endTimeSlot(endTimeSlot)
-                    .build();
-            orderDetailRepository.save(orderDetail);
+            // CALCULATE TOTAL PRICE
+            Duration duration = Duration.between(startTimeSlot.getLocalTime(), endTimeSlot.getLocalTime());
+            long minutes = duration.toMinutes();
+            ServicePrice servicePrice = servicePriceRepository.findByServiceAndDuration(service, (int) minutes).orElseThrow();
+            localTotalPrice += servicePrice.getLocalPrice() * cart.getQty();
+            touristTotalPrice += servicePrice.getTouristPrice() * cart.getQty();
         }
 
-        order.setTotalPrice(totalPrice);
+        // ADD ORDER TO DATABASE
+        order.setLocalTotalPrice(localTotalPrice);
+        order.setTouristTotalPrice(touristTotalPrice);
         orderRepository.save(order);
 
         // SEND INVOICE
+        sendInvoice(order, orderDetails);
 
         return Boolean.TRUE;
     }
@@ -215,15 +279,11 @@ public class OrderServiceImpl implements OrderService {
         }
 
         List<GetOrderResponse> orderResponses = orders.stream().map(order -> {
-            GetOrderResponse response = modelMapper.map(order, GetOrderResponse.class);
-            response.setCustomer(order.getCustomer());
-            response.setVIP(order.isVIP());
-            response.setTotalPrice(order.getTotalPrice());
-            response.setBookDateTime(order.getBookDateTime());
-            response.setCancelled(order.isCancelled());
-            response.setOrderDetails(orderDetailRepository.findByOrder(order));
-            return response;
-        }).toList();
+                    GetOrderResponse response = modelMapper.map(order, GetOrderResponse.class);
+                    response.setOrderDetails(orderDetailRepository.findByOrder(order));
+                    return response;
+                })
+                .collect(Collectors.toList());
 
         return GetOrderPaginationResponse.builder()
                 .getOrderResponseList(orderResponses)

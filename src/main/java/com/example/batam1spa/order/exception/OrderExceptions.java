@@ -71,4 +71,10 @@ public class OrderExceptions {
             super(message);
         }
     }
+
+    public static class ServicePriceNotFound extends RuntimeException {
+        public ServicePriceNotFound(String message) {
+            super(message);
+        }
+    }
 }

@@ -19,7 +19,8 @@ public class GetOrderResponse {
     private UUID orderId;
     private Customer customer;
     private boolean isVIP;
-    private int totalPrice;
+    private int localTotalPrice;
+    private int touristTotalPrice;
     private LocalDateTime bookDateTime;
     private boolean isCancelled;
     private List<OrderDetail> orderDetails;

@@ -38,6 +38,7 @@ public class SecurityConfig {
             "/api/v1/auth/sign-in",
             "/api/v1/order/add-to-cart",
             "/api/v1/order/remove-from-cart",
+            "/api/v1/order/checkout",
     };
 
     private static final String[] GET_WHITELIST = {

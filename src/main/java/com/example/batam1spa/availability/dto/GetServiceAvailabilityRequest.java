@@ -1,17 +1,14 @@
 package com.example.batam1spa.availability.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class GetServiceAvailabilityRequest {
     UUID serviceId;
     LocalDate serviceDate;
