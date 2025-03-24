@@ -89,8 +89,8 @@ public class ServiceController {
     // For customer website
     @GetMapping("/details/{lang}/{serviceId}")
     public ResponseEntity<BaseResponse<ServiceDetailsDTO>> getServiceDetails(
-            @PathVariable String lang,
-            @PathVariable UUID serviceId) {
+            @PathVariable UUID serviceId,
+            @PathVariable String lang) {
 
         ServiceDetailsDTO serviceDetails = serviceService.getServiceDetails(serviceId, lang);
 

@@ -296,4 +296,51 @@ public class BundleServiceImpl implements BundleService {
                 .totalElements(bundlePage.getTotalElements())
                 .build();
     }
+
+    @Override
+    public BundleDetailDTO getBundleDetails(UUID bundleId, String lang) {
+        // Step 1: Retrieve the bundle entity by its ID
+        Bundle bundle = bundleRepository.findById(bundleId)
+                .orElseThrow(() -> new RuntimeException("Bundle not found with id: " + bundleId));
+
+        // Step 2: Calculate the total duration using the helper method
+        int totalDuration = getTotalDuration(bundle);
+
+        // Step 3: Get the correct language code (assuming you map 'lang' to an enum, e.g., "en" -> LanguageCode.EN)
+        LanguageCode languageCode = LanguageCode.valueOf(lang.toUpperCase());
+
+        // Step 4: Use the repository method to find the description in the specified language
+        BundleDescription bundleDescription = bundleDescriptionRepository
+                .findByBundleAndLanguageCode(bundle, languageCode)
+                .orElseThrow(() -> new RuntimeException("Description not found for the bundle in language: " + lang));
+
+        // Step 5: Prepare and return the BundleDetailDTO with the required information
+        return BundleDetailDTO.builder()
+                .description(bundleDescription.getDescription())
+                .includedItemDescription(bundleDescription.getIncludedItemDescription())
+                .duration(totalDuration)  // Use the calculated total duration here
+                .localPrice(bundle.getLocalPrice())
+                .touristPrice(bundle.getTouristPrice())
+                .build();
+    }
+
+    // Helper function
+    @Override
+    public int getTotalDuration(Bundle bundle) {
+        // Fetch all bundle details for this specific bundle
+        List<BundleDetail> bundleDetails = bundleDetailRepository.findByBundle(bundle);
+
+        // Calculate total duration by summing up durations of services
+        int totalDuration = 0;
+
+        for (BundleDetail detail : bundleDetails) {
+            ServicePrice servicePrice = detail.getServicePrice();
+            int duration = servicePrice.getDuration(); // Get the duration of the service
+
+            totalDuration += duration;
+        }
+
+        return totalDuration; // Return the total duration for the bundle
+    }
+
 }

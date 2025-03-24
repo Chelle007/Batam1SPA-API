@@ -1,9 +1,6 @@
 package com.example.batam1spa.bundle.controller;
 
-import com.example.batam1spa.bundle.dto.BundleDTO;
-import com.example.batam1spa.bundle.dto.CreateBundleDTO;
-import com.example.batam1spa.bundle.dto.EditBundleDTO;
-import com.example.batam1spa.bundle.dto.GetBundlesPaginationResponse;
+import com.example.batam1spa.bundle.dto.*;
 import com.example.batam1spa.bundle.model.Bundle;
 import com.example.batam1spa.bundle.model.BundleDescription;
 import com.example.batam1spa.bundle.service.BundleDescriptionService;
@@ -90,22 +87,23 @@ public class BundleController {
         return ResponseEntity.ok(response);
     }
 
-//    // For customer website
-//    @GetMapping("/details/{lang}/{bundleId}")
-//    public ResponseEntity<BaseResponse<ServiceDetailsDTO>> getServiceDetails(
-//            @PathVariable String lang,
-//            @PathVariable UUID serviceId) {
-//
-//        ServiceDetailsDTO serviceDetails = serviceService.getServiceDetails(serviceId, lang);
-//
-//        BaseResponse<ServiceDetailsDTO> response = BaseResponse.success(
-//                HttpStatus.OK, serviceDetails, "Service details fetched successfully");
-//
-//        return ResponseEntity.ok(response);
-//    }
-//
-//    // Pagination API for services with shortest and longest durations
-//    @GetMapping("/get-service-page")
+    // For customer website
+    @GetMapping("/details/{lang}/{bundleId}")
+    public ResponseEntity<BaseResponse<BundleDetailDTO>> getBundleDetails(
+            @PathVariable UUID bundleId,
+            @PathVariable String lang) {
+
+        // Step 1: Call the service to get the bundle details
+        BundleDetailDTO bundleDetails = bundleService.getBundleDetails(bundleId, lang);
+
+        // Step 2: Create the BaseResponse
+        BaseResponse<BundleDetailDTO> response = BaseResponse.success(
+                HttpStatus.OK, bundleDetails, "Bundle details fetched successfully");
+
+        // Step 3: Return the response
+        return ResponseEntity.ok(response);
+    }
+
     // Get paginated list of published bundles (with optional search)
     @GetMapping("/get-bundles-page")
     public ResponseEntity<BaseResponse<GetBundlesPaginationResponse>> getBundlesByPage(

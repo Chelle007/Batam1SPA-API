@@ -14,4 +14,6 @@ public interface BundleService {
     BundleDTO editBundle(User user, UUID bundleId, EditBundleDTO editBundleDTO);
     Bundle toggleBundleStatus(User user, UUID bundleId);
     GetBundlesPaginationResponse getBundlesByPage(int amountPerPage, int page, String searchQuery);
+    BundleDetailDTO getBundleDetails(UUID bundleId, String lang);
+    int getTotalDuration(Bundle bundle);
 }
