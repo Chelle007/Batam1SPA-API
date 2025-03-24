@@ -73,6 +73,7 @@ public class LeaveServiceImpl implements LeaveService {
 
     @Override
     public Page<PageLeaveDTO> getLeavesByPage(User user, int amountPerPage, int page) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
         Pageable pageable = PageRequest.of(page, amountPerPage, Sort.by("startDate").descending());
         Page<Leave> leavePage = leaveRepository.findAll(pageable);
 
