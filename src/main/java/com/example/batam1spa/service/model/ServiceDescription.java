@@ -26,4 +26,7 @@ public class ServiceDescription extends Auditable {
 
     @Column(nullable = false)
     private String description;
+
+    @Column(nullable = false)
+    private String includedItemDescription;
 }

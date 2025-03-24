@@ -30,46 +30,70 @@ public class ServiceDescriptionServiceImpl implements ServiceDescriptionService 
         createServiceDescriptionIfNotExists(
                 service1,
                 LanguageCode.EN,
-                "Very relaxing massage for head."
+                "Very relaxing massage for head.",
+                "Use of heated stones to ease muscle stiffness and tension\n" +
+                        "Professional massage techniques to improve circulation and reduce stress\n" +
+                        "A calming and tranquil atmosphere for enhanced relaxation and well-being"
         );
         createServiceDescriptionIfNotExists(
                 service1,
                 LanguageCode.ID,
-                "Massage untuk kepala."
+                "Massage untuk kepala.",
+                "Use of heated stones to ease muscle stiffness and tension\n" +
+                        "Professional massage techniques to improve circulation and reduce stress\n" +
+                        "A calming and tranquil atmosphere for enhanced relaxation and well-being"
         );
         createServiceDescriptionIfNotExists(
                 service2,
                 LanguageCode.EN,
-                "Very relaxing massage for body."
+                "Very relaxing massage for body.",
+                "Use of heated stones to ease muscle stiffness and tension\n" +
+                        "Professional massage techniques to improve circulation and reduce stress\n" +
+                        "A calming and tranquil atmosphere for enhanced relaxation and well-being"
         );
         createServiceDescriptionIfNotExists(
                 service2,
                 LanguageCode.ID,
-                "Massage untuk badan."
+                "Massage untuk badan.",
+                "Use of heated stones to ease muscle stiffness and tension\n" +
+                        "Professional massage techniques to improve circulation and reduce stress\n" +
+                        "A calming and tranquil atmosphere for enhanced relaxation and well-being"
         );
         createServiceDescriptionIfNotExists(
                 service3,
                 LanguageCode.EN,
-                "Very relaxing massage for foot."
+                "Very relaxing massage for foot.",
+                "Use of heated stones to ease muscle stiffness and tension\n" +
+                        "Professional massage techniques to improve circulation and reduce stress\n" +
+                        "A calming and tranquil atmosphere for enhanced relaxation and well-being"
         );
         createServiceDescriptionIfNotExists(
                 service3,
                 LanguageCode.ID,
-                "Massage untuk kaki."
+                "Massage untuk kaki.",
+                "Use of heated stones to ease muscle stiffness and tension\n" +
+                        "Professional massage techniques to improve circulation and reduce stress\n" +
+                        "A calming and tranquil atmosphere for enhanced relaxation and well-being"
         );
         createServiceDescriptionIfNotExists(
                 service4,
                 LanguageCode.EN,
-                "Manicure & Pedicure."
+                "Manicure & Pedicure.",
+                "Use of heated stones to ease muscle stiffness and tension\n" +
+                        "Professional massage techniques to improve circulation and reduce stress\n" +
+                        "A calming and tranquil atmosphere for enhanced relaxation and well-being"
         );
         createServiceDescriptionIfNotExists(
                 service4,
                 LanguageCode.ID,
-                "Servis manipedi."
+                "Servis manipedi.",
+                "Use of heated stones to ease muscle stiffness and tension\n" +
+                        "Professional massage techniques to improve circulation and reduce stress\n" +
+                        "A calming and tranquil atmosphere for enhanced relaxation and well-being"
         );
     }
 
-    private void createServiceDescriptionIfNotExists(Service service, LanguageCode languageCode, String description) {
+    private void createServiceDescriptionIfNotExists(Service service, LanguageCode languageCode, String description, String includedItemDescription) {
         boolean serviceDescriptionExists = serviceDescriptionRepository.existsByServiceAndLanguageCode(service, languageCode);
 
         if (serviceDescriptionExists) {
@@ -81,6 +105,7 @@ public class ServiceDescriptionServiceImpl implements ServiceDescriptionService 
                 .service(service)
                 .languageCode(languageCode)
                 .description(description)
+                .includedItemDescription(includedItemDescription)
                 .build();
 
         serviceDescriptionRepository.save(serviceDescription);
