@@ -4,7 +4,8 @@ import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
-import com.example.batam1spa.order.dto.OrderDetailByServiceDateResponse;
+import com.example.batam1spa.order.dto.GetOrderDetailPaginationResponse;
+import com.example.batam1spa.order.dto.GetOrderDetailResponse;
 import com.example.batam1spa.order.model.Order;
 import com.example.batam1spa.order.model.OrderDetail;
 import com.example.batam1spa.order.repository.OrderDetailRepository;
@@ -17,10 +18,14 @@ import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @org.springframework.stereotype.Service
@@ -82,22 +87,33 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
 
     @Override
-    public List<OrderDetailByServiceDateResponse> getOrderDetailsByServiceDate(User user, LocalDate serviceDate) {
+    public GetOrderDetailPaginationResponse getOrderDetails(User user, int page, int size, LocalDate serviceDate) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
-        List<OrderDetail> orderDetails = orderDetailRepository.findByServiceDate(serviceDate);
-        List<OrderDetailByServiceDateResponse> orderDetailByServiceDateResponses = new ArrayList<>();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("serviceDate").descending());
+        Page<OrderDetail> orderDetails;
 
-        for (OrderDetail orderDetail : orderDetails) {
-            OrderDetailByServiceDateResponse orderDetailByServiceDateResponse = modelMapper.map(orderDetail, OrderDetailByServiceDateResponse.class);
-            Order order = orderDetail.getOrder();
-            orderDetailByServiceDateResponse.setCustomer(order.getCustomer());
-            orderDetailByServiceDateResponse.setVIP(order.isVIP());
-            orderDetailByServiceDateResponse.setTotalPrice(order.getTotalPrice());
-            orderDetailByServiceDateResponse.setCancelled(order.isCancelled());
-            orderDetailByServiceDateResponses.add(orderDetailByServiceDateResponse);
+        if (serviceDate != null) {
+            orderDetails = orderDetailRepository.findByServiceDate(serviceDate, pageable);
+        } else {
+            orderDetails = orderDetailRepository.findAll(pageable);
         }
 
-        return orderDetailByServiceDateResponses;
+        List<GetOrderDetailResponse> orderDetailResponses = orderDetails.stream().map(orderDetail -> {
+            GetOrderDetailResponse response = modelMapper.map(orderDetail, GetOrderDetailResponse.class);
+            Order order = orderDetail.getOrder();
+            response.setCustomer(order.getCustomer());
+            response.setVIP(order.isVIP());
+            response.setTotalPrice(order.getTotalPrice());
+            response.setCancelled(order.isCancelled());
+            return response;
+        }).toList();
+
+        return GetOrderDetailPaginationResponse.builder()
+                .getOrderDetailResponseList(orderDetailResponses)
+                .page(page)
+                .size(size)
+                .totalPages(orderDetails.getTotalPages())
+                .build();
     }
 }

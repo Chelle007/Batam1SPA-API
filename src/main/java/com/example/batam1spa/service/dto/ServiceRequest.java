@@ -1,6 +1,5 @@
 package com.example.batam1spa.service.dto;
 
-import com.example.batam1spa.service.model.ServiceType;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
