@@ -28,24 +28,24 @@ public class OrderController {
     private final OrderService orderService;
     private final CartService cartService;
 
-    @GetMapping("/get-order-details")
-    public ResponseEntity<BaseResponse<GetOrderDetailPaginationResponse>> getOrderDetails(
+    @GetMapping("/get-order-details-by-page")
+    public ResponseEntity<BaseResponse<GetOrderDetailPaginationResponse>> getOrderDetailsByPage(
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) LocalDate serviceDate) {
-        GetOrderDetailPaginationResponse response = orderDetailService.getOrderDetails(user, page, size, serviceDate);
-        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Order Details"));
+        GetOrderDetailPaginationResponse response = orderDetailService.getOrderDetailsByPage(user, page, size, serviceDate);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Order Details By Page"));
     }
 
-    @GetMapping("/get-order")
-    public ResponseEntity<BaseResponse<GetOrderPaginationResponse>> getOrders(
+    @GetMapping("/get-orders-by-page")
+    public ResponseEntity<BaseResponse<GetOrderPaginationResponse>> getOrdersByPage(
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) LocalDate bookDate) {
-        GetOrderPaginationResponse response = orderService.getOrders(user, page, size, bookDate);
-        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Orders"));
+        GetOrderPaginationResponse response = orderService.getOrdersByPage(user, page, size, bookDate);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Orders By Page"));
     }
 
     @PostMapping("/edit-order-status")

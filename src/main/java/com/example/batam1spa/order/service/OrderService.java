@@ -13,5 +13,5 @@ public interface OrderService {
     Order editOrderStatus(User user, UUID orderId);
     Boolean checkout(CheckoutRequest checkoutRequest);
     Boolean editVIPStatus(User user, UUID orderId);
-    GetOrderPaginationResponse getOrders(User user, int page, int size, LocalDate bookDate);
+    GetOrderPaginationResponse getOrdersByPage(User user, int page, int size, LocalDate bookDate);
 }

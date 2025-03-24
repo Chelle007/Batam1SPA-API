@@ -2,6 +2,8 @@ package com.example.batam1spa.user.service;
 
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.user.dto.CreateUserRequest;
+import com.example.batam1spa.user.dto.GetUserPaginationResponse;
+import com.example.batam1spa.user.dto.GetUserResponse;
 import com.example.batam1spa.user.exception.UserExceptions;
 import com.example.batam1spa.user.model.User;
 import com.example.batam1spa.user.model.UserRole;
@@ -9,11 +11,16 @@ import com.example.batam1spa.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,18 +60,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllUsers(User user, boolean includeInactive) {
+    public GetUserPaginationResponse getUsersByPage(User user, int page, int size, boolean includeInactive) {
         roleSecurityService.checkRole(user, "ROLE_MANAGER");
 
+        Pageable pageable = PageRequest.of(page, size, Sort.by("fullName").ascending());
+        Page<User> users;
+
         if (user.getManagementLevel() == UserRole.OWNER) {
-            return includeInactive ? userRepository.findAll() : userRepository.findAllByIsWorking(true);
-        }
-        else {
+            users = includeInactive
+                    ? userRepository.findAll(pageable)
+                    : userRepository.findAllByIsWorking(true, pageable);
+        } else {
             List<UserRole> visibleRoles = List.of(UserRole.MANAGER, UserRole.ADMIN);
-            return includeInactive
-                    ? userRepository.findAllByManagementLevelIn(visibleRoles)
-                    : userRepository.findAllByManagementLevelInAndIsWorking(visibleRoles, true);
+            users = includeInactive
+                    ? userRepository.findAllByManagementLevelIn(visibleRoles, pageable)
+                    : userRepository.findAllByManagementLevelInAndIsWorking(visibleRoles, true, pageable);
         }
+
+        List<GetUserResponse> userResponses = users.getContent().stream()
+                .map(u -> modelMapper.map(u, GetUserResponse.class))
+                .collect(Collectors.toList());
+
+        return GetUserPaginationResponse.builder()
+                .getUserResponseList(userResponses)
+                .page(page)
+                .size(size)
+                .totalPages(users.getTotalPages())
+                .build();
     }
 
     @Override

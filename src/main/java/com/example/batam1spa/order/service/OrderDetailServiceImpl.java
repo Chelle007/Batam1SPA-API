@@ -86,7 +86,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
 
     @Override
-    public GetOrderDetailPaginationResponse getOrderDetails(User user, int page, int size, LocalDate serviceDate) {
+    public GetOrderDetailPaginationResponse getOrderDetailsByPage(User user, int page, int size, LocalDate serviceDate) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("serviceDate").descending());
