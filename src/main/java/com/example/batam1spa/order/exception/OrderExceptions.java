@@ -77,4 +77,16 @@ public class OrderExceptions {
             super(message);
         }
     }
+
+    public static class OrderDetailNotFound extends RuntimeException {
+        public OrderDetailNotFound(String message) {
+            super(message);
+        }
+    }
+
+    public static class StaffNotFound extends RuntimeException {
+        public StaffNotFound(String message) {
+            super(message);
+        }
+    }
 }

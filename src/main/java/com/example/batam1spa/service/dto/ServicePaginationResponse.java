@@ -1,5 +1,6 @@
 package com.example.batam1spa.service.dto;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,5 +18,5 @@ public class ServicePaginationResponse {
     private int shortestDuration;  // Shortest duration for the range in FE
     private int longestDuration;   // Longest duration for the range in FE
     private String imgUrl;
-    private Boolean isPublished;
+    private boolean isPublished;
 }

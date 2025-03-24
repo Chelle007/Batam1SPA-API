@@ -64,6 +64,20 @@ public class OrderAdvice {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(OrderExceptions.OrderDetailNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleOrderDetailNotFoundException(OrderExceptions.OrderDetailNotFound ex) {
+        log.error("Order Detail not found: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Order Detail not found");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(OrderExceptions.StaffNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleStaffNotFoundException(OrderExceptions.StaffNotFound ex) {
+        log.error("Staff not found: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Staff not found");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(OrderExceptions.InvalidServiceSchedule.class)
     public ResponseEntity<BaseResponse<String>> handleInvalidServiceScheduleException(OrderExceptions.InvalidServiceSchedule ex) {
         log.error("Invalid service schedule: {}", ex.getMessage(), ex);

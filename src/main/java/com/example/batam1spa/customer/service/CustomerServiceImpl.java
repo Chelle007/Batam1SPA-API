@@ -2,6 +2,7 @@ package com.example.batam1spa.customer.service;
 
 import com.example.batam1spa.customer.dto.CustomerDTO;
 import com.example.batam1spa.customer.dto.EditCustomerRequest;
+import com.example.batam1spa.customer.exception.CustomerExceptions;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
 import com.example.batam1spa.security.service.RoleSecurityService;
@@ -35,11 +36,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     private void createCustomerIfNotExists(String fullName, String phoneNumber, String email, boolean isLocal, boolean isSubscribed) {
         boolean customerExists = customerRepository.existsByPhoneNumber(phoneNumber);
-
-        if (customerExists) {
-            log.info("{} already exists in the system", phoneNumber);
-            return;
-        }
 
         Customer customer = Customer.builder()
                 .fullName(fullName)
@@ -89,7 +85,7 @@ public class CustomerServiceImpl implements CustomerService {
     public Customer editCustomerNationality(UUID customerId, EditCustomerRequest editCustomerRequestDTO) {
         // Find the existing customer record
         Customer existingCustomer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + customerId));
+                .orElseThrow(() -> new CustomerExceptions.CustomerNotFound("Customer not found with id: " + customerId));
 
         // Update the customer nationality
         modelMapper.map(editCustomerRequestDTO, existingCustomer);

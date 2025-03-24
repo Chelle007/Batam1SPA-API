@@ -4,8 +4,12 @@ import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
+import com.example.batam1spa.log.model.LogType;
+import com.example.batam1spa.log.repository.LogRepository;
+import com.example.batam1spa.log.service.LogService;
 import com.example.batam1spa.order.dto.GetOrderDetailPaginationResponse;
 import com.example.batam1spa.order.dto.GetOrderDetailResponse;
+import com.example.batam1spa.order.exception.OrderExceptions;
 import com.example.batam1spa.order.model.Order;
 import com.example.batam1spa.order.model.OrderDetail;
 import com.example.batam1spa.order.repository.OrderDetailRepository;
@@ -14,6 +18,7 @@ import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.service.repository.ServiceRepository;
 import com.example.batam1spa.staff.model.Staff;
+import com.example.batam1spa.staff.repository.StaffRepository;
 import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,17 +31,20 @@ import org.springframework.data.domain.Sort;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.UUID;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
 @Slf4j
 public class OrderDetailServiceImpl implements OrderDetailService {
     private final RoleSecurityService roleSecurityService;
+    private final LogService logService;
     private final OrderDetailRepository orderDetailRepository;
     private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;
     private final ServiceRepository serviceRepository;
     private final TimeSlotRepository timeSlotRepository;
+    private final StaffRepository staffRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -113,5 +121,21 @@ public class OrderDetailServiceImpl implements OrderDetailService {
                 .size(size)
                 .totalPages(orderDetails.getTotalPages())
                 .build();
+    }
+
+    @Override
+    public Boolean editAllocatedStaff(User user, UUID orderDetailId, UUID staffId) {
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
+        OrderDetail orderDetail = orderDetailRepository.findById(orderDetailId).orElseThrow(() -> new OrderExceptions.OrderDetailNotFound("Order Detail with ID: " + orderDetailId + " not found."));
+        Staff staff = staffRepository.findById(staffId).orElseThrow(() -> new OrderExceptions.StaffNotFound("Staff with ID: " + staffId + " not found."));
+
+        // TODO: validate staff availability
+
+        orderDetail.setStaff(staff);
+        orderDetailRepository.save(orderDetail);
+
+        logService.addLog(user.getUsername(), user.getManagementLevel(), LogType.UPDATE, "edit allocated staff of orderDetail: " + orderDetailId + " to staff: " + staffId);
+        return Boolean.TRUE;
     }
 }
