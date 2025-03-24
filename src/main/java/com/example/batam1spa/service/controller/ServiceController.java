@@ -113,4 +113,11 @@ public class ServiceController {
                 HttpStatus.OK, servicesResponse, "Fetched services successfully"));
     }
 
+    @GetMapping("/get-signature-service")
+    public ResponseEntity<BaseResponse<List<ServicePaginationResponse>>> getSignatureService() {
+        List<ServicePaginationResponse> response = serviceService.getSignatureService();
+
+        return ResponseEntity.ok(BaseResponse.success(
+                HttpStatus.OK, response, "Fetched signature services successfully"));
+    }
 }
