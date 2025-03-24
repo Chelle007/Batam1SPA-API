@@ -75,21 +75,21 @@ public class BundleController {
         return ResponseEntity.ok(response);
     }
 
-//    @PatchMapping("/toggle-status/{serviceId}") // use PATCH for partial updates
-//    public ResponseEntity<BaseResponse<Service>> toggleServiceStatus(
-//            @AuthenticationPrincipal User user,
-//            @PathVariable UUID serviceId) {
-//
-//        Service updatedService = serviceService.toggleServiceStatus(user, serviceId);
-//
-//        BaseResponse<Service> response = BaseResponse.success(
-//                HttpStatus.OK, updatedService, "Service status isPublished toggled successfully");
-//
-//        return ResponseEntity.ok(response);
-//    }
-//
+    @PatchMapping("/toggle-status/{bundleId}") // use PATCH for partial updates
+    public ResponseEntity<BaseResponse<Bundle>> toggleBundleStatus(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID bundleId) {
+
+        Bundle updatedBundle = bundleService.toggleBundleStatus(user, bundleId);
+
+        BaseResponse<Bundle> response = BaseResponse.success(
+                HttpStatus.OK, updatedBundle, "Bundle status isPublished toggled successfully");
+
+        return ResponseEntity.ok(response);
+    }
+
 //    // For customer website
-//    @GetMapping("/details/{lang}/{serviceId}")
+//    @GetMapping("/details/{lang}/{bundleId}")
 //    public ResponseEntity<BaseResponse<ServiceDetailsDTO>> getServiceDetails(
 //            @PathVariable String lang,
 //            @PathVariable UUID serviceId) {

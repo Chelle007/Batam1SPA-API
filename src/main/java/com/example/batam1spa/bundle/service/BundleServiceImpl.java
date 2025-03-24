@@ -246,4 +246,21 @@ public class BundleServiceImpl implements BundleService {
                 .isPublished(existingBundle.isPublished())
                 .build();
     }
+
+    @Override
+    @Transactional
+    public Bundle toggleBundleStatus(User user, UUID bundleId) {
+        // Step 1: Ensure the user is an admin
+        roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
+        // Step 2: Find existing bundle
+        Bundle existingBundle = bundleRepository.findById(bundleId)
+                .orElseThrow(() -> new RuntimeException("Bundle not found with id: " + bundleId));
+
+        // Step 3: Toggle the isPublished status
+        existingBundle.setPublished(!existingBundle.isPublished());
+
+        // Step 4: Save and return updated bundle
+        return bundleRepository.save(existingBundle);
+    }
 }
