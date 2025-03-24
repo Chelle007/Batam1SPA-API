@@ -1,20 +1,27 @@
 package com.example.batam1spa.availability.service;
 
-import com.example.batam1spa.availability.dto.GetServiceAvailabilityRequest;
+import com.example.batam1spa.availability.dto.*;
 import com.example.batam1spa.availability.exception.AvailabilityExceptions;
 import com.example.batam1spa.availability.model.Availability;
 import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.availability.repository.AvailabilityRepository;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
+import com.example.batam1spa.bundle.model.Bundle;
+import com.example.batam1spa.bundle.model.BundleDetail;
+import com.example.batam1spa.bundle.repository.BundleDetailRepository;
+import com.example.batam1spa.bundle.repository.BundleRepository;
 import com.example.batam1spa.service.model.Service;
+import com.example.batam1spa.service.model.ServicePrice;
 import com.example.batam1spa.service.model.ServiceType;
 import com.example.batam1spa.service.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
@@ -23,6 +30,9 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     private final AvailabilityRepository availabilityRepository;
     private final ServiceRepository serviceRepository;
     private final TimeSlotRepository timeSlotRepository;
+    private final BundleRepository bundleRepository;
+    private final BundleDetailRepository bundleDetailRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public void generateAvailabilityForNextTwoWeeks() {
@@ -74,5 +84,121 @@ public class AvailabilityServiceImpl implements AvailabilityService {
         TimeSlot timeSlot = timeSlotRepository.findById(getServiceAvailabilityRequest.getTimeId()).orElseThrow(() -> new AvailabilityExceptions.TimeSlotNotFound("TimeSlot with ID: " + getServiceAvailabilityRequest.getTimeId() + " not found."));
         Availability availability = availabilityRepository.findByDateAndTimeSlotAndServiceType(getServiceAvailabilityRequest.getServiceDate(), timeSlot, service.getServiceType()).orElseThrow(() -> new AvailabilityExceptions.AvailabilityNotFound("Availability not found."));
         return availability.getCount();
+    }
+
+    @Override
+    public List<LocalDate> getServiceAvailabileDate(GetServiceAvailabileDateRequest getServiceAvailabileDateRequest) {
+        GetServiceAvailabileTimeSlotRequest getServiceAvailabileTimeSlotRequest = modelMapper.map(getServiceAvailabileDateRequest, GetServiceAvailabileTimeSlotRequest.class);
+        List<LocalDate> availableDates = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        LocalDate twoWeeksLater = today.plusWeeks(2);
+
+        for (LocalDate date = today; !date.isAfter(twoWeeksLater); date = date.plusDays(1)) {
+            getServiceAvailabileTimeSlotRequest.setServiceDate(date);
+            List<TimeSlot> availableTimeSlots = getServiceAvailabileTimeSlot(getServiceAvailabileTimeSlotRequest);
+
+            if (!availableTimeSlots.isEmpty()) {
+                availableDates.add(date);
+            }
+        }
+
+        return availableDates;
+    }
+
+    @Override
+    public List<TimeSlot> getServiceAvailabileTimeSlot(GetServiceAvailabileTimeSlotRequest getServiceAvailabileTimeSlotRequest) {
+        List<TimeSlot> timeSlots = timeSlotRepository.findAll();
+        Service service = serviceRepository.findById(getServiceAvailabileTimeSlotRequest.getServiceId()).orElseThrow(() -> new AvailabilityExceptions.OrderNotFound("Service with ID: " + getServiceAvailabileTimeSlotRequest.getServiceId() + " not found."));
+        List<Availability> availabilities = availabilityRepository.findByDateAndServiceType(getServiceAvailabileTimeSlotRequest.getServiceDate(), service.getServiceType());
+        Map<TimeSlot, Availability> availabilityMap = availabilities.stream()
+                .collect(Collectors.toMap(Availability::getTimeSlot, availability -> availability));
+
+        int pax = getServiceAvailabileTimeSlotRequest.getPax();
+        int duration = getServiceAvailabileTimeSlotRequest.getDuration();
+        int timeSlotCount = duration/30;
+        List<TimeSlot> availableTimeSlots = new ArrayList<>();
+
+        // VALIDATION
+        if (pax <= 0 || pax > 4) {
+            throw new AvailabilityExceptions.InvalidPax("Pax must be between 1 to 4: " + pax);
+        }
+        if (duration != 60 && duration != 90 && duration != 120) {
+            throw new AvailabilityExceptions.InvalidDuration("Duration must be 60/90/120: " + duration);
+        }
+
+        // CHECK AVAILABLE TIME SLOT
+        for (int i = 0; i < timeSlots.size() - timeSlotCount; i++) {
+            boolean allAvailable = true;
+            for (int j = 0; j < timeSlotCount; j++) {
+                TimeSlot timeSlot = timeSlots.get(i+j);
+                Availability availability = availabilityMap.get(timeSlot);
+                if (availability == null || availability.getCount() <= pax) {
+                    allAvailable = false;
+                    break;
+                }
+            }
+            if (allAvailable) {
+                availableTimeSlots.add(timeSlots.get(i));
+            }
+        }
+
+        return availableTimeSlots;
+    }
+
+    @Override
+    public List<LocalDate> getBundleAvailabileDate(UUID bundleId) {
+        Bundle bundle = bundleRepository.findById(bundleId).orElseThrow(() -> new AvailabilityExceptions.BundleNotFound("Bundle with ID: " + bundleId + " not found."));
+        List<BundleDetail> bundleDetails = bundleDetailRepository.findByBundle(bundle);
+
+        List<LocalDate> availableDates = new ArrayList<>();
+        boolean firstBundleDetail = true;
+        for (BundleDetail bundleDetail : bundleDetails) {
+            ServicePrice servicePrice = bundleDetail.getServicePrice();
+            GetServiceAvailabileDateRequest getServiceAvailabileDateRequest = GetServiceAvailabileDateRequest.builder()
+                    .serviceId(servicePrice.getService().getId())
+                    .pax(bundleDetail.getQuantity())
+                    .duration(servicePrice.getDuration())
+                    .build();
+
+            List<LocalDate> serviceAvailableDates = getServiceAvailabileDate(getServiceAvailabileDateRequest);
+
+            if (firstBundleDetail) {
+                availableDates = serviceAvailableDates;
+                firstBundleDetail = false;
+            } else {
+                availableDates.retainAll(serviceAvailableDates);
+            }
+        }
+
+        return availableDates;
+    }
+
+    @Override
+    public List<TimeSlot> getBundleAvailabileTimeSlot(UUID bundleId, LocalDate serviceDate) {
+        Bundle bundle = bundleRepository.findById(bundleId).orElseThrow(() -> new AvailabilityExceptions.BundleNotFound("Bundle with ID: " + bundleId + " not found."));
+        List<BundleDetail> bundleDetails = bundleDetailRepository.findByBundle(bundle);
+
+        List<TimeSlot> availableTimeSlots = new ArrayList<>();
+        boolean firstBundleDetail = true;
+        for (BundleDetail bundleDetail : bundleDetails) {
+            ServicePrice servicePrice = bundleDetail.getServicePrice();
+            GetServiceAvailabileTimeSlotRequest getServiceAvailabileTimeSlotRequest = GetServiceAvailabileTimeSlotRequest.builder()
+                    .serviceId(servicePrice.getService().getId())
+                    .pax(bundleDetail.getQuantity())
+                    .duration(servicePrice.getDuration())
+                    .serviceDate(serviceDate)
+                    .build();
+
+            List<TimeSlot> serviceAvailableTimeSlots = getServiceAvailabileTimeSlot(getServiceAvailabileTimeSlotRequest);
+
+            if (firstBundleDetail) {
+                availableTimeSlots = serviceAvailableTimeSlots;
+                firstBundleDetail = false;
+            } else {
+                availableTimeSlots.retainAll(serviceAvailableTimeSlots);
+            }
+        }
+
+        return availableTimeSlots;
     }
 }

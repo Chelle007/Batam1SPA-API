@@ -25,7 +25,6 @@ import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Collections;
 import java.util.List;
 
 @org.springframework.stereotype.Service
@@ -87,7 +86,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
 
     @Override
-    public GetOrderDetailPaginationResponse getOrderDetails(User user, int page, int size, LocalDate serviceDate) {
+    public GetOrderDetailPaginationResponse getOrderDetailsByPage(User user, int page, int size, LocalDate serviceDate) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("serviceDate").descending());
@@ -104,7 +103,6 @@ public class OrderDetailServiceImpl implements OrderDetailService {
             Order order = orderDetail.getOrder();
             response.setCustomer(order.getCustomer());
             response.setVIP(order.isVIP());
-            response.setTotalPrice(order.getTotalPrice());
             response.setCancelled(order.isCancelled());
             return response;
         }).toList();

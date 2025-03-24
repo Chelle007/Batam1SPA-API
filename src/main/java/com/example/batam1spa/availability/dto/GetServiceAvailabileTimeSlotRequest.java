@@ -9,8 +9,11 @@ import java.util.UUID;
 @Setter
 @Data
 @Builder
-public class GetServiceAvailabilityRequest {
+@NoArgsConstructor
+@AllArgsConstructor
+public class GetServiceAvailabileTimeSlotRequest {
     UUID serviceId;
+    int pax;
+    int duration;
     LocalDate serviceDate;
-    UUID timeId;
 }

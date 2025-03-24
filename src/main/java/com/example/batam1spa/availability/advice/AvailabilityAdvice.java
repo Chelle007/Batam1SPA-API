@@ -43,6 +43,27 @@ public class AvailabilityAdvice {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(AvailabilityExceptions.BundleNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleBundleNotFoundException(AvailabilityExceptions.BundleNotFound ex) {
+        log.error("Bundle not found: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Bundle not found");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AvailabilityExceptions.InvalidPax.class)
+    public ResponseEntity<BaseResponse<String>> handleInvalidPaxException(AvailabilityExceptions.InvalidPax ex) {
+        log.error("Invalid pax: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Invalid pax");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AvailabilityExceptions.InvalidDuration.class)
+    public ResponseEntity<BaseResponse<String>> handleInvalidDurationException(AvailabilityExceptions.InvalidDuration ex) {
+        log.error("Invalid duration: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Invalid duration");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse<String>> handleGenericException(Exception ex) {
         log.error("Unexpected Exception: {}", ex.getMessage(), ex);

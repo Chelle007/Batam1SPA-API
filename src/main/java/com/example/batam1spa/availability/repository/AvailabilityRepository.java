@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,4 +26,6 @@ public interface AvailabilityRepository extends JpaRepository<Availability, UUID
     @Modifying
     @Query("DELETE FROM Availability a WHERE a.date < :date")
     void deleteByDateBefore(@Param("date") LocalDate date);
+
+    List<Availability> findByDateAndServiceType(LocalDate serviceDate, ServiceType serviceType);
 }

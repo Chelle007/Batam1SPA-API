@@ -23,4 +23,22 @@ public class AvailabilityExceptions {
             super(message);
         }
     }
+
+    public static class BundleNotFound extends RuntimeException {
+        public BundleNotFound(String message) {
+            super(message);
+        }
+    }
+
+    public static class InvalidPax extends RuntimeException {
+        public InvalidPax(String message) {
+            super(message);
+        }
+    }
+
+    public static class InvalidDuration extends RuntimeException {
+        public InvalidDuration(String message) {
+            super(message);
+        }
+    }
 }

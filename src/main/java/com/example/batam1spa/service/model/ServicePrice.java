@@ -2,7 +2,9 @@ package com.example.batam1spa.service.model;
 
 import com.example.batam1spa.common.model.Auditable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.AssertTrue;
 import lombok.*;
+import org.hibernate.annotations.Check;
 
 @Getter
 @Setter

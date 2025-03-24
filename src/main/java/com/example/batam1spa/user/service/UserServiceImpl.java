@@ -1,7 +1,11 @@
 package com.example.batam1spa.user.service;
 
+import com.example.batam1spa.log.model.LogType;
+import com.example.batam1spa.log.service.LogService;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.user.dto.CreateUserRequest;
+import com.example.batam1spa.user.dto.GetUserPaginationResponse;
+import com.example.batam1spa.user.dto.GetUserResponse;
 import com.example.batam1spa.user.exception.UserExceptions;
 import com.example.batam1spa.user.model.User;
 import com.example.batam1spa.user.model.UserRole;
@@ -9,17 +13,23 @@ import com.example.batam1spa.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final RoleSecurityService roleSecurityService;
+    private final LogService logService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
@@ -53,18 +63,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllUsers(User user, boolean includeInactive) {
+    public GetUserPaginationResponse getUsersByPage(User user, int page, int size, boolean includeInactive) {
         roleSecurityService.checkRole(user, "ROLE_MANAGER");
 
+        Pageable pageable = PageRequest.of(page, size, Sort.by("fullName").ascending());
+        Page<User> users;
+
         if (user.getManagementLevel() == UserRole.OWNER) {
-            return includeInactive ? userRepository.findAll() : userRepository.findAllByIsWorking(true);
-        }
-        else {
+            users = includeInactive
+                    ? userRepository.findAll(pageable)
+                    : userRepository.findAllByIsWorking(true, pageable);
+        } else {
             List<UserRole> visibleRoles = List.of(UserRole.MANAGER, UserRole.ADMIN);
-            return includeInactive
-                    ? userRepository.findAllByManagementLevelIn(visibleRoles)
-                    : userRepository.findAllByManagementLevelInAndIsWorking(visibleRoles, true);
+            users = includeInactive
+                    ? userRepository.findAllByManagementLevelIn(visibleRoles, pageable)
+                    : userRepository.findAllByManagementLevelInAndIsWorking(visibleRoles, true, pageable);
         }
+
+        List<GetUserResponse> userResponses = users.getContent().stream()
+                .map(u -> modelMapper.map(u, GetUserResponse.class))
+                .collect(Collectors.toList());
+
+        return GetUserPaginationResponse.builder()
+                .getUserResponseList(userResponses)
+                .page(page)
+                .size(size)
+                .totalPages(users.getTotalPages())
+                .build();
     }
 
     @Override
@@ -81,6 +106,7 @@ public class UserServiceImpl implements UserService {
         targetUser.setWorking(!targetUser.isWorking());
         userRepository.save(targetUser);
 
+        logService.addLog(user.getUsername(), user.getManagementLevel(), LogType.UPDATE, "change user isWorking status to " + targetUser.isWorking() + " (user id: " + userId + ")");
         return Boolean.TRUE;
     }
 
@@ -100,6 +126,7 @@ public class UserServiceImpl implements UserService {
         newUser.setWorking(true);
         userRepository.save(newUser);
 
+        logService.addLog(user.getUsername(), user.getManagementLevel(), LogType.CREATE, "add user with username: " + createUserRequest.getUsername() + " and role: " + createUserRequest.getManagementLevel());
         return Boolean.TRUE;
     }
 }

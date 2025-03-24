@@ -11,9 +11,6 @@ import java.util.UUID;
 
 @Repository
 public interface BundleDetailRepository extends JpaRepository<BundleDetail, UUID> {
-    // for testing purpose (seeder)
     Boolean existsByBundleAndServicePrice(Bundle bundle, ServicePrice servicePrice);
-
-    // Fetch all details for a given bundle
     List<BundleDetail> findByBundle(Bundle bundle);
 }

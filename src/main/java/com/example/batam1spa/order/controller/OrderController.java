@@ -7,6 +7,7 @@ import com.example.batam1spa.order.service.CartService;
 import com.example.batam1spa.order.service.OrderDetailService;
 import com.example.batam1spa.order.service.OrderService;
 import com.example.batam1spa.user.model.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,24 +28,24 @@ public class OrderController {
     private final OrderService orderService;
     private final CartService cartService;
 
-    @GetMapping("/get-order-details")
-    public ResponseEntity<BaseResponse<GetOrderDetailPaginationResponse>> getOrderDetails(
+    @GetMapping("/get-order-detail-page")
+    public ResponseEntity<BaseResponse<GetOrderDetailPaginationResponse>> getOrderDetailsByPage(
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) LocalDate serviceDate) {
-        GetOrderDetailPaginationResponse response = orderDetailService.getOrderDetails(user, page, size, serviceDate);
-        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Order Details"));
+        GetOrderDetailPaginationResponse response = orderDetailService.getOrderDetailsByPage(user, page, size, serviceDate);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Order Details By Page"));
     }
 
-    @GetMapping("/get-order")
-    public ResponseEntity<BaseResponse<GetOrderPaginationResponse>> getOrders(
+    @GetMapping("/get-order-page")
+    public ResponseEntity<BaseResponse<GetOrderPaginationResponse>> getOrdersByPage(
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) LocalDate bookDate) {
-        GetOrderPaginationResponse response = orderService.getOrders(user, page, size, bookDate);
-        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Orders"));
+        GetOrderPaginationResponse response = orderService.getOrdersByPage(user, page, size, bookDate);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Orders By Page"));
     }
 
     @PostMapping("/edit-order-status")
@@ -60,21 +61,21 @@ public class OrderController {
     }
 
     @PostMapping("/add-to-cart")
-    public ResponseEntity<BaseResponse<Boolean>> addToCart(CartOrderDetailDTO cartOrderDetailDTO) {
+    public ResponseEntity<BaseResponse<Boolean>> addToCart(@RequestBody CartOrderDetailDTO cartOrderDetailDTO) {
         Boolean response = cartService.addToCart(cartOrderDetailDTO);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Add To Cart"));
     }
 
     @PostMapping("/remove-from-cart")
-    public ResponseEntity<BaseResponse<Boolean>> removeFromCart(CartOrderDetailDTO cartOrderDetailDTO) {
+    public ResponseEntity<BaseResponse<Boolean>> removeFromCart(@RequestBody CartOrderDetailDTO cartOrderDetailDTO) {
         Boolean response = cartService.removeFromCart(cartOrderDetailDTO);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Remove From Cart"));
     }
 
-    @PostMapping("/check-out")
-    public ResponseEntity<BaseResponse<Boolean>> checkout(CheckoutRequest checkoutRequest) {
+    @PostMapping("/checkout")
+    public ResponseEntity<BaseResponse<Boolean>> checkout(@RequestBody @Valid CheckoutRequest checkoutRequest) {
         Boolean response = orderService.checkout(checkoutRequest);
-        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Remove From Cart"));
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Check Out"));
     }
 
     @PostMapping("/edit-vip-status")

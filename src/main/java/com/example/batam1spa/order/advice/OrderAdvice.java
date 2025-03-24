@@ -57,9 +57,16 @@ public class OrderAdvice {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(OrderExceptions.ServicePriceNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleServicePriceNotFoundException(OrderExceptions.ServicePriceNotFound ex) {
+        log.error("Service price not found: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Service price not found");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(OrderExceptions.InvalidServiceSchedule.class)
     public ResponseEntity<BaseResponse<String>> handleInvalidServiceScheduleException(OrderExceptions.InvalidServiceSchedule ex) {
-        log.error("Invalid phone number: {}", ex.getMessage(), ex);
+        log.error("Invalid service schedule: {}", ex.getMessage(), ex);
         BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Invalid service schedule");
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
