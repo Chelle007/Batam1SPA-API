@@ -84,9 +84,9 @@ public class OrderController {
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Edit VIP Status"));
     }
 
-//    @PutMapping("/edit-allocated-staff/{orderDetailId}")
-//    public ResponseEntity<BaseResponse<Boolean>> editAllocatedStaff(@AuthenticationPrincipal User user, @PathVariable UUID orderDetailId, @RequestParam UUID staffId) {
-//        Boolean response = orderService.editAllocatedStaff(user, orderDetailId, staffId);
-//        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Edit Allocated Staff"));
-//    }
+    @PutMapping("/edit-allocated-staff/{orderDetailId}")
+    public ResponseEntity<BaseResponse<Boolean>> editAllocatedStaff(@AuthenticationPrincipal User user, @PathVariable UUID orderDetailId, @RequestParam UUID staffId) {
+        Boolean response = orderDetailService.editAllocatedStaff(user, orderDetailId, staffId);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Edit Allocated Staff"));
+    }
 }
