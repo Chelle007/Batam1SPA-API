@@ -26,4 +26,7 @@ public class BundleDescription extends Auditable {
 
     @Column(nullable = false)
     String description;
+
+    @Column(nullable = false)
+    String includedItemDescription;
 }

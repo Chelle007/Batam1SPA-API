@@ -4,6 +4,7 @@ import com.example.batam1spa.bundle.dto.BundleDTO;
 import com.example.batam1spa.bundle.dto.CreateBundleDTO;
 import com.example.batam1spa.bundle.dto.EditBundleDTO;
 import com.example.batam1spa.bundle.model.Bundle;
+import com.example.batam1spa.bundle.model.BundleDescription;
 import com.example.batam1spa.bundle.service.BundleDescriptionService;
 import com.example.batam1spa.bundle.service.BundleService;
 import com.example.batam1spa.common.dto.BaseResponse;
@@ -22,7 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BundleController {
     private final BundleService bundleService;
-    private final BundleDescriptionService bundleDescriptionService;
+    private final BundleDescriptionService bundleDescription;
 
     // Get all service members Full URI: /api/v1/bundle/get-all-bundle
     @GetMapping("/get-all-bundle")
@@ -36,18 +37,18 @@ public class BundleController {
         return ResponseEntity.ok(response);
     }
 
-//    // Get all service members Full URI: /api/v1/service/description
-//    @GetMapping("/description")
-//    public ResponseEntity<BaseResponse<List<ServiceDescription>>> getAllServicesDescription(@AuthenticationPrincipal User user) {
-//        List<ServiceDescription> serviceDescriptions = serviceDescription.getAllServiceDescriptions(user);
-//
-//        // Wrap the response in BaseResponse
-//        BaseResponse<List<ServiceDescription>> response = BaseResponse.success(
-//                HttpStatus.OK, serviceDescriptions, "Fetched all services description successfully");
-//
-//        return ResponseEntity.ok(response);
-//    }
-//
+    // Get all bundle members Full URI: /api/v1/bundle/description
+    @GetMapping("/description")
+    public ResponseEntity<BaseResponse<List<BundleDescription>>> getAllBundlesDescription(@AuthenticationPrincipal User user) {
+        List<BundleDescription> bundleDescriptions = bundleDescription.getAllBundleDescriptions(user);
+
+        // Wrap the response in BaseResponse
+        BaseResponse<List<BundleDescription>> response = BaseResponse.success(
+                HttpStatus.OK, bundleDescriptions, "Fetched all bundles description successfully");
+
+        return ResponseEntity.ok(response);
+    }
+
     // Full URL: `POST /api/v1/bundle/add`
     @PostMapping("/add")
     public ResponseEntity<BaseResponse<BundleDTO>> addBundle(@AuthenticationPrincipal User user, @RequestBody CreateBundleDTO createBundleDTO) {
