@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,5 +42,17 @@ public class AvailabilityController {
     public ResponseEntity<BaseResponse<List<TimeSlot>>> getServiceAvailabileTimeSlot(GetServiceAvailabileTimeSlotRequest getServiceAvailabileTimeSlotRequest) {
         List<TimeSlot> response = availabilityService.getServiceAvailabileTimeSlot(getServiceAvailabileTimeSlotRequest);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Service Available Time Slot"));
+    }
+
+    @GetMapping("/get-bundle-available-date")
+    public ResponseEntity<BaseResponse<List<LocalDate>>> getBundleAvailabileDate(UUID bundleId) {
+        List<LocalDate> response = availabilityService.getBundleAvailabileDate(bundleId);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Bundle Available Date"));
+    }
+
+    @GetMapping("/get-bundle-available-time-slot")
+    public ResponseEntity<BaseResponse<List<TimeSlot>>> getBundleAvailabileTimeSlot(UUID bundleId, LocalDate serviceDate) {
+        List<TimeSlot> response = availabilityService.getBundleAvailabileTimeSlot(bundleId, serviceDate);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Bundle Available Time Slot"));
     }
 }

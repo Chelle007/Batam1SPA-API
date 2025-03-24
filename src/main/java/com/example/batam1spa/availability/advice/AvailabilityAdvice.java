@@ -43,6 +43,13 @@ public class AvailabilityAdvice {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(AvailabilityExceptions.BundleNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleBundleNotFoundException(AvailabilityExceptions.BundleNotFound ex) {
+        log.error("Bundle not found: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Bundle not found");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(AvailabilityExceptions.InvalidPax.class)
     public ResponseEntity<BaseResponse<String>> handleInvalidPaxException(AvailabilityExceptions.InvalidPax ex) {
         log.error("Invalid pax: {}", ex.getMessage(), ex);

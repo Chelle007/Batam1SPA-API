@@ -46,6 +46,8 @@ public class SecurityConfig {
             "/api/v1/availability/get-service-availability",
             "/api/v1/availability/get-service-available-date",
             "/api/v1/availability/get-service-available-time-slot",
+            "/api/v1/availability/get-bundle-available-date",
+            "/api/v1/availability/get-bundle-available-time-slot",
             "/api/v1/order/get-cart",
     };
 
