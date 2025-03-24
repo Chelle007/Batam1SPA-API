@@ -35,6 +35,17 @@ public class StaffController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/names")
+    public ResponseEntity<BaseResponse<List<String>>> getStaffNames(@AuthenticationPrincipal User user) {
+        List<String> staffNames = staffService.getStaffNames(user);
+
+        BaseResponse<List<String>> response = BaseResponse.success(
+                HttpStatus.OK, staffNames, "Staff names fetched successfully"
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/get-staff-page")
     public ResponseEntity<BaseResponse<Page<StaffDTO>>> getStaffsByPage(
             @AuthenticationPrincipal User user,

@@ -82,6 +82,15 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
+    public List<String> getStaffNames(User user) {
+        return staffRepository.findAll()
+                .stream()
+                .map(Staff::getFullName)
+                .collect(Collectors.toList());
+    }
+
+    // Get all staff members by page
+    @Override
     public Page<StaffDTO> getStaffsByPage(User user, int page, int size) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
         Pageable pageable = PageRequest.of(page, size);

@@ -13,6 +13,7 @@ import java.util.UUID;
 public interface StaffService {
     void seedStaff();
     List<Staff> getAllStaff(User user);
+    List<String> getStaffNames(User user);
     Staff addStaff(User user, CreateStaffRequest createStaffRequestDTO);
     Staff editStaff(User user, UUID staffId, EditStaffRequest editStaffRequest);
     Page<StaffDTO> getStaffsByPage(User user, int page, int size);
