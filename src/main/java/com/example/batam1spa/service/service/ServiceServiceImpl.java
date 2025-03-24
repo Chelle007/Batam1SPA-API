@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
@@ -306,20 +305,26 @@ Expected API Request for add service:
     }
 
     @Override
-    public GetServicesPaginationResponse getServicesByPage(int amountPerPage, int page) {
-        // Create a Pageable object with the given page and amountPerPage
-        Pageable pageable = PageRequest.of(page, amountPerPage);
+    public GetServicesPaginationResponse getServicesByPage(int amountPerPage, int page, String searchQuery) {
+        // Create a Pageable object (ensure page is non-negative)
+        Pageable pageable = PageRequest.of(Math.max(0, page), amountPerPage);
 
-        // Fetch services with pagination from the repository
-        Page<Service> servicePage = serviceRepository.findAll(pageable);
+        // Fetch services with optional search filter
+        Page<Service> servicePage;
+        if (searchQuery != null && !searchQuery.isBlank()) {
+            servicePage = serviceRepository.findByNameContainingIgnoreCase(searchQuery.trim(), pageable);
+        } else {
+            servicePage = serviceRepository.findAll(pageable);
+        }
 
         // Convert the Page of services to a List of ServicePaginationResponse DTOs
         List<ServicePaginationResponse> serviceResponses = servicePage.getContent().stream()
                 .map(service -> {
                     // Get the durations for each service
                     List<ServicePrice> prices = servicePriceRepository.findByService(service);
-                    int shortestDuration = prices.stream().mapToInt(ServicePrice::getDuration).min().orElse(0);
-                    int longestDuration = prices.stream().mapToInt(ServicePrice::getDuration).max().orElse(0);
+
+                    int shortestDuration = prices.isEmpty() ? 0 : prices.stream().mapToInt(ServicePrice::getDuration).min().orElse(0);
+                    int longestDuration = prices.isEmpty() ? 0 : prices.stream().mapToInt(ServicePrice::getDuration).max().orElse(0);
 
                     return ServicePaginationResponse.builder()
                             .serviceId(service.getId())
@@ -333,11 +338,10 @@ Expected API Request for add service:
                 .collect(Collectors.toList());
 
         // Return a GetServicesPaginationResponse that contains the services and pagination metadata
-        GetServicesPaginationResponse response = new GetServicesPaginationResponse();
-        response.setServices(serviceResponses);
-        response.setTotalPages(servicePage.getTotalPages());
-        response.setTotalElements(servicePage.getTotalElements());
-
-        return response;
+        return GetServicesPaginationResponse.builder()
+                .services(serviceResponses)
+                .totalPages(servicePage.getTotalPages())
+                .totalElements(servicePage.getTotalElements())
+                .build();
     }
 }

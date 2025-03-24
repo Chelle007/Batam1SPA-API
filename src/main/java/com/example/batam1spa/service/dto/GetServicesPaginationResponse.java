@@ -1,10 +1,12 @@
 package com.example.batam1spa.service.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 
+@Builder
 @Getter
 @Setter
 public class GetServicesPaginationResponse {

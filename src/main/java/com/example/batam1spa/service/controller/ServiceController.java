@@ -100,16 +100,17 @@ public class ServiceController {
         return ResponseEntity.ok(response);
     }
 
-    // Pagination API for services with shortest and longest durations
+    // Pagination API for services with shortest and longest durations with search query
     @GetMapping("/get-service-page")
     public ResponseEntity<BaseResponse<GetServicesPaginationResponse>> getServicesByPage(
+            @RequestParam(defaultValue = "10") int amountPerPage,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(required = false) String searchQuery) {
 
-        GetServicesPaginationResponse response = serviceService.getServicesByPage(page, size);
+        GetServicesPaginationResponse servicesResponse = serviceService.getServicesByPage(amountPerPage, page, searchQuery);
 
-        // Wrap the response in BaseResponse
         return ResponseEntity.ok(BaseResponse.success(
-                HttpStatus.OK, response, "Successfully fetched services with pagination"));
+                HttpStatus.OK, servicesResponse, "Fetched services successfully"));
     }
+
 }
