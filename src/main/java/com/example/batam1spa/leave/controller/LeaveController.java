@@ -3,6 +3,7 @@ package com.example.batam1spa.leave.controller;
 import com.example.batam1spa.common.dto.BaseResponse;
 import com.example.batam1spa.leave.dto.CreateLeaveRequest;
 import com.example.batam1spa.leave.dto.EditLeaveRequest;
+import com.example.batam1spa.leave.dto.PageLeaveDTO;
 import com.example.batam1spa.leave.model.Leave;
 import com.example.batam1spa.leave.service.LeaveService;
 import com.example.batam1spa.user.model.User;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,6 +31,22 @@ public class LeaveController {
         // Wrap the response in BaseResponse
         BaseResponse<List<Leave>> response = BaseResponse.success(
                 HttpStatus.OK, allLeave, "Fetched all leaves successfully");
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Get all leave members Full URI: /api/leave/get-all-leave
+    @GetMapping("/get-leave-page")
+    public ResponseEntity<BaseResponse<Page<PageLeaveDTO>>> getLeavesByPage(
+            @RequestParam int page,
+            @RequestParam int amountPerPage,
+            @AuthenticationPrincipal User user) {
+
+        Page<PageLeaveDTO> leavesPage = leaveService.getLeavesByPage(user, amountPerPage, page);
+
+        BaseResponse<Page<PageLeaveDTO>> response = BaseResponse.success(
+                HttpStatus.OK, leavesPage, "Leaves fetched successfully"
+        );
 
         return ResponseEntity.ok(response);
     }

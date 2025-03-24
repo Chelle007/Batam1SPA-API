@@ -2,6 +2,7 @@ package com.example.batam1spa.leave.service;
 
 import com.example.batam1spa.leave.dto.CreateLeaveRequest;
 import com.example.batam1spa.leave.dto.EditLeaveRequest;
+import com.example.batam1spa.leave.dto.PageLeaveDTO;
 import com.example.batam1spa.leave.model.Leave;
 import com.example.batam1spa.leave.repository.LeaveRepository;
 import com.example.batam1spa.staff.model.Staff;
@@ -11,11 +12,13 @@ import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -66,6 +69,28 @@ public class LeaveServiceImpl implements LeaveService {
     public List<Leave> getAllLeave(User user) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
         return leaveRepository.findAll();
+    }
+
+    @Override
+    public Page<PageLeaveDTO> getLeavesByPage(User user, int amountPerPage, int page) {
+        Pageable pageable = PageRequest.of(page, amountPerPage, Sort.by("startDate").descending());
+        Page<Leave> leavePage = leaveRepository.findAll(pageable);
+
+        List<PageLeaveDTO> leaveDTOs = leavePage.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(leaveDTOs, pageable, leavePage.getTotalElements());
+    }
+
+    private PageLeaveDTO convertToDTO(Leave leave) {
+        return PageLeaveDTO.builder()
+                .leaveId(leave.getId())
+                .staffName(leave.getStaff().getFullName())
+                .reason(leave.getReason())
+                .startDate(leave.getStartDate())
+                .endDate(leave.getEndDate())
+                .build();
     }
 
     // Add new leave
