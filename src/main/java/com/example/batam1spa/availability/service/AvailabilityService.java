@@ -5,12 +5,12 @@ import com.example.batam1spa.availability.dto.GetServiceAvailabileTimeSlotReques
 import com.example.batam1spa.availability.dto.GetServiceAvailabilityRequest;
 import com.example.batam1spa.availability.model.TimeSlot;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface AvailabilityService {
     void generateAvailabilityForNextTwoWeeks();
     int getServiceAvailability(GetServiceAvailabilityRequest getServiceAvailabilityRequest);
-    List<Date> getServiceAvailabileDate(GetServiceAvailabileDateRequest getServiceAvailabileDateRequest);
+    List<LocalDate> getServiceAvailabileDate(GetServiceAvailabileDateRequest getServiceAvailabileDateRequest);
     List<TimeSlot> getServiceAvailabileTimeSlot(GetServiceAvailabileTimeSlotRequest getServiceAvailabileTimeSlotRequest);
 }

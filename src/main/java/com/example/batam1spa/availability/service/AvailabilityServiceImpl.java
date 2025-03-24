@@ -13,6 +13,7 @@ import com.example.batam1spa.service.model.ServiceType;
 import com.example.batam1spa.service.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDate;
@@ -29,6 +30,7 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     private final AvailabilityRepository availabilityRepository;
     private final ServiceRepository serviceRepository;
     private final TimeSlotRepository timeSlotRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public void generateAvailabilityForNextTwoWeeks() {
@@ -83,8 +85,22 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     }
 
     @Override
-    public List<Date> getServiceAvailabileDate(GetServiceAvailabileDateRequest getServiceAvailabileDateRequest) {
-        return null;
+    public List<LocalDate> getServiceAvailabileDate(GetServiceAvailabileDateRequest getServiceAvailabileDateRequest) {
+        GetServiceAvailabileTimeSlotRequest getServiceAvailabileTimeSlotRequest = modelMapper.map(getServiceAvailabileDateRequest, GetServiceAvailabileTimeSlotRequest.class);
+        List<LocalDate> availableDates = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        LocalDate twoWeeksLater = today.plusWeeks(2);
+
+        for (LocalDate date = today; !date.isAfter(twoWeeksLater); date = date.plusDays(1)) {
+            getServiceAvailabileTimeSlotRequest.setServiceDate(date);
+            List<TimeSlot> availableTimeSlots = getServiceAvailabileTimeSlot(getServiceAvailabileTimeSlotRequest);
+
+            if (!availableTimeSlots.isEmpty()) {
+                availableDates.add(date);
+            }
+        }
+
+        return availableDates;
     }
 
     @Override

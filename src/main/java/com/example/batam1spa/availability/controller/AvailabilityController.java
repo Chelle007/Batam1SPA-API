@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -31,8 +32,8 @@ public class AvailabilityController {
     }
 
     @GetMapping("/get-service-available-date")
-    public ResponseEntity<BaseResponse<List<Date>>> getServiceAvailabileDate(GetServiceAvailabileDateRequest getServiceAvailabileDateRequest) {
-        List<Date> response = availabilityService.getServiceAvailabileDate(getServiceAvailabileDateRequest);
+    public ResponseEntity<BaseResponse<List<LocalDate>>> getServiceAvailabileDate(GetServiceAvailabileDateRequest getServiceAvailabileDateRequest) {
+        List<LocalDate> response = availabilityService.getServiceAvailabileDate(getServiceAvailabileDateRequest);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Service Available Date"));
     }
 
