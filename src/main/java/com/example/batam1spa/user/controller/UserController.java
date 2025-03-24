@@ -22,7 +22,7 @@ import java.util.UUID;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/get-users-by-page")
+    @GetMapping("/get-user-page")
     public ResponseEntity<BaseResponse<GetUserPaginationResponse>> getUsersByPage(
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") int page,

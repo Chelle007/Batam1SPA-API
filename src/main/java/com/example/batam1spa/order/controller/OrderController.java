@@ -28,7 +28,7 @@ public class OrderController {
     private final OrderService orderService;
     private final CartService cartService;
 
-    @GetMapping("/get-order-details-by-page")
+    @GetMapping("/get-order-detail-page")
     public ResponseEntity<BaseResponse<GetOrderDetailPaginationResponse>> getOrderDetailsByPage(
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") int page,
@@ -38,7 +38,7 @@ public class OrderController {
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Order Details By Page"));
     }
 
-    @GetMapping("/get-orders-by-page")
+    @GetMapping("/get-order-page")
     public ResponseEntity<BaseResponse<GetOrderPaginationResponse>> getOrdersByPage(
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") int page,
