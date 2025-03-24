@@ -6,6 +6,8 @@ import com.example.batam1spa.availability.repository.AvailabilityRepository;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
+import com.example.batam1spa.log.model.LogType;
+import com.example.batam1spa.log.service.LogService;
 import com.example.batam1spa.order.dto.*;
 import com.example.batam1spa.order.exception.OrderExceptions;
 import com.example.batam1spa.order.model.Order;
@@ -51,6 +53,7 @@ public class OrderServiceImpl implements OrderService {
     private final CustomerRepository customerRepository;
     private final RoleSecurityService roleSecurityService;
     private final CartService cartService;
+    private final LogService logService;
     private final ServiceRepository serviceRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final OrderDetailRepository orderDetailRepository;
@@ -58,7 +61,6 @@ public class OrderServiceImpl implements OrderService {
     private final ServicePriceRepository servicePriceRepository;
     private final ModelMapper modelMapper;
     private static final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
-    private final Environment env;
     private final JavaMailSender javaMailSender;
 
     @Override
@@ -100,6 +102,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCancelled(!order.isCancelled());
         orderRepository.save(order);
 
+        logService.addLog(user.getUsername(), user.getManagementLevel(), LogType.UPDATE, "edit order isCancelled status to " + order.isCancelled() + " (order id: " + orderId + ")");
         return order;
     }
 
@@ -261,6 +264,8 @@ public class OrderServiceImpl implements OrderService {
 
         order.setVIP(!order.isVIP());
         orderRepository.save(order);
+
+        logService.addLog(user.getUsername(), user.getManagementLevel(), LogType.UPDATE, "edit VIP status to " + order.isVIP() + " (order id: " + orderId + ")");
         return Boolean.TRUE;
     }
 

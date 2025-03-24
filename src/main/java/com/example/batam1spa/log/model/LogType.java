@@ -7,6 +7,7 @@ public enum LogType {
 
     LOGIN("LOGIN"),
     CREATE("CREATE"),
+    READ("READ"),
     UPDATE("UPDATE"),
     DELETE("DELETE");
 

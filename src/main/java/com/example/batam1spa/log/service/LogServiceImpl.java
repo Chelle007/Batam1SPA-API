@@ -3,6 +3,8 @@ package com.example.batam1spa.log.service;
 import com.example.batam1spa.log.model.AdminLog;
 import com.example.batam1spa.log.model.LogType;
 import com.example.batam1spa.log.repository.LogRepository;
+import com.example.batam1spa.security.service.RoleSecurityService;
+import com.example.batam1spa.user.model.User;
 import com.example.batam1spa.user.model.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,10 +20,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class LogServiceImpl implements LogService {
+    private final RoleSecurityService roleSecurityService;
     private final LogRepository logRepository;
 
     @Override
-    public ByteArrayInputStream generateLogCsv() {
+    public ByteArrayInputStream generateLogCsv(User user) {
+        roleSecurityService.checkRole(user, "ROLE_MANAGER");
+
         List<AdminLog> logs = logRepository.findAll();
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -39,6 +44,8 @@ public class LogServiceImpl implements LogService {
             }
 
             writer.flush();
+
+            addLog(user.getUsername(), user.getManagementLevel(), LogType.READ, "generate log");
             return new ByteArrayInputStream(out.toByteArray());
         } catch (IOException e) {
             throw new RuntimeException("Error generating CSV", e);

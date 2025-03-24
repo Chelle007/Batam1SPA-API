@@ -1,5 +1,7 @@
 package com.example.batam1spa.user.service;
 
+import com.example.batam1spa.log.model.LogType;
+import com.example.batam1spa.log.service.LogService;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.user.dto.CreateUserRequest;
 import com.example.batam1spa.user.dto.GetUserPaginationResponse;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final RoleSecurityService roleSecurityService;
+    private final LogService logService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
@@ -103,6 +106,7 @@ public class UserServiceImpl implements UserService {
         targetUser.setWorking(!targetUser.isWorking());
         userRepository.save(targetUser);
 
+        logService.addLog(user.getUsername(), user.getManagementLevel(), LogType.UPDATE, "change user isWorking status to " + targetUser.isWorking() + " (user id: " + userId + ")");
         return Boolean.TRUE;
     }
 
@@ -122,6 +126,7 @@ public class UserServiceImpl implements UserService {
         newUser.setWorking(true);
         userRepository.save(newUser);
 
+        logService.addLog(user.getUsername(), user.getManagementLevel(), LogType.CREATE, "add user with username: " + createUserRequest.getUsername() + " and role: " + createUserRequest.getManagementLevel());
         return Boolean.TRUE;
     }
 }

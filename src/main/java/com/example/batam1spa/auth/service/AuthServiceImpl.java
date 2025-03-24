@@ -1,5 +1,7 @@
 package com.example.batam1spa.auth.service;
 
+import com.example.batam1spa.log.model.LogType;
+import com.example.batam1spa.log.service.LogService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,7 @@ public class AuthServiceImpl implements AuthService {
     private final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
     private final UserRepository userRepo;
     private final JwtService jwtService;
+    private final LogService logService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -30,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
 
         String token = generateToken(user);
 
+        logService.addLog(request.getUsername(), user.getManagementLevel(), LogType.LOGIN, "");
         return AuthResponse.of(user, token);
     }
 
