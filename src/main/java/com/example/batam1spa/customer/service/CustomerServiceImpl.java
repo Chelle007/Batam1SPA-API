@@ -2,6 +2,7 @@ package com.example.batam1spa.customer.service;
 
 import com.example.batam1spa.customer.dto.CustomerDTO;
 import com.example.batam1spa.customer.dto.EditCustomerRequest;
+import com.example.batam1spa.customer.exception.CustomerExceptions;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
 import com.example.batam1spa.security.service.RoleSecurityService;
@@ -9,11 +10,11 @@ import com.example.batam1spa.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class CustomerServiceImpl implements CustomerService {
+    private final RoleSecurityService roleSecurityService;
     private final CustomerRepository customerRepository;
     private final ModelMapper modelMapper;
     private final RoleSecurityService roleSecurityService;
@@ -35,11 +37,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     private void createCustomerIfNotExists(String fullName, String phoneNumber, String email, boolean isLocal, boolean isSubscribed) {
         boolean customerExists = customerRepository.existsByPhoneNumber(phoneNumber);
-
-        if (customerExists) {
-            log.info("{} already exists in the system", phoneNumber);
-            return;
-        }
 
         Customer customer = Customer.builder()
                 .fullName(fullName)
@@ -89,7 +86,7 @@ public class CustomerServiceImpl implements CustomerService {
     public Customer editCustomerNationality(UUID customerId, EditCustomerRequest editCustomerRequestDTO) {
         // Find the existing customer record
         Customer existingCustomer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + customerId));
+                .orElseThrow(() -> new CustomerExceptions.CustomerNotFound("Customer not found with id: " + customerId));
 
         // Update the customer nationality
         modelMapper.map(editCustomerRequestDTO, existingCustomer);

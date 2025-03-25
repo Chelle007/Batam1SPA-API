@@ -32,8 +32,8 @@ public class UserController {
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Users By Page"));
     }
 
-    @PostMapping("/change-user-status")
-    public ResponseEntity<BaseResponse<Boolean>> changeUserStatus(@AuthenticationPrincipal User user, UUID userId) {
+    @PostMapping("/change-user-status/{userId}")
+    public ResponseEntity<BaseResponse<Boolean>> changeUserStatus(@AuthenticationPrincipal User user, @PathVariable UUID userId) {
         Boolean response = userService.changeUserStatus(user, userId);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Change User Status"));
     }

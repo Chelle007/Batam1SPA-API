@@ -48,8 +48,8 @@ public class OrderController {
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Orders By Page"));
     }
 
-    @PostMapping("/edit-order-status")
-    public ResponseEntity<BaseResponse<Order>> editOrderStatus(@AuthenticationPrincipal User user, UUID orderId) {
+    @PostMapping("/edit-order-status/{orderId}")
+    public ResponseEntity<BaseResponse<Order>> editOrderStatus(@AuthenticationPrincipal User user, @PathVariable UUID orderId) {
         Order response = orderService.editOrderStatus(user, orderId);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Edit Order Status"));
     }
@@ -78,9 +78,15 @@ public class OrderController {
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Check Out"));
     }
 
-    @PostMapping("/edit-vip-status")
-    public ResponseEntity<BaseResponse<Boolean>> editVIPStatus(@AuthenticationPrincipal User user, UUID orderId) {
+    @PutMapping("/edit-vip-status/{orderId}")
+    public ResponseEntity<BaseResponse<Boolean>> editVIPStatus(@AuthenticationPrincipal User user, @PathVariable UUID orderId) {
         Boolean response = orderService.editVIPStatus(user, orderId);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Edit VIP Status"));
+    }
+
+    @PutMapping("/edit-allocated-staff/{orderDetailId}")
+    public ResponseEntity<BaseResponse<Boolean>> editAllocatedStaff(@AuthenticationPrincipal User user, @PathVariable UUID orderDetailId, @RequestParam UUID staffId) {
+        Boolean response = orderDetailService.editAllocatedStaff(user, orderDetailId, staffId);
+        return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Edit Allocated Staff"));
     }
 }

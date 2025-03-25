@@ -6,7 +6,6 @@ import com.example.batam1spa.customer.dto.EditCustomerRequest;
 import com.example.batam1spa.customer.service.CustomerService;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.user.model.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,9 +35,9 @@ public class CustomerController {
 
     @GetMapping("/get-customer-page")
     public ResponseEntity<BaseResponse<Page<CustomerDTO>>> getCustomersByPage(
-            @AuthenticationPrincipal User user,
             @RequestParam int page,
-            @RequestParam int amountPerPage){
+            @RequestParam int amountPerPage,
+            @AuthenticationPrincipal User user){
         Page<CustomerDTO> customerPage = customerService.getCustomersByPage(user, amountPerPage, page);
 
         BaseResponse<Page<CustomerDTO>> response = BaseResponse.success(

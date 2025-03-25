@@ -10,9 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -44,14 +42,14 @@ public class AvailabilityController {
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Service Available Time Slot"));
     }
 
-    @GetMapping("/get-bundle-available-date")
-    public ResponseEntity<BaseResponse<List<LocalDate>>> getBundleAvailabileDate(UUID bundleId) {
+    @GetMapping("/get-bundle-available-date/{bundleId}")
+    public ResponseEntity<BaseResponse<List<LocalDate>>> getBundleAvailabileDate(@PathVariable UUID bundleId) {
         List<LocalDate> response = availabilityService.getBundleAvailabileDate(bundleId);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Bundle Available Date"));
     }
 
-    @GetMapping("/get-bundle-available-time-slot")
-    public ResponseEntity<BaseResponse<List<TimeSlot>>> getBundleAvailabileTimeSlot(UUID bundleId, LocalDate serviceDate) {
+    @GetMapping("/get-bundle-available-time-slot/{bundleId}")
+    public ResponseEntity<BaseResponse<List<TimeSlot>>> getBundleAvailabileTimeSlot(@PathVariable UUID bundleId, @RequestParam LocalDate serviceDate) {
         List<TimeSlot> response = availabilityService.getBundleAvailabileTimeSlot(bundleId, serviceDate);
         return ResponseEntity.ok(BaseResponse.success(HttpStatus.OK, response, "Success Get Bundle Available Time Slot"));
     }

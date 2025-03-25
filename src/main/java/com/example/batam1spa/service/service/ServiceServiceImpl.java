@@ -14,6 +14,7 @@ import com.example.batam1spa.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.service.spi.ServiceException;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -343,5 +344,35 @@ Expected API Request for add service:
                 .totalPages(servicePage.getTotalPages())
                 .totalElements(servicePage.getTotalElements())
                 .build();
+    }
+
+    @Override
+    public List<ServicePaginationResponse> getSignatureService() {
+        Service service1 = serviceRepository.findByName("Head Massage").orElseThrow(/*TODO: () -> new exception*/);
+        Service service2 = serviceRepository.findByName("Body Massage").orElseThrow(/*TODO: () -> new exception*/);
+        Service service3 = serviceRepository.findByName("Foot Massage").orElseThrow(/*TODO: () -> new exception*/);
+
+        ServicePaginationResponse servicePaginationResponse1 = modelMapper.map(service1, ServicePaginationResponse.class);
+        List<ServicePrice> prices = servicePriceRepository.findByService(service1);
+        int shortestDuration = prices.isEmpty() ? 0 : prices.stream().mapToInt(ServicePrice::getDuration).min().orElse(0);
+        int longestDuration = prices.isEmpty() ? 0 : prices.stream().mapToInt(ServicePrice::getDuration).max().orElse(0);
+        servicePaginationResponse1.setShortestDuration(shortestDuration);
+        servicePaginationResponse1.setLongestDuration(longestDuration);
+
+        ServicePaginationResponse servicePaginationResponse2 = modelMapper.map(service2, ServicePaginationResponse.class);
+        prices = servicePriceRepository.findByService(service2);
+        shortestDuration = prices.isEmpty() ? 0 : prices.stream().mapToInt(ServicePrice::getDuration).min().orElse(0);
+        longestDuration = prices.isEmpty() ? 0 : prices.stream().mapToInt(ServicePrice::getDuration).max().orElse(0);
+        servicePaginationResponse1.setShortestDuration(shortestDuration);
+        servicePaginationResponse1.setLongestDuration(longestDuration);
+
+        ServicePaginationResponse servicePaginationResponse3 = modelMapper.map(service3, ServicePaginationResponse.class);
+        prices = servicePriceRepository.findByService(service2);
+        shortestDuration = prices.isEmpty() ? 0 : prices.stream().mapToInt(ServicePrice::getDuration).min().orElse(0);
+        longestDuration = prices.isEmpty() ? 0 : prices.stream().mapToInt(ServicePrice::getDuration).max().orElse(0);
+        servicePaginationResponse1.setShortestDuration(shortestDuration);
+        servicePaginationResponse1.setLongestDuration(longestDuration);
+
+        return List.of(servicePaginationResponse1, servicePaginationResponse2, servicePaginationResponse3);
     }
 }
