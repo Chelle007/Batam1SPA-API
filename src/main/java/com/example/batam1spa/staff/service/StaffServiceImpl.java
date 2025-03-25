@@ -137,6 +137,23 @@ public class StaffServiceImpl implements StaffService {
     public Staff addStaff(User user, CreateStaffRequest createStaffRequest) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
+        // Retrieve time slots from the database
+        TimeSlot startTimeSlot = timeSlotRepository.findById(createStaffRequest.getStartTimeSlotId())
+                .orElseThrow(() -> new StaffExceptions.TimeSlotNotFound("Start time slot not found."));
+
+        TimeSlot endTimeSlot = timeSlotRepository.findById(createStaffRequest.getEndTimeSlotId())
+                .orElseThrow(() -> new StaffExceptions.TimeSlotNotFound("End time slot not found."));
+
+        // Ensure start time is before end time
+        if (startTimeSlot.getLocalTime().isAfter(endTimeSlot.getLocalTime())) {
+            throw new StaffExceptions.InvalidTimeSlot("Start time must be before end time.");
+        }
+
+        // Check for duplicate staff
+        if (staffRepository.existsByFullName(createStaffRequest.getFullName())) {
+            throw new StaffExceptions.DuplicateStaffName("A staff member with this name already exists.");
+        }
+
         // DTO entity conversion
         Staff createStaffEntity = modelMapper.map(createStaffRequest, Staff.class);
         return staffRepository.save(createStaffEntity);

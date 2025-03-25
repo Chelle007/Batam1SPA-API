@@ -38,6 +38,29 @@ public class StaffAdvice {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(StaffExceptions.TimeSlotNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleTimeSlotNotFoundException(StaffExceptions.TimeSlotNotFound ex) {
+        log.error("TimeSlot Not Found: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "TimeSlot Not Found: Invalid TimeSlotId");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(StaffExceptions.InvalidTimeSlot.class)
+    public ResponseEntity<BaseResponse<String>> handleInvalidTimeSlotException(StaffExceptions.InvalidTimeSlot ex) {
+        log.error("Invalid TimeSlot: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Invalid TimeSlot: Start time must be before End time.");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(StaffExceptions.DuplicateStaffName.class)
+    public ResponseEntity<BaseResponse<String>> handleDuplicateStaffNameException(StaffExceptions.DuplicateStaffName ex) {
+        log.error("Invalid TimeSlot: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Invalid TimeSlot: Start time must be before End time.");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+
 
 
     @ExceptionHandler(Exception.class)

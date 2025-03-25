@@ -16,4 +16,22 @@ public class StaffExceptions {
             super(message);
         }
     }
+
+    public static class TimeSlotNotFound extends RuntimeException {
+        public TimeSlotNotFound(String message) {
+            super(message);
+        }
+    }
+
+    public static class InvalidTimeSlot extends RuntimeException {
+        public InvalidTimeSlot(String message) {
+            super(message);
+        }
+    }
+
+    public static class DuplicateStaffName extends RuntimeException {
+        public DuplicateStaffName(String message) {
+            super(message);
+        }
+    }
 }
