@@ -6,6 +6,7 @@ import com.example.batam1spa.customer.dto.EditCustomerRequest;
 import com.example.batam1spa.customer.service.CustomerService;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.user.model.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,9 +17,10 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/customer")
 public class CustomerController {
-    private CustomerService customerService;
+    private final CustomerService customerService;
 
     // Get all customer members Full URI: /api/customer/get-all-customer
     @GetMapping("/get-all-customer")
