@@ -37,9 +37,16 @@ public class LeaveAdvice {
     }
 
     @ExceptionHandler(LeaveExceptions.StaffIdNotFound.class)
-    public ResponseEntity<BaseResponse<String>> handleLeaveIdNotFoundException(LeaveExceptions.StaffIdNotFound ex) {
+    public ResponseEntity<BaseResponse<String>> handleStaffIdNotFoundException(LeaveExceptions.StaffIdNotFound ex) {
         log.error("Invalid StaffId: {}", ex.getMessage(), ex);
         BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "StaffId Not Found");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(LeaveExceptions.LeaveIdNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleLeaveIdNotFoundException(LeaveExceptions.LeaveIdNotFound ex) {
+        log.error("Invalid LeaveId: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "LeaveId Not Found");
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 

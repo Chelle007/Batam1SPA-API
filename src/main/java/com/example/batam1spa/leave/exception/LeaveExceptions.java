@@ -22,4 +22,10 @@ public class LeaveExceptions {
             super(message);
         }
     }
+
+    public static class LeaveIdNotFound extends RuntimeException {
+        public LeaveIdNotFound(String message) {
+            super(message);
+        }
+    }
 }

@@ -125,7 +125,7 @@ public class LeaveServiceImpl implements LeaveService {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Find the existing leave record
         Leave existingLeave = leaveRepository.findById(leaveId)
-                .orElseThrow(() -> new RuntimeException("Leave not found with id: " + leaveId));
+                .orElseThrow(() -> new LeaveExceptions.LeaveIdNotFound("Leave not found with id: " + leaveId));
 
         // Update the leave info
         modelMapper.map(editLeaveRequestDTO, existingLeave);
@@ -140,7 +140,7 @@ public class LeaveServiceImpl implements LeaveService {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Find the leave record by its ID
         Leave leaveToDelete = leaveRepository.findById(leaveId)
-                .orElseThrow(() -> new RuntimeException("Leave not found with id: " + leaveId));
+                .orElseThrow(() -> new LeaveExceptions.LeaveIdNotFound("Leave not found with id: " + leaveId));
 
         // Delete the leave record
         leaveRepository.delete(leaveToDelete);
