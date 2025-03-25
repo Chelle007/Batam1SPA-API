@@ -1,7 +1,6 @@
 package com.example.batam1spa.staff.advice;
 
 import com.example.batam1spa.common.dto.BaseResponse;
-import com.example.batam1spa.customer.exception.CustomerExceptions;
 import com.example.batam1spa.order.advice.OrderAdvice;
 import com.example.batam1spa.staff.exception.StaffExceptions;
 import org.slf4j.Logger;
