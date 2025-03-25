@@ -3,11 +3,13 @@ package com.example.batam1spa.staff.service;
 import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
 import com.example.batam1spa.common.model.Gender;
+import com.example.batam1spa.order.exception.OrderExceptions;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.ServiceType;
 import com.example.batam1spa.staff.dto.CreateStaffRequest;
 import com.example.batam1spa.staff.dto.EditStaffRequest;
 import com.example.batam1spa.staff.dto.StaffDTO;
+import com.example.batam1spa.staff.exception.StaffExceptions;
 import com.example.batam1spa.staff.model.Staff;
 import com.example.batam1spa.staff.repository.StaffRepository;
 import com.example.batam1spa.user.model.User;
@@ -93,6 +95,15 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public Page<StaffDTO> getStaffsByPage(User user, int page, int size) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
+        if (page < 0) {
+            throw new StaffExceptions.InvalidPageNumber("Invalid page number: page number is less than 0");
+        }
+
+        if (size < 1) {
+            throw new StaffExceptions.InvalidPageSize("Invalid page size: amount per page is less than 1");
+        }
+
         Pageable pageable = PageRequest.of(page, size);
         Page<Staff> staffPage = staffRepository.findAll(pageable);
 

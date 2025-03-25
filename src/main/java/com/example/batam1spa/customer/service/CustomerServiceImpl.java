@@ -27,7 +27,6 @@ public class CustomerServiceImpl implements CustomerService {
     private final RoleSecurityService roleSecurityService;
     private final CustomerRepository customerRepository;
     private final ModelMapper modelMapper;
-    private final RoleSecurityService roleSecurityService;
 
     @Override
     public void seedCustomer() {
