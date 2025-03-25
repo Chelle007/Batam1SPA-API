@@ -6,7 +6,6 @@ import com.example.batam1spa.leave.dto.PageLeaveDTO;
 import com.example.batam1spa.leave.exception.LeaveExceptions;
 import com.example.batam1spa.leave.model.Leave;
 import com.example.batam1spa.leave.repository.LeaveRepository;
-import com.example.batam1spa.staff.exception.StaffExceptions;
 import com.example.batam1spa.staff.model.Staff;
 import com.example.batam1spa.staff.repository.StaffRepository;
 import com.example.batam1spa.security.service.RoleSecurityService;
@@ -111,7 +110,7 @@ public class LeaveServiceImpl implements LeaveService {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Fetch the Staff entity using the staffId from the DTO
         Staff staff = staffRepository.findById(createLeaveRequestDTO.getStaffId())
-                .orElseThrow(() -> new RuntimeException("Staff not found with id: " + createLeaveRequestDTO.getStaffId()));
+                .orElseThrow(() -> new LeaveExceptions.StaffIdNotFound("Staff not found with id: " + createLeaveRequestDTO.getStaffId()));
 
         // DTO entity conversion
         Leave createLeaveEntity = modelMapper.map(createLeaveRequestDTO, Leave.class);

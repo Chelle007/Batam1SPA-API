@@ -22,7 +22,6 @@ public class LeaveAdvice {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-
     @ExceptionHandler(LeaveExceptions.InvalidPageNumber.class)
     public ResponseEntity<BaseResponse<String>> handleInvalidPageNumberException(LeaveExceptions.InvalidPageNumber ex) {
         log.error("Invalid page number: {}", ex.getMessage(), ex);
@@ -37,6 +36,12 @@ public class LeaveAdvice {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(LeaveExceptions.StaffIdNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleLeaveIdNotFoundException(LeaveExceptions.StaffIdNotFound ex) {
+        log.error("Invalid StaffId: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "StaffId Not Found");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse<String>> handleGenericException(Exception ex) {

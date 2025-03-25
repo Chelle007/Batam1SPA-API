@@ -60,7 +60,7 @@ public class StaffAdvice {
 
     @ExceptionHandler(StaffExceptions.StaffIdNotFound.class)
     public ResponseEntity<BaseResponse<String>> handleStaffIdNotFoundException(StaffExceptions.StaffIdNotFound ex) {
-        log.error("Invalid TimeSlot: {}", ex.getMessage(), ex);
+        log.error("Invalid StaffId: {}", ex.getMessage(), ex);
         BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "StaffId Not Found");
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }

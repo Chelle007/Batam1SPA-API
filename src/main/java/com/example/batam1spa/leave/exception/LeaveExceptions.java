@@ -16,4 +16,10 @@ public class LeaveExceptions {
             super(message);
         }
     }
+
+    public static class StaffIdNotFound extends RuntimeException {
+        public StaffIdNotFound(String message) {
+            super(message);
+        }
+    }
 }

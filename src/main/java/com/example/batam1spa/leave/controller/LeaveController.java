@@ -21,7 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/leave")
 public class LeaveController {
-    private LeaveService leaveService;
+    private final LeaveService leaveService;
 
     // Get all leave members Full URI: /api/leave/get-all-leave
     @GetMapping("/get-all-leave")
