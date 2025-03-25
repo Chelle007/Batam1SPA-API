@@ -166,7 +166,7 @@ public class StaffServiceImpl implements StaffService {
 
         // Find the existing staff member
         Staff existingStaff = staffRepository.findById(staffId)
-                .orElseThrow(() -> new RuntimeException("Staff not found with id: " + staffId));
+                .orElseThrow(() -> new StaffExceptions.StaffIdNotFound("Staff not found with id: " + staffId));
 
         // Update the staff info
         modelMapper.map(editStaffRequest, existingStaff);
