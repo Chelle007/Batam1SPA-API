@@ -3,6 +3,7 @@ package com.example.batam1spa.leave.service;
 import com.example.batam1spa.leave.dto.CreateLeaveRequest;
 import com.example.batam1spa.leave.dto.EditLeaveRequest;
 import com.example.batam1spa.leave.dto.PageLeaveDTO;
+import com.example.batam1spa.leave.exception.LeaveExceptions;
 import com.example.batam1spa.leave.model.Leave;
 import com.example.batam1spa.leave.repository.LeaveRepository;
 import com.example.batam1spa.staff.model.Staff;
@@ -74,6 +75,15 @@ public class LeaveServiceImpl implements LeaveService {
     @Override
     public Page<PageLeaveDTO> getLeavesByPage(User user, int amountPerPage, int page) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
+        if (page < 0) {
+            throw new LeaveExceptions.InvalidPageNumber("Invalid page number: page number is less than 0");
+        }
+
+        if (amountPerPage < 1) {
+            throw new LeaveExceptions.InvalidPageSize("Invalid page size: amount per page is less than 1");
+        }
+
         Pageable pageable = PageRequest.of(page, amountPerPage, Sort.by("startDate").descending());
         Page<Leave> leavePage = leaveRepository.findAll(pageable);
 
@@ -100,7 +110,7 @@ public class LeaveServiceImpl implements LeaveService {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Fetch the Staff entity using the staffId from the DTO
         Staff staff = staffRepository.findById(createLeaveRequestDTO.getStaffId())
-                .orElseThrow(() -> new RuntimeException("Staff not found with id: " + createLeaveRequestDTO.getStaffId()));
+                .orElseThrow(() -> new LeaveExceptions.StaffIdNotFound("Staff not found with id: " + createLeaveRequestDTO.getStaffId()));
 
         // DTO entity conversion
         Leave createLeaveEntity = modelMapper.map(createLeaveRequestDTO, Leave.class);
@@ -115,7 +125,7 @@ public class LeaveServiceImpl implements LeaveService {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Find the existing leave record
         Leave existingLeave = leaveRepository.findById(leaveId)
-                .orElseThrow(() -> new RuntimeException("Leave not found with id: " + leaveId));
+                .orElseThrow(() -> new LeaveExceptions.LeaveIdNotFound("Leave not found with id: " + leaveId));
 
         // Update the leave info
         modelMapper.map(editLeaveRequestDTO, existingLeave);
@@ -130,7 +140,7 @@ public class LeaveServiceImpl implements LeaveService {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Find the leave record by its ID
         Leave leaveToDelete = leaveRepository.findById(leaveId)
-                .orElseThrow(() -> new RuntimeException("Leave not found with id: " + leaveId));
+                .orElseThrow(() -> new LeaveExceptions.LeaveIdNotFound("Leave not found with id: " + leaveId));
 
         // Delete the leave record
         leaveRepository.delete(leaveToDelete);
