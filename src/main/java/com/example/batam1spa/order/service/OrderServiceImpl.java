@@ -4,6 +4,7 @@ import com.example.batam1spa.availability.model.Availability;
 import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.availability.repository.AvailabilityRepository;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
+import com.example.batam1spa.common.service.ValidationService;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
 import com.example.batam1spa.log.model.LogType;
@@ -26,7 +27,6 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.Phonenumber;
 import org.modelmapper.ModelMapper;
-import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +54,7 @@ public class OrderServiceImpl implements OrderService {
     private final RoleSecurityService roleSecurityService;
     private final CartService cartService;
     private final LogService logService;
+    private final ValidationService validationService;
     private final ServiceRepository serviceRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final OrderDetailRepository orderDetailRepository;
@@ -240,7 +241,10 @@ public class OrderServiceImpl implements OrderService {
             // CALCULATE TOTAL PRICE
             Duration duration = Duration.between(startTimeSlot.getLocalTime(), endTimeSlot.getLocalTime());
             long minutes = duration.toMinutes();
+            validationService.validateDuration((int) minutes);
+
             ServicePrice servicePrice = servicePriceRepository.findByServiceAndDuration(service, (int) minutes).orElseThrow();
+            validationService.validatePrice(servicePrice.getLocalPrice(), servicePrice.getTouristPrice());
             localTotalPrice += servicePrice.getLocalPrice() * cart.getQty();
             touristTotalPrice += servicePrice.getTouristPrice() * cart.getQty();
         }
@@ -270,10 +274,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public GetOrderPaginationResponse getOrdersByPage(User user, int page, int size, LocalDate bookDate) {
+    public GetOrderPaginationResponse getOrdersByPage(User user, int page, int amountPerPage, LocalDate bookDate) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("bookDateTime").descending());
+        validationService.validatePagination(page, amountPerPage);
+
+        Pageable pageable = PageRequest.of(page, amountPerPage, Sort.by("bookDateTime").descending());
         Page<Order> orders;
 
         if (bookDate != null) {
@@ -293,7 +299,7 @@ public class OrderServiceImpl implements OrderService {
         return GetOrderPaginationResponse.builder()
                 .getOrderResponseList(orderResponses)
                 .page(page)
-                .size(size)
+                .size(amountPerPage)
                 .totalPages(orders.getTotalPages())
                 .build();
     }

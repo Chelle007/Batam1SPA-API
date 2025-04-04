@@ -5,26 +5,14 @@ public class LeaveExceptions {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public static class InvalidPageNumber extends RuntimeException {
-        public InvalidPageNumber(String message) {
+    public static class LeaveNotFound extends RuntimeException {
+        public LeaveNotFound(String message) {
             super(message);
         }
     }
 
-    public static class InvalidPageSize extends RuntimeException {
-        public InvalidPageSize(String message) {
-            super(message);
-        }
-    }
-
-    public static class StaffIdNotFound extends RuntimeException {
-        public StaffIdNotFound(String message) {
-            super(message);
-        }
-    }
-
-    public static class LeaveIdNotFound extends RuntimeException {
-        public LeaveIdNotFound(String message) {
+    public static class StaffNotFound extends RuntimeException {
+        public StaffNotFound(String message) {
             super(message);
         }
     }

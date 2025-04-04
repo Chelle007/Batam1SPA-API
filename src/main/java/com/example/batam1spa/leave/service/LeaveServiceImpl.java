@@ -1,5 +1,6 @@
 package com.example.batam1spa.leave.service;
 
+import com.example.batam1spa.common.service.ValidationService;
 import com.example.batam1spa.leave.dto.CreateLeaveRequest;
 import com.example.batam1spa.leave.dto.EditLeaveRequest;
 import com.example.batam1spa.leave.dto.PageLeaveDTO;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LeaveServiceImpl implements LeaveService {
     private final RoleSecurityService roleSecurityService;
+    private final ValidationService validationService;
     private final LeaveRepository leaveRepository;
     private final StaffRepository staffRepository;
     private final ModelMapper modelMapper;
@@ -76,13 +78,7 @@ public class LeaveServiceImpl implements LeaveService {
     public Page<PageLeaveDTO> getLeavesByPage(User user, int amountPerPage, int page) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
-        if (page < 0) {
-            throw new LeaveExceptions.InvalidPageNumber("Invalid page number: page number is less than 0");
-        }
-
-        if (amountPerPage < 1) {
-            throw new LeaveExceptions.InvalidPageSize("Invalid page size: amount per page is less than 1");
-        }
+        validationService.validatePagination(page, amountPerPage);
 
         Pageable pageable = PageRequest.of(page, amountPerPage, Sort.by("startDate").descending());
         Page<Leave> leavePage = leaveRepository.findAll(pageable);
@@ -108,9 +104,11 @@ public class LeaveServiceImpl implements LeaveService {
     @Override
     public Leave addLeave(User user, CreateLeaveRequest createLeaveRequestDTO) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
-        // Fetch the Staff entity using the staffId from the DTO
+
+        validationService.validateStartEndDate(createLeaveRequestDTO.getStartDate(), createLeaveRequestDTO.getEndDate(), true);
+
         Staff staff = staffRepository.findById(createLeaveRequestDTO.getStaffId())
-                .orElseThrow(() -> new LeaveExceptions.StaffIdNotFound("Staff not found with id: " + createLeaveRequestDTO.getStaffId()));
+                .orElseThrow(() -> new LeaveExceptions.StaffNotFound("Staff not found with id: " + createLeaveRequestDTO.getStaffId()));
 
         // DTO entity conversion
         Leave createLeaveEntity = modelMapper.map(createLeaveRequestDTO, Leave.class);
@@ -123,9 +121,11 @@ public class LeaveServiceImpl implements LeaveService {
     @Override
     public Leave editLeave(User user, UUID leaveId, EditLeaveRequest editLeaveRequestDTO) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
-        // Find the existing leave record
+
+        validationService.validateStartEndDate(editLeaveRequestDTO.getStartDate(), editLeaveRequestDTO.getEndDate(), true);
+
         Leave existingLeave = leaveRepository.findById(leaveId)
-                .orElseThrow(() -> new LeaveExceptions.LeaveIdNotFound("Leave not found with id: " + leaveId));
+                .orElseThrow(() -> new LeaveExceptions.LeaveNotFound("Leave not found with id: " + leaveId));
 
         // Update the leave info
         modelMapper.map(editLeaveRequestDTO, existingLeave);
@@ -140,7 +140,7 @@ public class LeaveServiceImpl implements LeaveService {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Find the leave record by its ID
         Leave leaveToDelete = leaveRepository.findById(leaveId)
-                .orElseThrow(() -> new LeaveExceptions.LeaveIdNotFound("Leave not found with id: " + leaveId));
+                .orElseThrow(() -> new LeaveExceptions.LeaveNotFound("Leave not found with id: " + leaveId));
 
         // Delete the leave record
         leaveRepository.delete(leaveToDelete);

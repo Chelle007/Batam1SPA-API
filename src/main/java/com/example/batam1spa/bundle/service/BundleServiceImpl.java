@@ -1,6 +1,7 @@
 package com.example.batam1spa.bundle.service;
 
 import com.example.batam1spa.bundle.dto.*;
+import com.example.batam1spa.bundle.exception.BundleExceptions;
 import com.example.batam1spa.bundle.model.Bundle;
 import com.example.batam1spa.bundle.model.BundleDetail;
 import com.example.batam1spa.bundle.model.BundleDescription;
@@ -8,6 +9,7 @@ import com.example.batam1spa.bundle.repository.BundleDescriptionRepository;
 import com.example.batam1spa.bundle.repository.BundleDetailRepository;
 import com.example.batam1spa.bundle.repository.BundleRepository;
 import com.example.batam1spa.common.model.LanguageCode;
+import com.example.batam1spa.common.service.ValidationService;
 import com.example.batam1spa.service.repository.ServicePriceRepository;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.ServicePrice;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BundleServiceImpl implements BundleService {
     private final RoleSecurityService roleSecurityService;
+    private final ValidationService validationService;
     private final BundleRepository bundleRepository;
     private final BundleDescriptionRepository bundleDescriptionRepository;
     private final BundleDetailRepository bundleDetailRepository;
@@ -112,6 +115,8 @@ public class BundleServiceImpl implements BundleService {
         // Ensure only admins can add a bundle
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
+        validationService.validatePrice(createBundleDTO.getLocalPrice(), createBundleDTO.getTouristPrice());
+
         // Step 1: Create and save the bundle entity
         Bundle bundle = bundleRepository.save(Bundle.builder()
                 .name(createBundleDTO.getBundleName())
@@ -136,7 +141,7 @@ public class BundleServiceImpl implements BundleService {
                     .findByServiceNameAndDuration(serviceName, duration);
 
             if (servicePriceOpt.isEmpty()) {
-                throw new RuntimeException("Service price not found for " + serviceName + " with duration " + duration);
+                throw new BundleExceptions.ServicePriceNotFound("Service price not found for " + serviceName + " with duration " + duration);
             }
 
             ServicePrice servicePrice = servicePriceOpt.get();
@@ -178,7 +183,7 @@ public class BundleServiceImpl implements BundleService {
 
         // Step 2: Find the existing bundle by ID
         Bundle existingBundle = bundleRepository.findById(bundleId)
-                .orElseThrow(() -> new RuntimeException("Bundle not found with id: " + bundleId));
+                .orElseThrow(() -> new BundleExceptions.BundleNotFound("Bundle not found with id: " + bundleId));
 
         // Step 3: Update the bundle details (name, image URL, prices, descriptions)
         if (editBundleDTO.getBundleName() != null) {
@@ -187,12 +192,9 @@ public class BundleServiceImpl implements BundleService {
         if (editBundleDTO.getImgUrl() != null) {
             existingBundle.setImgUrl(editBundleDTO.getImgUrl());
         }
-        if (editBundleDTO.getLocalPrice() > 0) {
-            existingBundle.setLocalPrice(editBundleDTO.getLocalPrice());
-        }
-        if (editBundleDTO.getTouristPrice() > 0) {
-            existingBundle.setTouristPrice(editBundleDTO.getTouristPrice());
-        }
+        validationService.validatePrice(editBundleDTO.getLocalPrice(), editBundleDTO.getTouristPrice());
+        existingBundle.setLocalPrice(editBundleDTO.getLocalPrice());
+        existingBundle.setTouristPrice(editBundleDTO.getTouristPrice());
 
         // Step 4: Handle descriptions (ID and EN)
         // Updates (add) to the BundleDescription as well
@@ -256,7 +258,7 @@ public class BundleServiceImpl implements BundleService {
 
         // Step 2: Find existing bundle
         Bundle existingBundle = bundleRepository.findById(bundleId)
-                .orElseThrow(() -> new RuntimeException("Bundle not found with id: " + bundleId));
+                .orElseThrow(() -> new BundleExceptions.BundleNotFound("Bundle not found with id: " + bundleId));
 
         // Step 3: Toggle the isPublished status
         existingBundle.setPublished(!existingBundle.isPublished());
@@ -267,6 +269,8 @@ public class BundleServiceImpl implements BundleService {
 
     @Override
     public GetBundlesPaginationResponse getBundlesByPage(int amountPerPage, int page, String searchQuery) {
+        validationService.validatePagination(page, amountPerPage);
+
         Pageable pageable = PageRequest.of(Math.max(0, page), amountPerPage);
 
         Page<Bundle> bundlePage;
@@ -279,7 +283,11 @@ public class BundleServiceImpl implements BundleService {
         List<BundleSummaryDTO> bundleResponses = bundlePage.getContent().stream()
                 .map(bundle -> {
                     int totalDuration = bundleDetailRepository.findByBundle(bundle).stream()
-                            .mapToInt(detail -> detail.getServicePrice().getDuration() * detail.getQuantity())
+                            .mapToInt(detail -> {
+                                int duration = detail.getServicePrice().getDuration();
+                                validationService.validateDuration(duration);
+                                return duration * detail.getQuantity();
+                            })
                             .sum();
 
                     return BundleSummaryDTO.builder()
@@ -301,7 +309,7 @@ public class BundleServiceImpl implements BundleService {
     public BundleDetailDTO getBundleDetails(UUID bundleId, String lang) {
         // Step 1: Retrieve the bundle entity by its ID
         Bundle bundle = bundleRepository.findById(bundleId)
-                .orElseThrow(() -> new RuntimeException("Bundle not found with id: " + bundleId));
+                .orElseThrow(() -> new BundleExceptions.BundleNotFound("Bundle not found with id: " + bundleId));
 
         // Step 2: Calculate the total duration using the helper method
         int totalDuration = getTotalDuration(bundle);
@@ -312,7 +320,7 @@ public class BundleServiceImpl implements BundleService {
         // Step 4: Use the repository method to find the description in the specified language
         BundleDescription bundleDescription = bundleDescriptionRepository
                 .findByBundleAndLanguageCode(bundle, languageCode)
-                .orElseThrow(() -> new RuntimeException("Description not found for the bundle in language: " + lang));
+                .orElseThrow(() -> new BundleExceptions.BundleDescriptionNotFound("Description not found for the bundle in language: " + lang));
 
         // Step 5: Prepare and return the BundleDetailDTO with the required information
         return BundleDetailDTO.builder()
@@ -335,7 +343,7 @@ public class BundleServiceImpl implements BundleService {
         for (BundleDetail detail : bundleDetails) {
             ServicePrice servicePrice = detail.getServicePrice();
             int duration = servicePrice.getDuration(); // Get the duration of the service
-
+            validationService.validateDuration(duration);
             totalDuration += duration;
         }
 

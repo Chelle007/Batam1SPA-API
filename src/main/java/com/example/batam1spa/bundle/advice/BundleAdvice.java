@@ -1,7 +1,7 @@
-package com.example.batam1spa.leave.advice;
+package com.example.batam1spa.bundle.advice;
 
+import com.example.batam1spa.bundle.exception.BundleExceptions;
 import com.example.batam1spa.common.dto.BaseResponse;
-import com.example.batam1spa.leave.exception.LeaveExceptions;
 import com.example.batam1spa.order.advice.OrderAdvice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +11,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-@ControllerAdvice(basePackages = "com.example.batam1spa.leave")
-public class LeaveAdvice {
+@ControllerAdvice(basePackages = "com.example.batam1spa.bundle")
+public class BundleAdvice {
     private static final Logger log = LoggerFactory.getLogger(OrderAdvice.class);
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -22,17 +22,24 @@ public class LeaveAdvice {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(LeaveExceptions.LeaveNotFound.class)
-    public ResponseEntity<BaseResponse<String>> handleLeaveNotFoundException(LeaveExceptions.LeaveNotFound ex) {
-        log.error("Leave not found: {}", ex.getMessage(), ex);
-        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Leave not found");
+    @ExceptionHandler(BundleExceptions.BundleNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleBundleNotFoundException(BundleExceptions.BundleNotFound ex) {
+        log.error("Bundle not found: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Bundle not found");
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(LeaveExceptions.StaffNotFound.class)
-    public ResponseEntity<BaseResponse<String>> handleStaffNotFoundException(LeaveExceptions.StaffNotFound ex) {
-        log.error("Staff not found: {}", ex.getMessage(), ex);
-        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Staff not found");
+    @ExceptionHandler(BundleExceptions.ServicePriceNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleServicePriceNotFoundException(BundleExceptions.ServicePriceNotFound ex) {
+        log.error("Service price not found: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Service price not found");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(BundleExceptions.BundleDescriptionNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleBundleDescriptionNotFoundException(BundleExceptions.BundleDescriptionNotFound ex) {
+        log.error("Bundle description not found: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Bundle description not found");
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 

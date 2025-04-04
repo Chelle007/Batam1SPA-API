@@ -1,7 +1,7 @@
-package com.example.batam1spa.leave.advice;
+package com.example.batam1spa.service.advice;
 
 import com.example.batam1spa.common.dto.BaseResponse;
-import com.example.batam1spa.leave.exception.LeaveExceptions;
+import com.example.batam1spa.service.exception.ServiceExceptions;
 import com.example.batam1spa.order.advice.OrderAdvice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +11,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-@ControllerAdvice(basePackages = "com.example.batam1spa.leave")
-public class LeaveAdvice {
+@ControllerAdvice(basePackages = "com.example.batam1spa.service")
+public class ServiceAdvice {
     private static final Logger log = LoggerFactory.getLogger(OrderAdvice.class);
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -22,18 +22,25 @@ public class LeaveAdvice {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(LeaveExceptions.LeaveNotFound.class)
-    public ResponseEntity<BaseResponse<String>> handleLeaveNotFoundException(LeaveExceptions.LeaveNotFound ex) {
-        log.error("Leave not found: {}", ex.getMessage(), ex);
-        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Leave not found");
+    @ExceptionHandler(ServiceExceptions.ServiceNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleServiceNotFoundException(ServiceExceptions.ServiceNotFound ex) {
+        log.error("Service not found: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Service not found");
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(LeaveExceptions.StaffNotFound.class)
-    public ResponseEntity<BaseResponse<String>> handleStaffNotFoundException(LeaveExceptions.StaffNotFound ex) {
-        log.error("Staff not found: {}", ex.getMessage(), ex);
-        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Staff not found");
+    @ExceptionHandler(ServiceExceptions.ServiceDescriptionNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleServiceDescriptionNotFoundException(ServiceExceptions.ServiceDescriptionNotFound ex) {
+        log.error("Service description not found: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Service description not found");
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ServiceExceptions.ServiceNameExisted.class)
+    public ResponseEntity<BaseResponse<String>> handleServiceNameExistedException(ServiceExceptions.ServiceNameExisted ex) {
+        log.error("Service name existed: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Service name existed");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

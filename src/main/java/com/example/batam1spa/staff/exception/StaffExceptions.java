@@ -5,18 +5,6 @@ public class StaffExceptions {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public static class InvalidPageNumber extends RuntimeException {
-        public InvalidPageNumber(String message) {
-            super(message);
-        }
-    }
-
-    public static class InvalidPageSize extends RuntimeException {
-        public InvalidPageSize(String message) {
-            super(message);
-        }
-    }
-
     public static class TimeSlotNotFound extends RuntimeException {
         public TimeSlotNotFound(String message) {
             super(message);
@@ -35,8 +23,8 @@ public class StaffExceptions {
         }
     }
 
-    public static class StaffIdNotFound extends RuntimeException {
-        public StaffIdNotFound(String message) {
+    public static class StaffNotFound extends RuntimeException {
+        public StaffNotFound(String message) {
             super(message);
         }
     }

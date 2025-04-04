@@ -1,5 +1,6 @@
 package com.example.batam1spa.customer.service;
 
+import com.example.batam1spa.common.service.ValidationService;
 import com.example.batam1spa.customer.dto.CustomerDTO;
 import com.example.batam1spa.customer.dto.EditCustomerRequest;
 import com.example.batam1spa.customer.exception.CustomerExceptions;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CustomerServiceImpl implements CustomerService {
     private final RoleSecurityService roleSecurityService;
+    private final ValidationService validationService;
     private final CustomerRepository customerRepository;
     private final ModelMapper modelMapper;
 
@@ -58,6 +60,8 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Page<CustomerDTO> getCustomersByPage(User user, int amountPerPage, int page) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
+        validationService.validatePagination(page, amountPerPage);
+
         Pageable pageable = PageRequest.of(page, amountPerPage);
         Page<Customer> customerPage = customerRepository.findAll(pageable);
 
@@ -82,15 +86,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     // Edit existing customer nationality (local/tourist)
     @Override
-    public Customer editCustomerNationality(UUID customerId, EditCustomerRequest editCustomerRequestDTO) {
-        // Find the existing customer record
+    public Customer editCustomerNationality(UUID customerId, boolean isLocal) {
         Customer existingCustomer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new CustomerExceptions.CustomerNotFound("Customer not found with id: " + customerId));
 
-        // Update the customer nationality
-        modelMapper.map(editCustomerRequestDTO, existingCustomer);
+        existingCustomer.setLocal(isLocal);
 
-        // Save the updated customer info
         return customerRepository.save(existingCustomer);
     }
 }

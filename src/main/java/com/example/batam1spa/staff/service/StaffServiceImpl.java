@@ -3,7 +3,7 @@ package com.example.batam1spa.staff.service;
 import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
 import com.example.batam1spa.common.model.Gender;
-import com.example.batam1spa.order.exception.OrderExceptions;
+import com.example.batam1spa.common.service.ValidationService;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.ServiceType;
 import com.example.batam1spa.staff.dto.CreateStaffRequest;
@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class StaffServiceImpl implements StaffService {
     private final RoleSecurityService roleSecurityService;
+    private final ValidationService validationService;
     private final StaffRepository staffRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final ModelMapper modelMapper;
@@ -93,18 +94,12 @@ public class StaffServiceImpl implements StaffService {
 
     // Get all staff members by page
     @Override
-    public Page<StaffDTO> getStaffsByPage(User user, int page, int size) {
+    public Page<StaffDTO> getStaffsByPage(User user, int page, int amountPerPage) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
-        if (page < 0) {
-            throw new StaffExceptions.InvalidPageNumber("Invalid page number: page number is less than 0");
-        }
+        validationService.validatePagination(page, amountPerPage);
 
-        if (size < 1) {
-            throw new StaffExceptions.InvalidPageSize("Invalid page size: amount per page is less than 1");
-        }
-
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, amountPerPage);
         Page<Staff> staffPage = staffRepository.findAll(pageable);
 
         List<StaffDTO> staffDTOList = staffPage.getContent().stream()
@@ -166,7 +161,7 @@ public class StaffServiceImpl implements StaffService {
 
         // Find the existing staff member
         Staff existingStaff = staffRepository.findById(staffId)
-                .orElseThrow(() -> new StaffExceptions.StaffIdNotFound("Staff not found with id: " + staffId));
+                .orElseThrow(() -> new StaffExceptions.StaffNotFound("Staff not found with id: " + staffId));
 
         // Update the staff info
         modelMapper.map(editStaffRequest, existingStaff);

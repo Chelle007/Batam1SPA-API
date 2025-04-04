@@ -2,7 +2,6 @@ package com.example.batam1spa.customer.controller;
 
 import com.example.batam1spa.common.dto.BaseResponse;
 import com.example.batam1spa.customer.dto.CustomerDTO;
-import com.example.batam1spa.customer.dto.EditCustomerRequest;
 import com.example.batam1spa.customer.service.CustomerService;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.user.model.User;
@@ -50,8 +49,8 @@ public class CustomerController {
 
     // Edit an existing customer member Full URI: /api/v1/customer/edit/{customerId}
     @PutMapping("/edit/{customerId}")
-    public ResponseEntity<BaseResponse<Customer>> editCustomerNationality(@PathVariable UUID customerId, @RequestBody EditCustomerRequest editCustomerRequestDTO) {
-        Customer updatedCustomer = customerService.editCustomerNationality(customerId, editCustomerRequestDTO);
+    public ResponseEntity<BaseResponse<Customer>> editCustomerNationality(@PathVariable UUID customerId, @RequestParam boolean isLocal) {
+        Customer updatedCustomer = customerService.editCustomerNationality(customerId, isLocal);
 
         // Wrap the response in BaseResponse
         BaseResponse<Customer> response = BaseResponse.success(
