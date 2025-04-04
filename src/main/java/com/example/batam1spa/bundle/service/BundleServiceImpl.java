@@ -8,7 +8,7 @@ import com.example.batam1spa.bundle.repository.BundleDescriptionRepository;
 import com.example.batam1spa.bundle.repository.BundleDetailRepository;
 import com.example.batam1spa.bundle.repository.BundleRepository;
 import com.example.batam1spa.common.model.LanguageCode;
-import com.example.batam1spa.common.service.CommonService;
+import com.example.batam1spa.common.service.ValidationService;
 import com.example.batam1spa.service.repository.ServicePriceRepository;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.ServicePrice;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BundleServiceImpl implements BundleService {
     private final RoleSecurityService roleSecurityService;
-    private final CommonService commonService;
+    private final ValidationService validationService;
     private final BundleRepository bundleRepository;
     private final BundleDescriptionRepository bundleDescriptionRepository;
     private final BundleDetailRepository bundleDetailRepository;
@@ -114,6 +114,8 @@ public class BundleServiceImpl implements BundleService {
         // Ensure only admins can add a bundle
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
+        validationService.validatePrice(createBundleDTO.getLocalPrice(), createBundleDTO.getTouristPrice());
+
         // Step 1: Create and save the bundle entity
         Bundle bundle = bundleRepository.save(Bundle.builder()
                 .name(createBundleDTO.getBundleName())
@@ -189,12 +191,9 @@ public class BundleServiceImpl implements BundleService {
         if (editBundleDTO.getImgUrl() != null) {
             existingBundle.setImgUrl(editBundleDTO.getImgUrl());
         }
-        if (editBundleDTO.getLocalPrice() > 0) {
-            existingBundle.setLocalPrice(editBundleDTO.getLocalPrice());
-        }
-        if (editBundleDTO.getTouristPrice() > 0) {
-            existingBundle.setTouristPrice(editBundleDTO.getTouristPrice());
-        }
+        validationService.validatePrice(editBundleDTO.getLocalPrice(), editBundleDTO.getTouristPrice());
+        existingBundle.setLocalPrice(editBundleDTO.getLocalPrice());
+        existingBundle.setTouristPrice(editBundleDTO.getTouristPrice());
 
         // Step 4: Handle descriptions (ID and EN)
         // Updates (add) to the BundleDescription as well
@@ -269,7 +268,7 @@ public class BundleServiceImpl implements BundleService {
 
     @Override
     public GetBundlesPaginationResponse getBundlesByPage(int amountPerPage, int page, String searchQuery) {
-        commonService.validatePagination(page, amountPerPage);
+        validationService.validatePagination(page, amountPerPage);
 
         Pageable pageable = PageRequest.of(Math.max(0, page), amountPerPage);
 
@@ -283,7 +282,11 @@ public class BundleServiceImpl implements BundleService {
         List<BundleSummaryDTO> bundleResponses = bundlePage.getContent().stream()
                 .map(bundle -> {
                     int totalDuration = bundleDetailRepository.findByBundle(bundle).stream()
-                            .mapToInt(detail -> detail.getServicePrice().getDuration() * detail.getQuantity())
+                            .mapToInt(detail -> {
+                                int duration = detail.getServicePrice().getDuration();
+                                validationService.validateDuration(duration);
+                                return duration * detail.getQuantity();
+                            })
                             .sum();
 
                     return BundleSummaryDTO.builder()
@@ -340,7 +343,7 @@ public class BundleServiceImpl implements BundleService {
         for (BundleDetail detail : bundleDetails) {
             ServicePrice servicePrice = detail.getServicePrice();
             int duration = servicePrice.getDuration(); // Get the duration of the service
-
+            validationService.validateDuration(duration);
             totalDuration += duration;
         }
 

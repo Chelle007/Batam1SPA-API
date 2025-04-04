@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CommonServiceImpl implements CommonService {
+public class ValidationServiceImpl implements ValidationService {
     @Override
     public boolean validatePagination(int page, int amountPerPage) {
         if (page < 0) {
@@ -32,6 +32,25 @@ public class CommonServiceImpl implements CommonService {
         }
         if (endDate.isBefore(startDate)) {
             throw new CommonExceptions.InvalidDate("End date cannot be before start date: " + endDate);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean validatePrice(int localPrice, int touristPrice) {
+        if (localPrice <= 0) {
+            throw new CommonExceptions.InvalidPrice("Invalid localPrice: " + localPrice);
+        }
+        if (touristPrice <= 0) {
+            throw new CommonExceptions.InvalidPrice("Invalid touristPrice: " + touristPrice);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean validateDuration(int duration) {
+        if (duration != 60 && duration != 90 && duration != 120) {
+            throw new CommonExceptions.InvalidDuration("Invalid duration: " + duration);
         }
         return true;
     }

@@ -1,6 +1,6 @@
 package com.example.batam1spa.user.service;
 
-import com.example.batam1spa.common.service.CommonService;
+import com.example.batam1spa.common.service.ValidationService;
 import com.example.batam1spa.log.model.LogType;
 import com.example.batam1spa.log.service.LogService;
 import com.example.batam1spa.security.service.RoleSecurityService;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final RoleSecurityService roleSecurityService;
-    private final CommonService commonService;
+    private final ValidationService validationService;
     private final LogService logService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
     public GetUserPaginationResponse getUsersByPage(User user, int page, int amountPerPage, boolean includeInactive) {
         roleSecurityService.checkRole(user, "ROLE_MANAGER");
 
-        commonService.validatePagination(page, amountPerPage);
+        validationService.validatePagination(page, amountPerPage);
 
         Pageable pageable = PageRequest.of(page, amountPerPage, Sort.by("fullName").ascending());
         Page<User> users;

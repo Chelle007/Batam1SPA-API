@@ -29,6 +29,20 @@ public class ServiceAdvice {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ServiceExceptions.ServiceDescriptionNotFound.class)
+    public ResponseEntity<BaseResponse<String>> handleServiceDescriptionNotFoundException(ServiceExceptions.ServiceDescriptionNotFound ex) {
+        log.error("Service description not found: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.NOT_FOUND, "Service description not found");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ServiceExceptions.ServiceNameExisted.class)
+    public ResponseEntity<BaseResponse<String>> handleServiceNameExistedException(ServiceExceptions.ServiceNameExisted ex) {
+        log.error("Service name existed: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Service name existed");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse<String>> handleGenericException(Exception ex) {
         log.error("Unexpected Exception: {}", ex.getMessage(), ex);

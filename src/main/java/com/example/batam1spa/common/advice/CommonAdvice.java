@@ -28,4 +28,11 @@ public class CommonAdvice {
         BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Invalid date");
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(CommonExceptions.InvalidPrice.class)
+    public ResponseEntity<BaseResponse<String>> handleInvalidPriceException(CommonExceptions.InvalidPrice ex) {
+        log.error("Invalid price: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Invalid price");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 }

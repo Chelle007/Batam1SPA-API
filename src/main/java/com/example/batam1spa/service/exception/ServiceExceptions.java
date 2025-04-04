@@ -10,4 +10,16 @@ public class ServiceExceptions {
             super(message);
         }
     }
+
+    public static class ServiceDescriptionNotFound extends RuntimeException {
+        public ServiceDescriptionNotFound(String message) {
+            super(message);
+        }
+    }
+
+    public static class ServiceNameExisted extends RuntimeException {
+        public ServiceNameExisted(String message) {
+            super(message);
+        }
+    }
 }

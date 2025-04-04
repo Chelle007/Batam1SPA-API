@@ -1,8 +1,9 @@
 package com.example.batam1spa.service.service;
 
 import com.example.batam1spa.common.model.LanguageCode;
-import com.example.batam1spa.common.service.CommonService;
+import com.example.batam1spa.common.service.ValidationService;
 import com.example.batam1spa.service.dto.*;
+import com.example.batam1spa.service.exception.ServiceExceptions;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.service.model.ServiceDescription;
 import com.example.batam1spa.service.model.ServicePrice;
@@ -15,7 +16,6 @@ import com.example.batam1spa.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.service.spi.ServiceException;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ServiceServiceImpl implements ServiceService {
     private final RoleSecurityService roleSecurityService;
-    private final CommonService commonService;
+    private final ValidationService validationService;
     private final ServiceRepository serviceRepository;
     private final ServicePriceRepository servicePriceRepository;
     private final ServiceDescriptionRepository serviceDescriptionRepository;
@@ -89,7 +89,7 @@ public class ServiceServiceImpl implements ServiceService {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Check if the service already exists by name
         if (serviceRepository.existsByName(createServiceRequest.getName())) {
-            throw new RuntimeException("Service with this name already exists!");
+            throw new ServiceExceptions.ServiceNameExisted("Service with this name already exists: " + createServiceRequest.getName());
         }
 
         // Create and save the service entity
@@ -102,6 +102,8 @@ public class ServiceServiceImpl implements ServiceService {
         // Save Service Prices
         if (createServiceRequest.getPrices() != null && !createServiceRequest.getPrices().isEmpty()) {
             List<ServicePrice> servicePrices = createServiceRequest.getPrices().stream()
+                    .peek(price -> validationService.validatePrice(price.getLocalPrice(), price.getTouristPrice()))
+                    .peek(price -> validationService.validateDuration(price.getDuration()))
                     .map(price -> ServicePrice.builder()
                             .service(savedService)
                             .duration(price.getDuration())
@@ -180,7 +182,7 @@ Expected API Request for add service:
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Step 1: Find existing service
         Service existingService = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new RuntimeException("Service not found with id: " + serviceId));
+                .orElseThrow(() -> new ServiceExceptions.ServiceNotFound("Service not found with id: " + serviceId));
 
         // Step 2: Update `imgUrl` and `isPublished`
         if (editServiceRequest.getImgUrl() != null) {
@@ -197,6 +199,8 @@ Expected API Request for add service:
 
             // Save new prices
             List<ServicePrice> newPrices = editServiceRequest.getPrices().stream()
+                    .peek(price -> validationService.validatePrice(price.getLocalPrice(), price.getTouristPrice()))
+                    .peek(price -> validationService.validateDuration(price.getDuration()))
                     .map(price -> ServicePrice.builder()
                             .service(existingService)
                             .duration(price.getDuration())
@@ -261,7 +265,7 @@ Expected API Request for add service:
 
         // Step 2: Find existing service
         Service existingService = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new RuntimeException("Service not found with id: " + serviceId));
+                .orElseThrow(() -> new ServiceExceptions.ServiceNotFound("Service not found with id: " + serviceId));
 
         // Step 3: Toggle the isPublished status
         existingService.setPublished(!existingService.isPublished());
@@ -275,12 +279,12 @@ Expected API Request for add service:
     public ServiceDetailsDTO getServiceDetails(UUID serviceId, String lang) {
         // Step 1: Find service
         Service service = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new RuntimeException("Service not found with id: " + serviceId));
+                .orElseThrow(() -> new ServiceExceptions.ServiceNotFound("Service not found with id: " + serviceId));
 
         // Step 2: Fetch service description in requested language
         ServiceDescription description = serviceDescriptionRepository
                 .findByServiceAndLanguageCode(service, LanguageCode.valueOf(lang.toUpperCase()))
-                .orElseThrow(() -> new RuntimeException("Service description not found for language: " + lang));
+                .orElseThrow(() -> new ServiceExceptions.ServiceDescriptionNotFound("Service description not found for language: " + lang));
 
         // Step 3: Get included item descriptions in requested language
         String includedItems = serviceDescriptionRepository
@@ -290,7 +294,8 @@ Expected API Request for add service:
 
         // Step 4: Fetch pricing (60/90/120 mins)
         List<PriceDTO> prices = servicePriceRepository.findByService(service).stream()
-                .filter(price -> price.getDuration() == 60 || price.getDuration() == 90 || price.getDuration() == 120)
+                .peek(price -> validationService.validatePrice(price.getLocalPrice(), price.getTouristPrice()))
+                .peek(price -> validationService.validateDuration(price.getDuration()))
                 .map(price -> PriceDTO.builder()
                         .duration(price.getDuration())
                         .localPrice(price.getLocalPrice())
@@ -309,7 +314,7 @@ Expected API Request for add service:
 
     @Override
     public GetServicesPaginationResponse getServicesByPage(int amountPerPage, int page, String searchQuery) {
-        commonService.validatePagination(page, amountPerPage);
+        validationService.validatePagination(page, amountPerPage);
 
         // Create a Pageable object (ensure page is non-negative)
         Pageable pageable = PageRequest.of(Math.max(0, page), amountPerPage);
@@ -352,9 +357,9 @@ Expected API Request for add service:
 
     @Override
     public List<ServicePaginationResponse> getSignatureService() {
-        Service service1 = serviceRepository.findByName("Head Massage").orElseThrow(/*TODO: () -> new exception*/);
-        Service service2 = serviceRepository.findByName("Body Massage").orElseThrow(/*TODO: () -> new exception*/);
-        Service service3 = serviceRepository.findByName("Foot Massage").orElseThrow(/*TODO: () -> new exception*/);
+        Service service1 = serviceRepository.findByName("Head Massage").orElseThrow(() -> new ServiceExceptions.ServiceNotFound("First signature service not found"));
+        Service service2 = serviceRepository.findByName("Body Massage").orElseThrow(() -> new ServiceExceptions.ServiceNotFound("Second signature service not found"));
+        Service service3 = serviceRepository.findByName("Foot Massage").orElseThrow(() -> new ServiceExceptions.ServiceNotFound("Third signature service not found"));
 
         ServicePaginationResponse servicePaginationResponse1 = modelMapper.map(service1, ServicePaginationResponse.class);
         List<ServicePrice> prices = servicePriceRepository.findByService(service1);

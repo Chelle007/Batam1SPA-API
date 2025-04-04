@@ -2,11 +2,10 @@ package com.example.batam1spa.order.service;
 
 import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
-import com.example.batam1spa.common.service.CommonService;
+import com.example.batam1spa.common.service.ValidationService;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
 import com.example.batam1spa.log.model.LogType;
-import com.example.batam1spa.log.repository.LogRepository;
 import com.example.batam1spa.log.service.LogService;
 import com.example.batam1spa.order.dto.GetOrderDetailPaginationResponse;
 import com.example.batam1spa.order.dto.GetOrderDetailResponse;
@@ -40,7 +39,7 @@ import java.util.UUID;
 public class OrderDetailServiceImpl implements OrderDetailService {
     private final RoleSecurityService roleSecurityService;
     private final LogService logService;
-    private final CommonService commonService;
+    private final ValidationService validationService;
     private final OrderDetailRepository orderDetailRepository;
     private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;
@@ -99,7 +98,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     public GetOrderDetailPaginationResponse getOrderDetailsByPage(User user, int page, int amountPerPage, LocalDate serviceDate) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
-        commonService.validatePagination(page, amountPerPage);
+        validationService.validatePagination(page, amountPerPage);
 
         Pageable pageable = PageRequest.of(page, amountPerPage, Sort.by("serviceDate").descending());
         Page<OrderDetail> orderDetails;

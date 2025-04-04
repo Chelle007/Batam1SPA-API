@@ -16,4 +16,16 @@ public class CommonExceptions {
             super(message);
         }
     }
+
+    public static class InvalidPrice extends RuntimeException {
+        public InvalidPrice(String message) {
+            super(message);
+        }
+    }
+
+    public static class InvalidDuration extends RuntimeException {
+        public InvalidDuration(String message) {
+            super(message);
+        }
+    }
 }

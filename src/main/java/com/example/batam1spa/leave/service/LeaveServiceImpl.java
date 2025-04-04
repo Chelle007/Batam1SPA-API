@@ -1,6 +1,6 @@
 package com.example.batam1spa.leave.service;
 
-import com.example.batam1spa.common.service.CommonService;
+import com.example.batam1spa.common.service.ValidationService;
 import com.example.batam1spa.leave.dto.CreateLeaveRequest;
 import com.example.batam1spa.leave.dto.EditLeaveRequest;
 import com.example.batam1spa.leave.dto.PageLeaveDTO;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LeaveServiceImpl implements LeaveService {
     private final RoleSecurityService roleSecurityService;
-    private final CommonService commonService;
+    private final ValidationService validationService;
     private final LeaveRepository leaveRepository;
     private final StaffRepository staffRepository;
     private final ModelMapper modelMapper;
@@ -78,7 +78,7 @@ public class LeaveServiceImpl implements LeaveService {
     public Page<PageLeaveDTO> getLeavesByPage(User user, int amountPerPage, int page) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
-        commonService.validatePagination(page, amountPerPage);
+        validationService.validatePagination(page, amountPerPage);
 
         Pageable pageable = PageRequest.of(page, amountPerPage, Sort.by("startDate").descending());
         Page<Leave> leavePage = leaveRepository.findAll(pageable);
@@ -105,7 +105,7 @@ public class LeaveServiceImpl implements LeaveService {
     public Leave addLeave(User user, CreateLeaveRequest createLeaveRequestDTO) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
-        commonService.validateStartEndDate(createLeaveRequestDTO.getStartDate(), createLeaveRequestDTO.getEndDate(), true);
+        validationService.validateStartEndDate(createLeaveRequestDTO.getStartDate(), createLeaveRequestDTO.getEndDate(), true);
 
         Staff staff = staffRepository.findById(createLeaveRequestDTO.getStaffId())
                 .orElseThrow(() -> new LeaveExceptions.StaffNotFound("Staff not found with id: " + createLeaveRequestDTO.getStaffId()));
@@ -122,7 +122,7 @@ public class LeaveServiceImpl implements LeaveService {
     public Leave editLeave(User user, UUID leaveId, EditLeaveRequest editLeaveRequestDTO) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
-        commonService.validateStartEndDate(editLeaveRequestDTO.getStartDate(), editLeaveRequestDTO.getEndDate(), true);
+        validationService.validateStartEndDate(editLeaveRequestDTO.getStartDate(), editLeaveRequestDTO.getEndDate(), true);
 
         Leave existingLeave = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new LeaveExceptions.LeaveNotFound("Leave not found with id: " + leaveId));
