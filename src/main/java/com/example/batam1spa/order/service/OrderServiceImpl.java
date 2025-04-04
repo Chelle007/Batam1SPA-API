@@ -4,6 +4,7 @@ import com.example.batam1spa.availability.model.Availability;
 import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.availability.repository.AvailabilityRepository;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
+import com.example.batam1spa.common.service.CommonService;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
 import com.example.batam1spa.log.model.LogType;
@@ -54,6 +55,7 @@ public class OrderServiceImpl implements OrderService {
     private final RoleSecurityService roleSecurityService;
     private final CartService cartService;
     private final LogService logService;
+    private final CommonService commonService;
     private final ServiceRepository serviceRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final OrderDetailRepository orderDetailRepository;
@@ -270,10 +272,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public GetOrderPaginationResponse getOrdersByPage(User user, int page, int size, LocalDate bookDate) {
+    public GetOrderPaginationResponse getOrdersByPage(User user, int page, int amountPerPage, LocalDate bookDate) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("bookDateTime").descending());
+        commonService.validatePagination(page, amountPerPage);
+
+        Pageable pageable = PageRequest.of(page, amountPerPage, Sort.by("bookDateTime").descending());
         Page<Order> orders;
 
         if (bookDate != null) {
@@ -293,7 +297,7 @@ public class OrderServiceImpl implements OrderService {
         return GetOrderPaginationResponse.builder()
                 .getOrderResponseList(orderResponses)
                 .page(page)
-                .size(size)
+                .size(amountPerPage)
                 .totalPages(orders.getTotalPages())
                 .build();
     }

@@ -3,6 +3,7 @@ package com.example.batam1spa.staff.service;
 import com.example.batam1spa.availability.model.TimeSlot;
 import com.example.batam1spa.availability.repository.TimeSlotRepository;
 import com.example.batam1spa.common.model.Gender;
+import com.example.batam1spa.common.service.CommonService;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.ServiceType;
 import com.example.batam1spa.staff.dto.CreateStaffRequest;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class StaffServiceImpl implements StaffService {
     private final RoleSecurityService roleSecurityService;
+    private final CommonService commonService;
     private final StaffRepository staffRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final ModelMapper modelMapper;
@@ -91,9 +93,12 @@ public class StaffServiceImpl implements StaffService {
 
     // Get all staff members by page
     @Override
-    public Page<StaffDTO> getStaffsByPage(User user, int page, int size) {
+    public Page<StaffDTO> getStaffsByPage(User user, int page, int amountPerPage) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
-        Pageable pageable = PageRequest.of(page, size);
+
+        commonService.validatePagination(page, amountPerPage);
+
+        Pageable pageable = PageRequest.of(page, amountPerPage);
         Page<Staff> staffPage = staffRepository.findAll(pageable);
 
         List<StaffDTO> staffDTOList = staffPage.getContent().stream()

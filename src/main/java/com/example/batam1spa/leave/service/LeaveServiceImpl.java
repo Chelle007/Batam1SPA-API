@@ -1,5 +1,6 @@
 package com.example.batam1spa.leave.service;
 
+import com.example.batam1spa.common.service.CommonService;
 import com.example.batam1spa.leave.dto.CreateLeaveRequest;
 import com.example.batam1spa.leave.dto.EditLeaveRequest;
 import com.example.batam1spa.leave.dto.PageLeaveDTO;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LeaveServiceImpl implements LeaveService {
     private final RoleSecurityService roleSecurityService;
+    private final CommonService commonService;
     private final LeaveRepository leaveRepository;
     private final StaffRepository staffRepository;
     private final ModelMapper modelMapper;
@@ -74,6 +76,9 @@ public class LeaveServiceImpl implements LeaveService {
     @Override
     public Page<PageLeaveDTO> getLeavesByPage(User user, int amountPerPage, int page) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
+
+        commonService.validatePagination(page, amountPerPage);
+
         Pageable pageable = PageRequest.of(page, amountPerPage, Sort.by("startDate").descending());
         Page<Leave> leavePage = leaveRepository.findAll(pageable);
 

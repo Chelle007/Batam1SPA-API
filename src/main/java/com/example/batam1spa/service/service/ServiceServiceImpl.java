@@ -1,6 +1,7 @@
 package com.example.batam1spa.service.service;
 
 import com.example.batam1spa.common.model.LanguageCode;
+import com.example.batam1spa.common.service.CommonService;
 import com.example.batam1spa.service.dto.*;
 import com.example.batam1spa.service.model.Service;
 import com.example.batam1spa.service.model.ServiceDescription;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ServiceServiceImpl implements ServiceService {
     private final RoleSecurityService roleSecurityService;
+    private final CommonService commonService;
     private final ServiceRepository serviceRepository;
     private final ServicePriceRepository servicePriceRepository;
     private final ServiceDescriptionRepository serviceDescriptionRepository;
@@ -307,6 +309,8 @@ Expected API Request for add service:
 
     @Override
     public GetServicesPaginationResponse getServicesByPage(int amountPerPage, int page, String searchQuery) {
+        commonService.validatePagination(page, amountPerPage);
+
         // Create a Pageable object (ensure page is non-negative)
         Pageable pageable = PageRequest.of(Math.max(0, page), amountPerPage);
 

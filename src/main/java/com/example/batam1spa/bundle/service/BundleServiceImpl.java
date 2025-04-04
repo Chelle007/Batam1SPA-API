@@ -8,6 +8,7 @@ import com.example.batam1spa.bundle.repository.BundleDescriptionRepository;
 import com.example.batam1spa.bundle.repository.BundleDetailRepository;
 import com.example.batam1spa.bundle.repository.BundleRepository;
 import com.example.batam1spa.common.model.LanguageCode;
+import com.example.batam1spa.common.service.CommonService;
 import com.example.batam1spa.service.repository.ServicePriceRepository;
 import com.example.batam1spa.security.service.RoleSecurityService;
 import com.example.batam1spa.service.model.ServicePrice;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BundleServiceImpl implements BundleService {
     private final RoleSecurityService roleSecurityService;
+    private final CommonService commonService;
     private final BundleRepository bundleRepository;
     private final BundleDescriptionRepository bundleDescriptionRepository;
     private final BundleDetailRepository bundleDetailRepository;
@@ -267,6 +269,8 @@ public class BundleServiceImpl implements BundleService {
 
     @Override
     public GetBundlesPaginationResponse getBundlesByPage(int amountPerPage, int page, String searchQuery) {
+        commonService.validatePagination(page, amountPerPage);
+
         Pageable pageable = PageRequest.of(Math.max(0, page), amountPerPage);
 
         Page<Bundle> bundlePage;
