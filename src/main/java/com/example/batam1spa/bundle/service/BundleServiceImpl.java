@@ -333,7 +333,6 @@ public class BundleServiceImpl implements BundleService {
     }
 
     // Helper function
-    @Override
     public int getTotalDuration(Bundle bundle) {
         // Fetch all bundle details for this specific bundle
         List<BundleDetail> bundleDetails = bundleDetailRepository.findByBundle(bundle);

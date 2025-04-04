@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/service")
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/service")
 public class ServiceController {
     private final ServiceService serviceService;
     private final ServiceDescriptionService serviceDescription;

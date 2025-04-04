@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Data
@@ -16,8 +18,8 @@ public class CreateStaffRequest {
     private String fullName;
     private Gender gender;
     private ServiceType serviceType;
-    private TimeSlot startTimeSlot;
-    private TimeSlot endTimeSlot;
+    private UUID startTimeSlotId;
+    private UUID endTimeSlotId;
     private boolean isMonday;
     private boolean isTuesday;
     private boolean isWednesday;

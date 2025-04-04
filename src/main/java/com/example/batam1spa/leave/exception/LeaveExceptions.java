@@ -16,5 +16,4 @@ public class LeaveExceptions {
             super(message);
         }
     }
-
 }

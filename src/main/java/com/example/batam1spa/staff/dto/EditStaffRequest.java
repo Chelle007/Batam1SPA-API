@@ -7,13 +7,15 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Data
 @Builder
 public class EditStaffRequest {
-    private TimeSlot startTimeSlot;
-    private TimeSlot endTimeSlot;
+    private UUID startTimeSlotId;
+    private UUID endTimeSlotId;
     private ServiceType serviceType;
     private boolean isMonday;
     private boolean isTuesday;
