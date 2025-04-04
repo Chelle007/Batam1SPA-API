@@ -1,6 +1,7 @@
 package com.example.batam1spa.bundle.service;
 
 import com.example.batam1spa.bundle.dto.*;
+import com.example.batam1spa.bundle.exception.BundleExceptions;
 import com.example.batam1spa.bundle.model.Bundle;
 import com.example.batam1spa.bundle.model.BundleDetail;
 import com.example.batam1spa.bundle.model.BundleDescription;
@@ -140,7 +141,7 @@ public class BundleServiceImpl implements BundleService {
                     .findByServiceNameAndDuration(serviceName, duration);
 
             if (servicePriceOpt.isEmpty()) {
-                throw new RuntimeException("Service price not found for " + serviceName + " with duration " + duration);
+                throw new BundleExceptions.ServicePriceNotFound("Service price not found for " + serviceName + " with duration " + duration);
             }
 
             ServicePrice servicePrice = servicePriceOpt.get();
@@ -182,7 +183,7 @@ public class BundleServiceImpl implements BundleService {
 
         // Step 2: Find the existing bundle by ID
         Bundle existingBundle = bundleRepository.findById(bundleId)
-                .orElseThrow(() -> new RuntimeException("Bundle not found with id: " + bundleId));
+                .orElseThrow(() -> new BundleExceptions.BundleNotFound("Bundle not found with id: " + bundleId));
 
         // Step 3: Update the bundle details (name, image URL, prices, descriptions)
         if (editBundleDTO.getBundleName() != null) {
@@ -257,7 +258,7 @@ public class BundleServiceImpl implements BundleService {
 
         // Step 2: Find existing bundle
         Bundle existingBundle = bundleRepository.findById(bundleId)
-                .orElseThrow(() -> new RuntimeException("Bundle not found with id: " + bundleId));
+                .orElseThrow(() -> new BundleExceptions.BundleNotFound("Bundle not found with id: " + bundleId));
 
         // Step 3: Toggle the isPublished status
         existingBundle.setPublished(!existingBundle.isPublished());
@@ -308,7 +309,7 @@ public class BundleServiceImpl implements BundleService {
     public BundleDetailDTO getBundleDetails(UUID bundleId, String lang) {
         // Step 1: Retrieve the bundle entity by its ID
         Bundle bundle = bundleRepository.findById(bundleId)
-                .orElseThrow(() -> new RuntimeException("Bundle not found with id: " + bundleId));
+                .orElseThrow(() -> new BundleExceptions.BundleNotFound("Bundle not found with id: " + bundleId));
 
         // Step 2: Calculate the total duration using the helper method
         int totalDuration = getTotalDuration(bundle);
@@ -319,7 +320,7 @@ public class BundleServiceImpl implements BundleService {
         // Step 4: Use the repository method to find the description in the specified language
         BundleDescription bundleDescription = bundleDescriptionRepository
                 .findByBundleAndLanguageCode(bundle, languageCode)
-                .orElseThrow(() -> new RuntimeException("Description not found for the bundle in language: " + lang));
+                .orElseThrow(() -> new BundleExceptions.BundleDescriptionNotFound("Description not found for the bundle in language: " + lang));
 
         // Step 5: Prepare and return the BundleDetailDTO with the required information
         return BundleDetailDTO.builder()
