@@ -103,7 +103,9 @@ public class LeaveServiceImpl implements LeaveService {
     @Override
     public Leave addLeave(User user, CreateLeaveRequest createLeaveRequestDTO) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
-        // Fetch the Staff entity using the staffId from the DTO
+
+        commonService.validateStartEndDate(createLeaveRequestDTO.getStartDate(), createLeaveRequestDTO.getEndDate(), true);
+
         Staff staff = staffRepository.findById(createLeaveRequestDTO.getStaffId())
                 .orElseThrow(() -> new RuntimeException("Staff not found with id: " + createLeaveRequestDTO.getStaffId()));
 
@@ -118,7 +120,9 @@ public class LeaveServiceImpl implements LeaveService {
     @Override
     public Leave editLeave(User user, UUID leaveId, EditLeaveRequest editLeaveRequestDTO) {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
-        // Find the existing leave record
+
+        commonService.validateStartEndDate(editLeaveRequestDTO.getStartDate(), editLeaveRequestDTO.getEndDate(), true);
+
         Leave existingLeave = leaveRepository.findById(leaveId)
                 .orElseThrow(() -> new RuntimeException("Leave not found with id: " + leaveId));
 

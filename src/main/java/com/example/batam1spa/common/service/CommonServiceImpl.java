@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -19,6 +21,17 @@ public class CommonServiceImpl implements CommonService {
         }
         if (page >= amountPerPage) {
             throw new CommonExceptions.InvalidNumber("Page shouldn't be >= amountPerPage: " + page + " / " + amountPerPage);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean validateStartEndDate(LocalDate startDate, LocalDate endDate, boolean dateCanBeforeToday) {
+        if (!dateCanBeforeToday && startDate.isBefore(LocalDate.now())) {
+            throw new CommonExceptions.InvalidDate("Start date cannot be before today: " + startDate);
+        }
+        if (endDate.isBefore(startDate)) {
+            throw new CommonExceptions.InvalidDate("End date cannot be before start date: " + endDate);
         }
         return true;
     }

@@ -1,6 +1,5 @@
 package com.example.batam1spa.customer.service;
 
-import com.example.batam1spa.customer.dto.EditCustomerRequest;
 import com.example.batam1spa.customer.exception.CustomerExceptions;
 import com.example.batam1spa.customer.model.Customer;
 import com.example.batam1spa.customer.repository.CustomerRepository;
@@ -48,15 +47,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     // Edit existing customer nationality (local/tourist)
     @Override
-    public Customer editCustomerNationality(UUID customerId, EditCustomerRequest editCustomerRequestDTO) {
-        // Find the existing customer record
+    public Customer editCustomerNationality(UUID customerId, boolean isLocal) {
         Customer existingCustomer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new CustomerExceptions.CustomerNotFound("Customer not found with id: " + customerId));
 
-        // Update the customer nationality
-        modelMapper.map(editCustomerRequestDTO, existingCustomer);
+        existingCustomer.setLocal(isLocal);
 
-        // Save the updated customer info
         return customerRepository.save(existingCustomer);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.batam1spa.common.advice;
 
 import com.example.batam1spa.common.dto.BaseResponse;
+import com.example.batam1spa.common.exception.CommonExceptions;
 import com.example.batam1spa.order.advice.OrderAdvice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +15,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class CommonAdvice {
     private static final Logger log = LoggerFactory.getLogger(OrderAdvice.class);
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<BaseResponse<String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+    @ExceptionHandler(CommonExceptions.InvalidNumber.class)
+    public ResponseEntity<BaseResponse<String>> handleInvalidNumberException(CommonExceptions.InvalidNumber ex) {
         log.error("Invalid number: {}", ex.getMessage(), ex);
-        BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Invalid number: " + ex.getMessage());
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Invalid number");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CommonExceptions.InvalidDate.class)
+    public ResponseEntity<BaseResponse<String>> handleInvalidDateException(CommonExceptions.InvalidDate ex) {
+        log.error("Invalid date: {}", ex.getMessage(), ex);
+        BaseResponse<String> response = BaseResponse.failure(HttpStatus.BAD_REQUEST, "Invalid date");
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

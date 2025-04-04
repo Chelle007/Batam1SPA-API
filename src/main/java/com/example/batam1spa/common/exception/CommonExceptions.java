@@ -10,4 +10,10 @@ public class CommonExceptions {
             super(message);
         }
     }
+
+    public static class InvalidDate extends RuntimeException {
+        public InvalidDate(String message) {
+            super(message);
+        }
+    }
 }
