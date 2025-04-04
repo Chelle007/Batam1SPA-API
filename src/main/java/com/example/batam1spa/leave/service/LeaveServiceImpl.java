@@ -4,6 +4,7 @@ import com.example.batam1spa.common.service.CommonService;
 import com.example.batam1spa.leave.dto.CreateLeaveRequest;
 import com.example.batam1spa.leave.dto.EditLeaveRequest;
 import com.example.batam1spa.leave.dto.PageLeaveDTO;
+import com.example.batam1spa.leave.exception.LeaveExceptions;
 import com.example.batam1spa.leave.model.Leave;
 import com.example.batam1spa.leave.repository.LeaveRepository;
 import com.example.batam1spa.staff.model.Staff;
@@ -107,7 +108,7 @@ public class LeaveServiceImpl implements LeaveService {
         commonService.validateStartEndDate(createLeaveRequestDTO.getStartDate(), createLeaveRequestDTO.getEndDate(), true);
 
         Staff staff = staffRepository.findById(createLeaveRequestDTO.getStaffId())
-                .orElseThrow(() -> new RuntimeException("Staff not found with id: " + createLeaveRequestDTO.getStaffId()));
+                .orElseThrow(() -> new LeaveExceptions.StaffNotFound("Staff not found with id: " + createLeaveRequestDTO.getStaffId()));
 
         // DTO entity conversion
         Leave createLeaveEntity = modelMapper.map(createLeaveRequestDTO, Leave.class);
@@ -124,7 +125,7 @@ public class LeaveServiceImpl implements LeaveService {
         commonService.validateStartEndDate(editLeaveRequestDTO.getStartDate(), editLeaveRequestDTO.getEndDate(), true);
 
         Leave existingLeave = leaveRepository.findById(leaveId)
-                .orElseThrow(() -> new RuntimeException("Leave not found with id: " + leaveId));
+                .orElseThrow(() -> new LeaveExceptions.LeaveNotFound("Leave not found with id: " + leaveId));
 
         // Update the leave info
         modelMapper.map(editLeaveRequestDTO, existingLeave);
@@ -139,7 +140,7 @@ public class LeaveServiceImpl implements LeaveService {
         roleSecurityService.checkRole(user, "ROLE_ADMIN");
         // Find the leave record by its ID
         Leave leaveToDelete = leaveRepository.findById(leaveId)
-                .orElseThrow(() -> new RuntimeException("Leave not found with id: " + leaveId));
+                .orElseThrow(() -> new LeaveExceptions.LeaveNotFound("Leave not found with id: " + leaveId));
 
         // Delete the leave record
         leaveRepository.delete(leaveToDelete);
